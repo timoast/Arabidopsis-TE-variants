@@ -8,8 +8,8 @@ wget ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/Arabidopsis_thaliana/NCBI/TAI
 tar -xvzf Arabidopsis_thaliana_NCBI_TAIR10.tar.gz
 
 # build reference index
-bowtie2-build TAIR10/Sequence/WholGenomeFasta/genome.fa tair10
-yaha -g TAIR10/Sequence/WholGenomeFasta/genome.fa
+bowtie2-build Arabidopsis_thaliana/NCBI/TAIR10/Sequence/WholGenomeFasta/genome.fa tair10
+yaha -g Arabidopsis_thaliana/NCBI/TAIR10/Sequence/WholGenomeFasta/genome.fa
 
 # using one core for mapping
 tepid-map -x tair10 -y ./TAIR10/Sequence/WholeGenomeFasta/genome.X15_01_65525S -p 1 -s 200 -r -z
