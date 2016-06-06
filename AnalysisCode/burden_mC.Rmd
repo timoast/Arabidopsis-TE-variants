@@ -1,0 +1,56 @@
+---
+title: "burden_mC"
+author: "Tim Stuart"
+date: "6 June 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r import}
+library(dplyr)
+```
+
+```{r load_data}
+mC <- read.table("../data/c_dmr_mc.tsv", header = T)
+TE_DMR <- read.table("../data/")
+```
+
+```{r functions}
+gatherData <- function(insertions, ranks) {
+  data <- vector()
+  for(i in 1:nrow(insertions)){
+    row <- insertions[i,]
+    gene <- as.character(row[[1]])
+    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[[3]])), ","))
+    accessions <- intersect(accessions, colnames(ranks))
+    if(length(accessions) > 0){
+      for(acc in accessions){
+        data <- c(data, as.numeric(ranks[gene,acc]))
+      }
+    }
+  }
+  return(data)
+}
+
+permuteLabels <- function(ranks, insertions) {
+  data <- vector()
+  all_names <- colnames(ranks)
+  for(i in 1:nrow(insertions)){
+    row <- insertions[i,]
+    gene <- as.character(row[[1]])
+    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[[3]])), ","))
+    accessions <- intersect(accessions, colnames(ranks))
+    if(length(accessions) > 0){
+      rand <- sample(all_names, length(accessions), replace = FALSE)
+      for(acc in rand){
+        data <- c(data, as.numeric(ranks[gene,acc]))
+      }
+    }
+  }
+  return(data)
+}
+```
+
