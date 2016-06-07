@@ -3,7 +3,26 @@
 from __future__ import division
 import MySQLdb
 from argparse import ArgumentParser
+import gzip
 
+"""
+usage: get_mc_DMRs_context.py [-h] -x HOST -u USER -p PASSWORD -d DATABASE -f
+                              FILE -c CONTEXT
+
+Get mC within coordinates for multiple samples
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -x HOST, --host HOST  host
+  -u USER, --user USER  mySQL user
+  -p PASSWORD, --password PASSWORD
+                        mySQL password
+  -d DATABASE, --database DATABASE
+                        mySQL database name
+  -f FILE, --file FILE  input coordinate file
+  -c CONTEXT, --context CONTEXT
+                        DNA methylation context
+"""
 
 parser = ArgumentParser(description='Get mC within coordinates for multiple samples')
 parser.add_argument('-x', '--host', help='host', required=True)
@@ -65,9 +84,13 @@ mc.setupSQL(options.host, options.user, options.password, options.database)
 mc.tables.remove("snps")
 names =  [x.split('mC_calls_')[1] for x in mc.tables]
 print 'chr\tstart\tstop\t'+'\t'.join(names)  # header
-with open(options.file, 'r') as infile:
-    for line in infile:
-        line = line.rsplit()
-        data = mc.gatherDataFromMySQL(line, str(options.context))
-        data = (str(x) for x in data)
-        print '\t'.join(line) + '\t' + '\t'.join(data)
+if options.file.endswith(".gz"):
+    infile = gzip.open(options.file, "rb")
+else:
+    infile = open(options.file, "r")
+for line in infile:
+    line = line.rsplit()
+    data = mc.gatherDataFromMySQL(line, str(options.context))
+    data = (str(x) for x in data)
+    print '\t'.join(line) + '\t' + '\t'.join(data)
+infile.close()
