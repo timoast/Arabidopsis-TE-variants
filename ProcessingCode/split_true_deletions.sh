@@ -6,8 +6,12 @@
 
 gunzip -c ../RawData/TEPID_TEPAV.tsv.gz \
 | sed 1d \
-| awk 'BEGIN {FS=OFS="\t"} {if ($10 == "True deletion") print $0}' -> ../ProcessedData/TEPAV_true_deletions.tsv
+| awk 'BEGIN {FS=OFS="\t"} {if ($10 == "True deletion") print $0}' - \
+| gzip - \
+> ../ProcessedData/TEPAV_true_deletions.tsv.gz
 
 gunzip -c ../RawData/TEPID_TEPAV.tsv.gz \
 | sed 1d \
-| awk 'BEGIN {FS=OFS="\t"} {if ($10 == "No insertion") print $0}' - > ../ProcessedData/TEPAV_no_insertion.tsv
+| awk 'BEGIN {FS=OFS="\t"} {if ($10 == "No insertion") print $0}' - \
+| gzip - \
+> ../ProcessedData/TEPAV_no_insertion.tsv.gz
