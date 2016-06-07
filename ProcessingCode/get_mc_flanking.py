@@ -4,6 +4,7 @@ from __future__ import division
 import MySQLdb
 import numpy as np
 from argparse import ArgumentParser
+import gzip
 
 
 parser = ArgumentParser(description='gather mC data from mySQL database between given intervals')
@@ -104,7 +105,11 @@ def group_tables(pos_accessions, neg_accessions, options):
 
 def process_all(options):
     cursor, link = setup_sql(options)
-    with open(options.infile, 'r') as insertions, open(options.outfile, 'w+') as outf:
+    if options.infile.endswith(".gz"):
+        insertions = gzip.open(options.infile, "rb")
+    else:
+        insertions = open(options.infile, "r")
+    with open(options.outfile, 'w+') as outf:
         ins_bins = ['ins'+str(x) for x in range(int(options.numberbins))]
         no_ins_bins = ['no_ins'+str(x) for x in range(int(options.numberbins))]
         outf.write('coords'+"\t"+"\t".join(ins_bins)+"\t"+"\t".join(no_ins_bins)+"\n")  # header
@@ -115,8 +120,8 @@ def process_all(options):
             start = int(line[1])
             stop = int(line[2])
             coords = 'chr'+chrom+','+str(start)+','+str(stop)
-            pos_accessions = line[-2].replace('-', '_').split(',')
-            neg_accessions = line[-1].replace('-', '_').split(',')
+            pos_accessions = line[4].replace('-', '_').split(',')
+            neg_accessions = line[5].replace('-', '_').split(',')
             pos_tables, neg_tables = group_tables(pos_accessions, neg_accessions, options)
             if ((start-window) <= 0) or len(pos_tables) == 0 or len(neg_tables) == 0 or chrom == "Mt" or chrom == "Pt":
                 pass
@@ -127,5 +132,6 @@ def process_all(options):
                 outf.write(coords+"\t"+"\t".join(map(str,all_data))+"\n")
     cursor.close()
     link.close()
+    insertions.close()
 
 process_all(options)
