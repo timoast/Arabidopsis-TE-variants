@@ -115,21 +115,24 @@ def process_all(options):
         outf.write('coords'+"\t"+"\t".join(ins_bins)+"\t"+"\t".join(no_ins_bins)+"\n")  # header
         window = options.binsize * options.numberbins
         for line in insertions:
-            line = line.rsplit()
-            chrom = line[0].strip('chr')
-            start = int(line[1])
-            stop = int(line[2])
-            coords = 'chr'+chrom+','+str(start)+','+str(stop)
-            pos_accessions = line[4].replace('-', '_').split(',')
-            neg_accessions = line[5].replace('-', '_').split(',')
-            pos_tables, neg_tables = group_tables(pos_accessions, neg_accessions, options)
-            if ((start-window) <= 0) or len(pos_tables) == 0 or len(neg_tables) == 0 or chrom == "Mt" or chrom == "Pt":
-                pass
+            if line[0] == "chromosome":
+                pass # header
             else:
-                mc_values_accessions = get_data(chrom, start, stop, options, cursor, pos_tables)
-                mc_values_non_accessions = get_data(chrom, start, stop, options, cursor, neg_tables)
-                all_data = mc_values_accessions + mc_values_non_accessions
-                outf.write(coords+"\t"+"\t".join(map(str,all_data))+"\n")
+                line = line.rsplit()
+                chrom = line[0].strip('chr')
+                start = int(line[1])
+                stop = int(line[2])
+                coords = 'chr'+chrom+','+str(start)+','+str(stop)
+                pos_accessions = line[4].replace('-', '_').split(',')
+                neg_accessions = line[5].replace('-', '_').split(',')
+                pos_tables, neg_tables = group_tables(pos_accessions, neg_accessions, options)
+                if ((start-window) <= 0) or len(pos_tables) == 0 or len(neg_tables) == 0 or chrom == "Mt" or chrom == "Pt":
+                    pass
+                else:
+                    mc_values_accessions = get_data(chrom, start, stop, options, cursor, pos_tables)
+                    mc_values_non_accessions = get_data(chrom, start, stop, options, cursor, neg_tables)
+                    all_data = mc_values_accessions + mc_values_non_accessions
+                    outf.write(coords+"\t"+"\t".join(map(str,all_data))+"\n")
     cursor.close()
     link.close()
     insertions.close()
