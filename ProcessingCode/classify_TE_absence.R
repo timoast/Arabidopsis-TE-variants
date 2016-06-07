@@ -7,7 +7,13 @@ polarized <- poly %>%
   mutate(TE_present = length(unlist(strsplit(X5, ","))),
          TE_absent = length(unlist(strsplit(X6, ","))),
          Minor_allele = ifelse(TE_present < TE_absent, "presence", "absence"),
-         Absence_classification = ifelse(Minor_allele == "absence", "True deletion", "No insertion"),
+         Absence_classification = if(TE_absent < 43) {
+           "True deletion"
+         } else if(TE_absent > 172) {
+           "No insertion"
+         } else {
+           "NA"
+         },
          MAF = min(TE_present, TE_absent) / 216) %>%
   ungroup()
 
