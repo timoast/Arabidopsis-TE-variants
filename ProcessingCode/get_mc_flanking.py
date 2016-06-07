@@ -115,10 +115,10 @@ def process_all(options):
         outf.write('coords'+"\t"+"\t".join(ins_bins)+"\t"+"\t".join(no_ins_bins)+"\n")  # header
         window = options.binsize * options.numberbins
         for line in insertions:
+            line = line.rsplit()
             if line[0] == "chromosome":
                 pass # header
             else:
-                line = line.rsplit()
                 chrom = line[0].strip('chr')
                 start = int(line[1])
                 stop = int(line[2])
