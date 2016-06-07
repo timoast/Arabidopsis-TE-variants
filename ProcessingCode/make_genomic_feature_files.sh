@@ -18,10 +18,11 @@ gunzip -c ../RawData/TAIR10_GFF3_genes.gff.gz \
 # Exons
 gunzip -c ../RawData/TAIR10_GFF3_genes.gff.gz \
 | awk '{if ($3 == "exon") print $0}' - \
+| sort -k1,1 -k4,4n - \
 > ../ProcessedData/GeneFeatures/exons.gff
 
 # Introns
-python add_feature_between.py ../ProcessedData/exons.gff \
+python add_feature_between.py ../ProcessedData/GeneFeatures/exons.gff \
 | gzip - \
 > ../ProcessedData/GeneFeatures/introns.gff.gz
 
@@ -43,4 +44,8 @@ gunzip -c ../RawData/TAIR10_GFF3_genes.gff.gz \
 | gzip - \
 > ../ProcessedData/GeneFeatures/pseudogene.gff.gz
 
-gzip ../ProcessedData/GeneFeatures/exons.gff
+gff2bed < ../ProcessedData/GeneFeatures/exons.gff \
+| bedtools merge -c 10 -o distinct -i - \
+| gzip - \
+> ../ProcessedData/GeneFeatures/exons.bed.gz
+rm ../ProcessedData/GeneFeatures/exons.gff
