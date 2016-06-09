@@ -1,6 +1,6 @@
 library(dplyr)
 
-poly <- read_tsv("../ProcessedData/poly_te_genotyped.tsv", col_names = F)
+poly <- read_tsv("../ProcessedData/poly_te_genotyped.tsv.gz", col_names = F)
 
 polarized <- poly %>%
   rowwise() %>%
@@ -14,9 +14,11 @@ polarized <- poly %>%
          } else {
            "NA"
          },
-         MAF = min(TE_present, TE_absent) / 216) %>%
+         MAF = min(TE_present, TE_absent) / 216,
+         Frequency_classification = ifelse(MAF < 0.03, "Rare", "Common")) %>%
   ungroup()
 
-colnames(polarized) <- c("chromosome", "start", "end", "TE", "Accessions_TE_present", "Accessions_TE_absent", "Count_TE_present", "Count_TE_absent", "Minor_allele", "Absence_classification", "MAF")
+colnames(polarized) <- c("chromosome", "start", "end", "TE", "Accessions_TE_present", "Accessions_TE_absent", "Count_TE_present", "Count_TE_absent", "Minor_allele", "Absence_classification", "MAF", "Frequency_classification")
 write.table(polarized, file = "../RawData/tepav_regenerated.tsv",
             quote = F, sep = "\t", na = "NA", row.names = F, col.names = T)
+system("gzip ../RawData/tepav_regenerated.tsv")
