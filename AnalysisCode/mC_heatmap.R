@@ -2,17 +2,18 @@ library(dplyr)
 library(gplots)
 library(RColorBrewer)
 library(readr)
+library(ggplot2)
 
-mc_ins_2kb <- read_tsv("../ProcessedData/allC_ins_2kb.tsv", col_names = F)
-mc_del_2kb <- read_tsv("../ProcessedData/allC_true_del_2kb.tsv", col_names = F)
-
-
-### old code ###
-### re-write for updated analysis ###
+mc_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_no_insertion.tsv", col_names = T)
+mc_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_true_deletions.tsv", col_names = T)
 
 # sum rows for sort order
-mc_all_ins_2kb_dist.sums <- mutate(mc_all_ins_2kb_dist, sums=rowSums(mc_all_ins_2kb_dist[,2:41]))
+mc_no_insertion_2kb.sums <- mutate(mc_no_insertion_2kb, sums=rowSums(mc_no_insertion_2kb[,2:41]))
+mc_true_deletion_2kb.sums <- mutate(mc_true_deletion_2kb, sums=rowSums(mc_true_deletion_2kb[,2:41]))
 
+# Sort by total mC level
+mc_no_insertion_2kb.sort <- arrange(mc_no_insertion_2kb.sums, desc(sums))
+mc_true_deletion_2kb.sort <- arrange(mc_true_deletion_2kb.sums, desc(sums))
 
 # categorical heatmap
 cat_hmap <- function(d) {
@@ -30,27 +31,19 @@ cat_hmap <- function(d) {
             cex.lab=0.7)
 }
 
-# heatmap
-hmap <- function(d) {
-  heatmap.2(as.matrix(d),Colv=NA,col=brewer.pal(9, "Reds"),
-            labRow = "",
-            labCol = "",
-            dendrogram = "none",
-            margins = c(5,2),
-            trace = "none",
-            par(cex.main=0.7,
-                cex.lab=0.7,
-                cex.axis=0.7
-            ),
-            cex.lab=0.7)
+
+scale_max <- function(m, l){
+  m.floor <- m > l
+  m[m.floor] <- l
+  return(t(data.matrix(m)))
 }
 
-# scale values to max 0.5
-eu.floor <- eu > 0.5
-eu[eu.floor] <- 0.5
-het.floor <- het > 0.5
-het[het.floor] <- 0.5
+ins <- scale_max(mc_no_insertion_2kb.sort[,2:40], 0.5)
+del <- scale_max(mc_true_deletion_2kb.sort[,2:40], 0.5)
+
+color <- colorRampPalette(brewer.pal(9,"Reds"))(100)
 
 pdf("../Plots/heatmap_mc.pdf", height = 6, width = 3)
-hmap(data)
+image(ins, col = color, main = "No insertion")
+image(del, col = color, main = "True deletion")
 dev.off()
