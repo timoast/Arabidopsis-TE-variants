@@ -11,6 +11,9 @@
 # Other Col-0 TEs
 # DNase I hypersensitivity sites
 
+# Information of the allele frequency or insertion classification (insertion or deletion)
+# can be found in the ProcessedData/GeneFeatures/*_intersections.bed.gz files
+
 # temporary decompressed TEPAV file
 gunzip -c ../RawData/TEPID_TEPAV.tsv.gz | sed 1d > tepid_tepav.tsv
 
