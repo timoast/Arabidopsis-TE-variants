@@ -66,13 +66,13 @@ common_te <- get_distribution(filter(chr1,  Frequency_classification == "Common"
 te_ins <- get_distribution(filter(chr1, Absence_classification == "No insertion")$start, 1000)[1:608]
 te_del <- get_distribution(filter(chr1, Absence_classification == "True deletion")$start, 1000)[1:608]
 
-# group together and scale each to it's maximum value
-all_hist_scaled <- cbind(all_tepav, rare_te, common_te, te_ins, te_del)
-
-color <- (colorRampPalette(brewer.pal(9,"GnBu"))(100))
-pdf("../Plots/heatmap_te_insertions_chr1.pdf", height = 3, width = 5)
-image(all_hist_scaled, col = color, xlab = "Chromosome 1", ylab = c("TE variants"))
-dev.off()
+# # group together and scale each to it's maximum value
+# all_hist_scaled <- cbind(all_tepav, rare_te, common_te, te_ins, te_del)
+# 
+# color <- (colorRampPalette(brewer.pal(9,"GnBu"))(100))
+# pdf("../Plots/heatmap_te_insertions_chr1.pdf", height = 3, width = 5)
+# image(all_hist_scaled, col = color, xlab = "Chromosome 1", ylab = c("TE variants"))
+# dev.off()
 
 # Plot side-by-side with all Col-0 TEs, C-DMRs, CG-DMRs, genes
 all_te_chr1 <- get_distribution(filter(all_te, X1 == "chr1")$X2, 500)[1:608]
