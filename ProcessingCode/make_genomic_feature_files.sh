@@ -173,5 +173,19 @@ gunzip -c ../RawData/TAIR9_TE.bed.gz \
 | wc -l \
 >> ../ProcessedData/gene_feature_counts.csv
 
+# DHS sites
+gunzip -c ../RawData/Sullivan_DHS_PE_peaks_control.bed.gz \
+| bedtools intersect -a tepid_tepav.tsv -b - -wb \
+> ../ProcessedData/GeneFeatures/dhs_intersections.bed
+
+# record number of intersections
+wc -l ../ProcessedData/GeneFeatures/dhs_intersections.bed \
+>> ../ProcessedData/gene_feature_counts.csv
+
+# record total number
+gunzip -c ../RawData/Sullivan_DHS_PE_peaks_control.bed.gz \
+| wc -l \
+>> ../ProcessedData/gene_feature_counts.csv
+
 rm tepid_tepav.tsv
 gzip ../ProcessedData/GeneFeatures/*
