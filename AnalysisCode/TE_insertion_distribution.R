@@ -69,7 +69,7 @@ te_del <- get_distribution(filter(chr1, Absence_classification == "True deletion
 # # group together and scale each to it's maximum value
 # all_hist_scaled <- cbind(all_tepav, rare_te, common_te, te_ins, te_del)
 # 
-# color <- (colorRampPalette(brewer.pal(9,"GnBu"))(100))
+color <- (colorRampPalette(brewer.pal(9,"GnBu"))(100))
 # pdf("../Plots/heatmap_te_insertions_chr1.pdf", height = 3, width = 5)
 # image(all_hist_scaled, col = color, xlab = "Chromosome 1", ylab = c("TE variants"))
 # dev.off()
@@ -106,3 +106,76 @@ dev.off()
 pdf("../Plots/chr1_heatmap_scale.pdf", height=2, width=5)
 image(data.matrix(seq(100)), col = color)
 dev.off()
+
+# 3. Find frequency that insertions / deletions occur in different genomic features
+# common header for all most files
+intersectHead <- c("chromsome", "start", "end", "TE", "accessions_te_present",
+                   "accessions_te_absent", "present_count", "absent_count", "MinoAllele",
+                   "AbsenceClassification", "MAF", "FrequencyClassification", "FeatureChrom",
+                   "FeatureStart", "FeatureStop", "FeatureName")
+
+# common header for upstream and downstream
+geneHeader <- c("chromsome", "start", "end", "TE", "accessions_te_present",
+                   "accessions_te_absent", "present_count", "absent_count", "MinoAllele",
+                   "AbsenceClassification", "MAF", "FrequencyClassification", "FeatureChrom",
+                   "FeatureStart", "FeatureStop", "GeneName", "Zero", "Strand", "TAIR10", "Feature",
+                "zero2", "ID")
+
+
+# upstream
+upstreamIntersections <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed.gz",
+                                  col_names = geneHeader)
+all_upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions.bed.gz", col_names = F)
+
+fractionUpstream <- nrow(upstreamIntersections) / nrow(all_upstream) * 100
+
+# downstream
+downstreamIntersections <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions_intersections.bed.gz",
+                                    col_names = geneHeader)
+all_downstream <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions.bed.gz",
+                           col_names = F)
+
+# exons
+exon_intersections <- read_tsv("../ProcessedData/GeneFeatures/exon_intersections.bed.gz",
+                               col_names = intersectHead)
+all_exons <- read_tsv("../ProcessedData/GeneFeatures/exons.bed.gz",
+                      col_names = c("chromosome", "start", "end", "geneName"))
+
+fractionExon <- nrow(exon_intersections) / nrow(all_exons) * 100
+
+# introns
+intron_intersections <- read_tsv("../ProcessedData/GeneFeatures/intron_intersections.bed.gz",
+                                 col_names = intersectHead)
+all_intron <- read_tsv("../ProcessedData/GeneFeatures/introns.bed.gz", 
+                       col_names = F)
+
+# utr5
+utr5Intersections <- read_tsv("../ProcessedData/GeneFeatures/utr5_intersections.bed.gz",
+                              col_names = intersectHead)
+all_utr5 <- read_tsv("../ProcessedData/GeneFeatures/utr5.bed.gz",
+                     col_names = F)
+
+# utr3
+utr3Intersections <- read_tsv("../ProcessedData/GeneFeatures/utr3_intersections.bed.gz",
+                              col_names = intersectHead)
+all_utr3 <- read_tsv("../ProcessedData/GeneFeatures/utr3.bed.gz",
+                     col_names = F)
+
+# pseudogene
+pseudogeneIntersections <- read_tsv("../ProcessedData/GeneFeatures/pseudogene_intersections.bed.gz",
+                                    col_names = intersectHead)
+all_pseudo <- read_tsv("../ProcessedData/GeneFeatures/pseudogene.bed.gz",
+                       col_names = F)
+
+# TE
+teIntersections <- read_tsv("../ProcessedData/GeneFeatures/te_intersections.bed.gz", 
+                            col_names = intersectHead)
+# all TEs already loaded
+
+# DHS
+dhsIntersections <- read_tsv("../ProcessedData/GeneFeatures/dhs_intersections.bed.gz",
+                             col_names = F)
+all_dhs <- read_tsv("../RawData/Sullivan_DHS_PE_peaks_control.bed.gz", col_names = F)
+
+
+
