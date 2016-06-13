@@ -1,17 +1,39 @@
 library(dplyr)	
 library(ggplot2)	
-library(qvalue)	
+library(qvalue)
+library(readr)
 
-data_path = "/Users/timstuart/Dropbox/PhD/Projects/Population_epigenetics/RNA/"	
+expression <- read_tsv("../RawData/gene_expression.tsv.gz", col_names = TRUE)
 
-# this data only has accession names with RNA data available	
-expression <- read.table(paste(data_path, "expression.tsv", sep = ""), header = T, row.names = 1)	
-upstream <- read.table(paste(data_path, 'upstream_insertion.tsv', sep = ""), header = F)	
-exon <- read.table(paste(data_path, 'exon_insertion.tsv', sep = ""), header = F)	
-intron <- read.table(paste(data_path, "intron_insertion.tsv", sep = ""), header = F)	
-utr5 <- read.table(paste(data_path, "utr5_insertion.tsv", sep = ""), header = F)	
-utr3 <- read.table(paste(data_path, "utr3_insertion.tsv", sep = ""), header = F)	
-downstream <- read.table(paste(data_path, "downstream_insertion.tsv", sep = ""), header = F)	
+upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed.gz", col_names = F) %>%
+  select(X5:X12, X22) %>%
+  mutate(gene = substr(X22, 4, 12)) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+downstream <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions_intersections.bed.gz", col_names = F) %>%
+  select(X5:X12, X22) %>%
+  mutate(gene = substr(X22, 4, 12)) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+exon <- read_tsv("../ProcessedData/GeneFeatures/exon_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+intron <- read_tsv("../ProcessedData/GeneFeatures/intron_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+utr5 <- read_tsv("../ProcessedData/GeneFeatures/utr5_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+utr3 <- read_tsv("../ProcessedData/GeneFeatures/utr3_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
 
 upstream <- upstream[!duplicated(upstream),]	
 exon <- exon[!duplicated(exon),]	
@@ -20,32 +42,24 @@ utr5 <- utr5[!duplicated(utr5),]
 utr3 <- utr3[!duplicated(utr3),]	
 downstream <- downstream[!duplicated(downstream),]	
 
-header <- c("gene", 'TE', 'pos_accessions', 'neg_accessions')	
-colnames(upstream) <- header	
-colnames(exon) <- header	
-colnames(intron) <- header	
-colnames(utr3) <- header	
-colnames(utr5) <- header	
-colnames(downstream) <- header	
-	
-upstream[] <- lapply(upstream, as.character)	
-exon[] <- lapply(exon, as.character)	
-utr3[] <- lapply(utr3, as.character)	
-utr5[] <- lapply(utr5, as.character)	
-intron[] <- lapply(intron, as.character)	
-downstream[] <- lapply(downstream, as.character)	
+# upstream[] <- lapply(upstream, as.character)	
+# exon[] <- lapply(exon, as.character)	
+# utr3[] <- lapply(utr3, as.character)	
+# utr5[] <- lapply(utr5, as.character)	
+# intron[] <- lapply(intron, as.character)	
+# downstream[] <- lapply(downstream, as.character)	
 	
 find.len <- function(d) {	
   return(length(unlist(strsplit(d, ","))))	
 }	
-	
+
 # filter where insertion in at least 5 accessions (MAF >3%)	
-upstream %>%	
-  rowwise() %>%	
+upstream %>%
+  rowwise() %>%
   filter(find.len(pos_accessions) > 4) -> upstream.five	
 	
-exon %>%	
-  rowwise() %>%	
+exon %>%
+  rowwise() %>%
   filter(find.len(pos_accessions) > 4) -> exon.five	
 	
 intron %>%	
@@ -67,7 +81,7 @@ downstream %>%
 lookupExp <- function(accessions, gene, exp) {	
   x <- vector()	
   for(acc in accessions) {	
-    x <- c(x, as.numeric(exp[gene,acc]))	
+    x <- c(x, as.numeric(exp[exp$gene == gene, acc]))	
   }	
   return(x)	
 }	
@@ -76,11 +90,10 @@ test.sig.cor <- function(genes, expression){
   data <- matrix(nrow = nrow(genes), ncol = 4)	
   # gene, te, acc names with, acc names without, p-val, cor	
   for(i in 1:nrow(genes)){	
-    row <- genes[i,]	
-    gene <- as.character(row[[1]])	
-    te <- as.character(row[[2]])	
-    ins.acc <- unlist(strsplit(gsub("-", "_", row[[3]]), ","))	
-    no.ins.acc <- unlist(strsplit(gsub("-", "_", row[[4]]), ","))	
+    row <- genes[i,]
+    gene <- as.character(row[["gene"]])	
+    ins.acc <- unlist(strsplit(gsub("-", "_", row[["pos_accessions"]]), ","))	
+    no.ins.acc <- unlist(strsplit(gsub("-", "_", row[["neg_accessions"]]), ","))	
     ins.acc <- intersect(ins.acc, colnames(expression))	
     no.ins.acc <- intersect(no.ins.acc, colnames(expression))	
     ins.data <- lookupExp(ins.acc, gene, expression)	
@@ -144,8 +157,11 @@ ggplot(qval.data, aes(log2FoldChange, -log10(qvalue)), label = gene) +
   scale_color_manual(values = c("blue", "grey", "red")) +	
   theme(legend.position="none") +	
   xlim(-6, 6)	+
-  ggsave("volcano_plots.pdf", width = 20, height = 4, units = "cm", useDingbats=F)	
+  ggsave("../Plots/volcano_plots.pdf", width = 20, height = 4, units = "cm", useDingbats=F)	
 	
 qval.data %>%
   filter(sig != "NS") %>%
-  write.table(., file="sig_genes.tsv", quote = F, sep = "\t", row.names = F)
+  write.table(., file="../ProcessedData/sig_genes.tsv", quote = F, sep = "\t", row.names = F)
+
+# sig <- filter(qval.data, sig != "NS")
+# length(unique(sig$gene))
