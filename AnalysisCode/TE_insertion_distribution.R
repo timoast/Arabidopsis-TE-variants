@@ -135,6 +135,8 @@ downstreamIntersections <- read_tsv("../ProcessedData/GeneFeatures/gene_downstre
 all_downstream <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions.bed.gz",
                            col_names = F)
 
+fractionDownstream <- nrow(downstreamIntersections) / nrow(all_downstream) * 100
+
 # exons
 exon_intersections <- read_tsv("../ProcessedData/GeneFeatures/exon_intersections.bed.gz",
                                col_names = intersectHead)
@@ -148,34 +150,127 @@ intron_intersections <- read_tsv("../ProcessedData/GeneFeatures/intron_intersect
                                  col_names = intersectHead)
 all_intron <- read_tsv("../ProcessedData/GeneFeatures/introns.bed.gz", 
                        col_names = F)
+fractionIntrons <- nrow(intron_intersections) / nrow(all_intron) * 100
 
 # utr5
 utr5Intersections <- read_tsv("../ProcessedData/GeneFeatures/utr5_intersections.bed.gz",
                               col_names = intersectHead)
 all_utr5 <- read_tsv("../ProcessedData/GeneFeatures/utr5.bed.gz",
                      col_names = F)
+fractionUTR5 <- nrow(utr5Intersections) / nrow(all_utr5) * 100
 
 # utr3
 utr3Intersections <- read_tsv("../ProcessedData/GeneFeatures/utr3_intersections.bed.gz",
                               col_names = intersectHead)
 all_utr3 <- read_tsv("../ProcessedData/GeneFeatures/utr3.bed.gz",
                      col_names = F)
+fractionUTR3 <- nrow(utr3Intersections) / nrow(all_utr3) * 100
 
 # pseudogene
 pseudogeneIntersections <- read_tsv("../ProcessedData/GeneFeatures/pseudogene_intersections.bed.gz",
                                     col_names = intersectHead)
 all_pseudo <- read_tsv("../ProcessedData/GeneFeatures/pseudogene.bed.gz",
                        col_names = F)
+fractionPseudogenes <- nrow(pseudogeneIntersections) / nrow(all_pseudo) * 100
 
 # TE
 teIntersections <- read_tsv("../ProcessedData/GeneFeatures/te_intersections.bed.gz", 
                             col_names = intersectHead)
 # all TEs already loaded
+fractionTE <- nrow(teIntersections) / nrow(all_te) * 100
 
 # DHS
 dhsIntersections <- read_tsv("../ProcessedData/GeneFeatures/dhs_intersections.bed.gz",
                              col_names = F)
 all_dhs <- read_tsv("../RawData/Sullivan_DHS_PE_peaks_control.bed.gz", col_names = F)
+fractionDHS <- nrow(dhsIntersections) / nrow(all_dhs) * 100
 
+# make barplot
+all_fractions <- c(fractionDHS, fractionUpstream, fractionUTR5, fractionExon, fractionIntrons,
+                   fractionUTR3, fractionDownstream, fractionPseudogenes, fractionTE)
+barplot_names <- c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogenes", "TE")
+intersection_df <- data.frame(all_fractions, barplot_names)
 
+pdf("../Plots/barplot_genomic_feature_intersections.pdf", height = 4, width = 4)
+barplot(intersection_df$all_fractions, names.arg = intersection_df$barplot_names, las=2, ylim = c(0, 50),
+        ylab = "Percentage contining TE insertion", main = "TE variant frequency in genomic features")
+dev.off()
 
+# now look at rare/common insertion/deletion frequency in each feature
+# make a single dataframe with all the features, absence classification and frequency classification
+
+df <- mutate(exon_intersections, feature = "Exon") %>% select(feature, FrequencyClassification, AbsenceClassification)
+
+df <- intron_intersections %>%
+  mutate(feature = "Intron") %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df <- upstreamIntersections %>%
+  mutate(feature = "Upstream") %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df <- downstreamIntersections %>%
+  mutate(feature = "Downstream") %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df <- utr3Intersections %>%
+  mutate(feature = "3' UTR") %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df <- utr5Intersections %>%
+  mutate(feature = "5' UTR") %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df <- pseudogeneIntersections %>%
+  mutate(feature = "Pseudogene") %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df <- teIntersections %>%
+  mutate(feature = "TE") %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df <- dhsIntersections %>%
+  mutate(feature = "DHS", FrequencyClassification = X12, AbsenceClassification = X10) %>%
+  select(feature, FrequencyClassification, AbsenceClassification) %>%
+  rbind(df)
+
+df %>%
+  group_by(feature) %>%
+  mutate(rare_perc = sum(FrequencyClassification == "Rare") / n() * 100,
+         common_perc = sum(FrequencyClassification == "Common") / n() * 100,
+         deletion_perc = sum(AbsenceClassification == "True deletion", na.rm = TRUE) / n() * 100,
+         insertion_perc = sum(AbsenceClassification == "No insertion", na.rm = TRUE) / n() * 100,
+         del_na_perc = sum(is.na(AbsenceClassification)) / n() * 100) %>%
+  select(feature, rare_perc:del_na_perc) %>% unique(.) -> insertionStats
+
+# make plots
+feature_order <-  c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogene", "TE")
+
+insertionStats %>%
+  select(feature, rare_perc, common_perc) %>%
+  melt() %>%
+  ggplot(., aes(feature, value, fill = variable)) +
+  geom_bar(stat = "identity", color = "Black") +theme_bw() +
+  scale_fill_brewer(palette = "BuPu", direction = -1) +
+  scale_x_discrete(limits = feature_order) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggsave(filename = "rare_vs_common_genomic_feaures.pdf",
+         path = "../Plots", height = 5, width = 5)
+
+insertionStats %>%
+  select(feature, insertion_perc, deletion_perc, del_na_perc) %>%
+  melt() %>%
+  ggplot(., aes(feature, value, fill = variable)) +
+  geom_bar(stat = "identity", color = "Black") + theme_bw() + 
+  scale_fill_brewer(palette = "BuGn", direction = -1) +
+  scale_x_discrete(limits = feature_order) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggsave(filename = "insertion_vs_deletion_genomic_feaures.pdf",
+       path = "../Plots", height = 5, width = 5)
