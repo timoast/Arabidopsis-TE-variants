@@ -1,37 +1,46 @@
 library(dplyr)
+library(readr)
 
 set.seed(1)
 
-# this data only has accession names with RNA data available
-expression <- read.table("../RawData/gene_expression.tsv.gz", sep = ""), header = T, row.names = 1)
-upstream <- read.table('../ProcessedData/upstream_insertion.tsv', sep = ""), header = F)
-exon <- read.table('../ProcessedData/exon_insertion.tsv', sep = ""), header = F)
-intron <- read.table("../ProcessedData/intron_insertion.tsv", sep = ""), header = F)
-utr5 <- read.table("../ProcessedData/utr5_insertion.tsv", sep = ""), header = F)
-utr3 <- read.table("../ProcessedData/utr3_insertion.tsv", sep = ""), header = F)
-downstream <- read.table("../ProcessedData/downstream_insertion.tsv", sep = ""), header = F)
+expression <- read.table("../RawData/gene_expression.tsv.gz", header = T, row.names = 1)
 
-upstream <- upstream[!duplicated(upstream),]
-exon <- exon[!duplicated(exon),]
-intron <- intron[!duplicated(intron),]
-utr5 <- utr5[!duplicated(utr5),]
-utr3 <- utr3[!duplicated(utr3),]
-downstream <- downstream[!duplicated(downstream),]
+upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed.gz", col_names = F) %>%
+  select(X5:X12, X22) %>%
+  mutate(gene = substr(X22, 4, 12)) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
 
-header <- c("gene", 'TE', 'pos_accessions', 'neg_accessions')
-colnames(upstream) <- header
-colnames(exon) <- header
-colnames(intron) <- header
-colnames(utr3) <- header
-colnames(utr5) <- header
-colnames(downstream) <- header
+downstream <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions_intersections.bed.gz", col_names = F) %>%
+  select(X5:X12, X22) %>%
+  mutate(gene = substr(X22, 4, 12)) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
 
-upstream[] <- lapply(upstream, as.character)
-exon[] <- lapply(exon, as.character)
-utr3[] <- lapply(utr3, as.character)
-utr5[] <- lapply(utr5, as.character)
-intron[] <- lapply(intron, as.character)
-downstream[] <- lapply(downstream, as.character)
+exon <- read_tsv("../ProcessedData/GeneFeatures/exon_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+intron <- read_tsv("../ProcessedData/GeneFeatures/intron_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+utr5 <- read_tsv("../ProcessedData/GeneFeatures/utr5_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+utr3 <- read_tsv("../ProcessedData/GeneFeatures/utr3_intersections.bed.gz", col_names = F) %>%
+  mutate(gene = substr(X16, 8, 16)) %>%
+  select(X5:X12, gene) %>%
+  rename(pos_accessions = X5, neg_accessions = X6)
+
+upstream <- upstream[!duplicated(upstream),]	
+exon <- exon[!duplicated(exon),]	
+intron <- intron[!duplicated(intron),]	
+utr5 <- utr5[!duplicated(utr5),]	
+utr3 <- utr3[!duplicated(utr3),]	
+downstream <- downstream[!duplicated(downstream),]	
 
 find.len <- function(d) {
   return(length(unlist(strsplit(d, ","))))
@@ -67,20 +76,18 @@ ranks <- expression[0,]
 for(i in 1:nrow(expression)) {
   ranks[i,] <- rank(expression[i,], ties.method = "first")
 }
-
 rownames(ranks) <- rownames(expression)
-
 
 gatherData <- function(insertions, ranks) {
   data <- vector()
   for(i in 1:nrow(insertions)){
     row <- insertions[i,]
-    gene <- as.character(row[[1]])
-    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[[3]])), ","))
+    gene <- as.character(row[["gene"]])
+    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[["pos_accessions"]])), ","))
     accessions <- intersect(accessions, colnames(ranks))
     if(length(accessions) > 0){
       for(acc in accessions){
-        data <- c(data, as.numeric(ranks[gene,acc]))
+        data <- c(data, as.numeric(ranks[gene, acc]))
       }
     }
   }
@@ -92,13 +99,13 @@ permuteLabels <- function(ranks, insertions) {
   all_names <- colnames(ranks)
   for(i in 1:nrow(insertions)){
     row <- insertions[i,]
-    gene <- as.character(row[[1]])
-    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[[3]])), ","))
+    gene <- as.character(row[["gene"]])
+    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[["pos_accessions"]])), ","))
     accessions <- intersect(accessions, colnames(ranks))
     if(length(accessions) > 0){
       rand <- sample(all_names, length(accessions), replace = FALSE)
       for(acc in rand){
-        data <- c(data, as.numeric(ranks[gene,acc]))
+        data <- c(data, as.numeric(ranks[gene, acc]))
       }
     }
   }
@@ -164,4 +171,3 @@ dot_plot(intron.ranks, intron.rand, "Intron")
 dot_plot(utr3.ranks, utr3.rand, "3' UTR")
 dot_plot(utr5.ranks, utr5.rand, "5' UTR")
 dev.off()
-
