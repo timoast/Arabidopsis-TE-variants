@@ -41,13 +41,6 @@ intron <- intron[!duplicated(intron),]
 utr5 <- utr5[!duplicated(utr5),]	
 utr3 <- utr3[!duplicated(utr3),]	
 downstream <- downstream[!duplicated(downstream),]	
-
-# upstream[] <- lapply(upstream, as.character)	
-# exon[] <- lapply(exon, as.character)	
-# utr3[] <- lapply(utr3, as.character)	
-# utr5[] <- lapply(utr5, as.character)	
-# intron[] <- lapply(intron, as.character)	
-# downstream[] <- lapply(downstream, as.character)	
 	
 find.len <- function(d) {	
   return(length(unlist(strsplit(d, ","))))	
@@ -163,5 +156,11 @@ qval.data %>%
   filter(sig != "NS") %>%
   write.table(., file="../ProcessedData/sig_genes.tsv", quote = F, sep = "\t", row.names = F)
 
-# sig <- filter(qval.data, sig != "NS")
-# length(unique(sig$gene))
+print("Number of genes in each feature:")
+qval.data %>%
+  group_by(feature) %>%
+  summarize(count = n())
+
+print("Number of significantly differentially expressed genes:")
+sig <- filter(qval.data, sig != "NS")
+length(unique(sig$gene))
