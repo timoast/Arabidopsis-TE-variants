@@ -46,9 +46,6 @@ find.len <- function(d) {
   return(length(unlist(strsplit(d, ","))))
 }
 
-
-# this excludes where TE absent from <5 accessions (true deletion)
-# repeat for rare deletions, and both combined
 upstream %>%
   rowwise() %>%
   filter(X12 == "Rare") -> upstream.rare
@@ -209,4 +206,3 @@ dot_plot(intron.ranks.insertion, intron.ranks.deletion, intron.rand, "Intron")
 dot_plot(utr3.ranks.insertion, utr3.ranks.deletion, utr3.rand, "3' UTR")
 dot_plot(utr5.ranks.insertion, utr5.ranks.deletion, utr5.rand, "5' UTR")
 dev.off()
-
