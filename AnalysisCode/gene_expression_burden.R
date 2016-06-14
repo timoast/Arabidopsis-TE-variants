@@ -46,29 +46,32 @@ find.len <- function(d) {
   return(length(unlist(strsplit(d, ","))))
 }
 
+
+# this excludes where TE absent from <5 accessions (true deletion)
+# repeat for rare deletions, and both combined
 upstream %>%
   rowwise() %>%
-  filter(find.len(pos_accessions) <= 4) -> upstream.five
+  filter(X12 == "Rare") -> upstream.rare
 
 exon %>%
   rowwise() %>%
-  filter(find.len(pos_accessions) <= 4) -> exon.five
+  filter(X12 == "Rare") -> exon.rare
 
 intron %>%
   rowwise() %>%
-  filter(find.len(pos_accessions) <= 4) -> intron.five
+  filter(X12 == "Rare") -> intron.rare
 
 utr3 %>%
   rowwise() %>%
-  filter(find.len(pos_accessions) <= 4) -> utr3.five
+  filter(X12 == "Rare") -> utr3.rare
 
 utr5 %>%
   rowwise() %>%
-  filter(find.len(pos_accessions) <= 4) -> utr5.five
+  filter(X12 == "Rare") -> utr5.rare
 
 downstream %>%
   rowwise() %>%
-  filter(find.len(pos_accessions) <= 4) -> downstream.five
+  filter(X12 == "Rare") -> downstream.rare
 
 ## Convert expression values to ranks
 ranks <- expression[0,]
@@ -78,12 +81,16 @@ for(i in 1:nrow(expression)) {
 }
 rownames(ranks) <- rownames(expression)
 
-gatherData <- function(insertions, ranks) {
+# save ranks
+write_tsv(cbind(gene=rownames(ranks), ranks), "../ProcessedData/expression_ranks.tsv")
+system("gzip ../ProcessedData/expression_ranks.tsv")
+
+gatherData <- function(tepav, indel, ranks) {  # set indel as either pos_accessions or neg_accessions
   data <- vector()
-  for(i in 1:nrow(insertions)){
-    row <- insertions[i,]
+  for(i in 1:nrow(tepav)){
+    row <- tepav[i,]
     gene <- as.character(row[["gene"]])
-    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[["pos_accessions"]])), ","))
+    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[[indel]])), ","))
     accessions <- intersect(accessions, colnames(ranks))
     if(length(accessions) > 0){
       for(acc in accessions){
@@ -94,13 +101,13 @@ gatherData <- function(insertions, ranks) {
   return(data)
 }
 
-permuteLabels <- function(ranks, insertions) {
+permuteLabels <- function(ranks, tepav, indel) {
   data <- vector()
   all_names <- colnames(ranks)
-  for(i in 1:nrow(insertions)){
-    row <- insertions[i,]
+  for(i in 1:nrow(tepav)){
+    row <- tepav[i,]
     gene <- as.character(row[["gene"]])
-    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[["pos_accessions"]])), ","))
+    accessions <- unlist(strsplit(gsub("-", "_", as.character(row[[indel]])), ","))
     accessions <- intersect(accessions, colnames(ranks))
     if(length(accessions) > 0){
       rand <- sample(all_names, length(accessions), replace = FALSE)
@@ -112,19 +119,30 @@ permuteLabels <- function(ranks, insertions) {
   return(data)
 }
 
-exon.ranks <- gatherData(exon.five, ranks)
-upstream.ranks <- gatherData(upstream.five, ranks)
-downstream.ranks <- gatherData(downstream.five, ranks)
-intron.ranks <- gatherData(intron.five, ranks)
-utr5.ranks <- gatherData(utr5.five, ranks)
-utr3.ranks <- gatherData(utr3.five, ranks)
+exon.ranks.insertion <- gatherData(filter(exon.rare, X10 == "No insertion"), "pos_accessions", ranks)
+exon.ranks.deletion <- gatherData(filter(exon.rare, X10 == "True deletion"), "neg_accessions", ranks)
 
-exon.rand <- permuteLabels(ranks, exon.five)
-upstream.rand <- permuteLabels(ranks, upstream.five)
-downstream.rand <- permuteLabels(ranks, downstream.five)
-utr5.rand <- permuteLabels(ranks, utr5.five)
-utr3.rand <- permuteLabels(ranks, utr3.five)
-intron.rand <- permuteLabels(ranks, intron.five)
+upstream.ranks.insertion <- gatherData(filter(upstream.rare, X10 == "No insertion"), "pos_accessions", ranks)
+upstream.ranks.deletion <- gatherData(filter(upstream.rare, X10 == "True deletion"), "neg_accessions", ranks)
+
+downstream.ranks.insertion <- gatherData(filter(downstream.rare, X10 == "No insertion"), "pos_accessions", ranks)
+downstream.ranks.deletion <- gatherData(filter(downstream.rare, X10 == "True deletion"), "neg_accessions", ranks)
+
+intron.ranks.insertion <- gatherData(filter(intron.rare, X10 == "No insertion"), "pos_accessions", ranks)
+intron.ranks.deletion <- gatherData(filter(intron.rare, X10 == "True deletion"), "neg_accessions", ranks)
+
+utr5.ranks.insertion <- gatherData(filter(utr5.rare, X10 == "No insertion"), "pos_accessions", ranks)
+utr5.ranks.deletion <- gatherData(filter(utr5.rare, X10 == "True deletion"), "neg_accessions", ranks)
+
+utr3.ranks.insertion <- gatherData(filter(utr3.rare, X10 == "No insertion"), "pos_accessions", ranks)
+utr3.ranks.deletion <- gatherData(filter(utr3.rare, X10 == "True deletion"), "neg_accessions", ranks)
+
+exon.rand <- permuteLabels(ranks, filter(exon.rare, X10 == "No insertion"), "pos_accessions")
+upstream.rand <- permuteLabels(ranks, filter(upstream.rare, X10 == "No insertion"), "pos_accessions")
+downstream.rand <- permuteLabels(ranks, filter(downstream.rare, X10 == "No insertion"), "pos_accessions")
+utr5.rand <- permuteLabels(ranks, filter(utr5.rare, X10 == "No insertion"), "pos_accessions")
+utr3.rand <- permuteLabels(ranks, filter(utr3.rare, X10 == "No insertion"), "pos_accessions")
+intron.rand <- permuteLabels(ranks, filter(intron.rare, X10 == "No insertion"), "pos_accessions")
 
 lmp <- function (modelobject) {
   if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
@@ -134,26 +152,46 @@ lmp <- function (modelobject) {
   return(p)
 }
 
-dot_plot <- function(real, random, title, brk = 72) {
+dot_plot <- function(insertions, deletions, random, title, brk = 72) {
   
-  real.hist <- hist(real, breaks = brk, plot = F)
+  insertion.hist <- hist(insertions, breaks = brk, plot = F)
+  deletion.hist <- hist(deletions, breaks = brk, plot = F)
+  combined.hist <- hist(c(insertions, deletions), breaks = brk, plot = F)
   rand.hist <- hist(random, breaks = brk, plot = F)
   
-  y_range <- c(min(real.hist$counts) - 10, max(real.hist$counts) + 10)
+  y_range <- c(min(insertion.hist$counts) - 10, max(insertion.hist$counts) + 10)
   if(y_range[1] < 0) { y_range[1] = 0 }
   
-  model.real <- lm(real.hist$counts ~ poly(real.hist$breaks[2:length(real.hist$breaks)], 2, raw=TRUE))
-  rsq.real <- signif(summary(model.real)$adj.r.squared, 3)
-  p.real <- signif(lmp(model.real), 3)
+  model.insertion <- lm(insertion.hist$counts ~ poly(insertion.hist$breaks[2:length(insertion.hist$breaks)], 2, raw=TRUE))
+  rsq.insertion <- signif(summary(model.insertion)$adj.r.squared, 3)
+  p.insertion <- signif(lmp(model.insertion), 3)
+  
+  model.deletion <- lm(deletion.hist$counts ~ poly(deletion.hist$breaks[2:length(deletion.hist$breaks)], 2, raw=TRUE))
+  rsq.deletion <- signif(summary(model.deletion)$adj.r.squared, 3)
+  p.deletion <- signif(lmp(model.deletion), 3)
+  
+  model.combined <- lm(combined.hist$counts ~ poly(combined.hist$breaks[2:length(combined.hist$breaks)], 2, raw=TRUE))
+  rsq.combined <- signif(summary(model.combined)$adj.r.squared, 3)
+  p.combined <- signif(lmp(model.combined), 3)
   
   model.rand <- lm(rand.hist$counts ~ poly(rand.hist$breaks[2:length(rand.hist$breaks)], 2, raw=TRUE))
   rsq.rand <- signif(summary(model.rand)$adj.r.squared, 3)
   p.rand <- signif(lmp(model.rand), 3)
   
-  plot(real.hist$counts, pch=19, col = "blue", las=1, cex = 0.6,
-       main = paste(title, " real"), ylim = y_range, xlab = "Expression bin", ylab = "Rare variants")
-  lines(model.real$fitted.values)
-  legend("top", paste("Rsq = ", rsq.real, ", p = ", p.real), bty = "n")
+  plot(insertion.hist$counts, pch=19, col = "blue", las=1, cex = 0.6,
+       main = paste(title, " TE insertions"), ylim = y_range, xlab = "Expression bin", ylab = "Rare variants")
+  lines(model.insertion$fitted.values)
+  legend("top", paste("Rsq = ", rsq.insertion, ", p = ", p.insertion), bty = "n")
+
+  plot(deletion.hist$counts, pch=19, col = "blue", las=1, cex = 0.6,
+       main = paste(title, " TE deletion"), xlab = "Expression bin", ylab = "Rare variants")
+  lines(model.deletion$fitted.values)
+  legend("top", paste("Rsq = ", rsq.deletion, ", p = ", p.deletion), bty = "n")
+
+  plot(combined.hist$counts, pch=19, col = "blue", las=1, cex = 0.6,
+       main = paste(title, " combined insertions and deletion"), xlab = "Expression bin", ylab = "Rare variants")
+  lines(model.combined$fitted.values)
+  legend("top", paste("Rsq = ", rsq.combined, ", p = ", p.combined), bty = "n")
   
   plot(rand.hist$counts, pch=19, col = "blue", las = 1, cex = 0.6,
        main = paste(title, " random"), ylim = y_range, xlab = "Expression bin", ylab = "Rare variants")
@@ -164,10 +202,11 @@ dot_plot <- function(real, random, title, brk = 72) {
 
 ## Plots
 pdf("../Plots/burden_gene_expression_dot_plots.pdf", width = 4, height = 4, useDingbats=FALSE)
-dot_plot(exon.ranks, exon.rand, "Exon")
-dot_plot(upstream.ranks, upstream.rand, "Upstream")
-dot_plot(downstream.ranks, downstream.rand, "Downstream")
-dot_plot(intron.ranks, intron.rand, "Intron")
-dot_plot(utr3.ranks, utr3.rand, "3' UTR")
-dot_plot(utr5.ranks, utr5.rand, "5' UTR")
+dot_plot(exon.ranks.insertion, exon.ranks.deletion, exon.rand, "Exon")
+dot_plot(upstream.ranks.insertion, upstream.ranks.deletion, upstream.rand, "Upstream")
+dot_plot(downstream.ranks.insertion, downstream.ranks.deletion, downstream.rand, "Downstream")
+dot_plot(intron.ranks.insertion, intron.ranks.deletion, intron.rand, "Intron")
+dot_plot(utr3.ranks.insertion, utr3.ranks.deletion, utr3.rand, "3' UTR")
+dot_plot(utr5.ranks.insertion, utr5.ranks.deletion, utr5.rand, "5' UTR")
 dev.off()
+
