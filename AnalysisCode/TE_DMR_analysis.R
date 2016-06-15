@@ -47,3 +47,21 @@ ggplot(te_c_dmr, aes(distance / 1000, fill = AbsenceClassification)) +
 # automate the intersection of these regions with DMRs to give number within 1 kb
 # plot distribution of overlaps and number of observed overlaps for the real data
 # do for C-DMRs and CG-DMRs
+
+chr <- data.frame(chromosome = c("chr1","chr2","chr3","chr4","chr5"),
+                          length = c( 30427671, 19698289, 23459830, 18585056, 26975502))
+
+getRandomCoords <- function(chromosomes, l) {
+  random_chr <- sample(chromosomes$chromosome, 1)
+  max_len <- chromosomes[chromosomes$chromosome == random_chr, 2]
+  start <- sample(1:max_len-l, 1)
+  stop <- start + l
+  return(c(as.character(random_chr), as.character(start), as.character(stop)))
+}
+
+tepav <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz")
+av_size <- round(mean(tepav$end - tepav$start))
+
+random_coordinates <- replicate(nrow(tepav), getRandomCoords(chr, av_size))
+random_coordinates <- t(random_coordinates)
+
