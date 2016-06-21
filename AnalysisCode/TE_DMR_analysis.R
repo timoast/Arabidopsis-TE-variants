@@ -1,6 +1,7 @@
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(tidyr)
 
 te_c_dmr <- read_tsv("../ProcessedData/TE_C_DMR_distances.bed.gz", col_names = F) %>%
   rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
@@ -21,7 +22,7 @@ cg <- "#B4B464"
 chg <- "#6665AD"
 chh <- "#B29492"
 
-pdf("../Plots/distances_TEAPV_DMR.pdf", height = 3, width = 3)
+pdf("../Plots/distances_TEPAV_DMR.pdf", height = 3, width = 3)
 hist(te_c_dmr$distance / 1000,
      breaks = 200, xlim = c(0, 20),
      col = chh, xlab = "Distance (kb)", main = "Distance from TE variant to nearest C-DMR")
@@ -30,38 +31,31 @@ hist(te_cg_dmr$distance / 1000,
      col = cg, xlab = "Distance (kb)", main = "Distance from TE variant to nearest CG-DMR")
 dev.off()
 
-# # need to break down by insertion / deletion and rare / common
-# hist(filter(te_c_dmr, FrequencyClassification == "Rare")$distance / 1000, breaks = 1000, xlim = c(0, 20), col = chh)
-# hist(filter(te_c_dmr, FrequencyClassification == "Common")$distance / 1000, breaks = 1000, xlim = c(0, 20), col = chh)
-# 
-# hist(filter(te_cg_dmr, FrequencyClassification == "Rare")$distance / 1000, breaks = 1000, xlim = c(0, 20), col = cg)
-# hist(filter(te_cg_dmr, FrequencyClassification == "Common")$distance / 1000, breaks = 1000, xlim = c(0, 20), col = cg)
-
 # C-DMRs
 ggplot(te_c_dmr, aes(distance / 1000, fill = FrequencyClassification)) +
   geom_density(alpha = 0.5) + facet_wrap(~FrequencyClassification) + xlim(0, 5) +
   theme_bw() + xlab("Distance (kb)") + ylab("Density") +
   theme(legend.position="none") +	
-  ggsave("../Plots/c_dmr_distances_common_vs_rare.pdf", width = 10, height = 6, units = "cm", useDingbats=F)	
+  ggsave("../Plots/CDMR/c_dmr_distances_common_vs_rare.pdf", width = 10, height = 6, units = "cm", useDingbats=F)	
 
 ggplot(te_c_dmr, aes(distance / 1000, fill = AbsenceClassification)) +
   geom_density(alpha = 0.5) + facet_wrap(~AbsenceClassification) + xlim(0, 5) +
   theme_bw() + xlab("Distance (kb)") + ylab("Density") +
   theme(legend.position="none") +	
-  ggsave("../Plots/c_dmr_distances_insertion_vs_deletion.pdf", width = 15, height = 6, units = "cm", useDingbats=F)
+  ggsave("../Plots/CDMR/c_dmr_distances_insertion_vs_deletion.pdf", width = 15, height = 6, units = "cm", useDingbats=F)
 
 # CG-DMRs
 ggplot(te_cg_dmr, aes(distance / 1000, fill = FrequencyClassification)) +
   geom_density(alpha = 0.5) + facet_wrap(~FrequencyClassification) + xlim(0, 5) +
   theme_bw() + xlab("Distance (kb)") + ylab("Density") +
   theme(legend.position="none") +	
-  ggsave("../Plots/cg_dmr_distances_common_vs_rare.pdf", width = 10, height = 6, units = "cm", useDingbats=F)	
+  ggsave("../Plots/CGDMR/cg_dmr_distances_common_vs_rare.pdf", width = 10, height = 6, units = "cm", useDingbats=F)	
 
 ggplot(te_cg_dmr, aes(distance / 1000, fill = AbsenceClassification)) +
   geom_density(alpha = 0.5) + facet_wrap(~AbsenceClassification) + xlim(0, 5) +
   theme_bw() + xlab("Distance (kb)") + ylab("Density") +
   theme(legend.position="none") +	
-  ggsave("../Plots/cg_dmr_distances_insertion_vs_deletion.pdf", width = 15, height = 6, units = "cm", useDingbats=F)
+  ggsave("../Plots/CGDMR/cg_dmr_distances_insertion_vs_deletion.pdf", width = 15, height = 6, units = "cm", useDingbats=F)
 
 # percentage of DMRs with TE variant within 1 kb, compared to random regions replicated 10k times
 # see ProcessingCode/bootstrap_te_variants.sh for source of random overlap percentages
@@ -84,6 +78,150 @@ abline(v=nrow(te_cg_dmr %>% filter(distance < 1000)) / nrow(cg_dmrs) * 100)
 dev.off()
 
 # TE-DMR methylation level
+c_dmr_mc <- read_tsv("../ProcessedData/c_dmr_allC.tsv.gz", col_names = T)
+cg_dmr_mc <- read_tsv("../ProcessedData/cg_dmrs_allC.tsv.gz", col_names = T)
 
 
+# Add common ID (DMR)
+c_dmr_mc <-  c_dmr_mc %>%
+  mutate(DMR_ID = paste(chr, start, stop, sep = ",")) %>%
+  select(-(chr:stop))
 
+te_c_dmr <-  te_c_dmr %>%
+  mutate(DMR_ID = paste(dmr_chr, dmr_start, dmr_stop, sep = ",")) %>%
+  select(-(dmr_chr:dmr_stop))
+
+cg_dmr_mc <-  cg_dmr_mc %>%
+  mutate(DMR_ID = paste(chr, start, stop, sep = ",")) %>%
+  select(-(chr:stop))
+
+te_cg_dmr <-  te_cg_dmr %>%
+  mutate(DMR_ID = paste(dmr_chr, dmr_start, dmr_stop, sep = ",")) %>%
+  select(-(dmr_chr:dmr_stop))
+
+# function to get mC values from mC dataframe given DMR ID and list of accessions
+lookupMeth <- function(df, acc, dmr) {
+  x <- vector()
+  acc <- unlist(strsplit(gsub("-", "_", acc), ","))  # reformat accession names (input is raw list from file)
+  filtered <- intersect(acc, colnames(df))           # filter out those that don't have mC data
+  for(i in filtered) {
+    x <- c(x, as.numeric(df[df$DMR_ID == dmr, i]))	 # match DMR ID, get mC value for accession, append to list
+  }
+  if(length(x) == 0) { return(NA) } else { return(x) }
+}
+
+te_c_dmr <- te_c_dmr %>%
+  rowwise() %>%
+  mutate(mC_pos = mean(lookupMeth(c_dmr_mc, pos_accessions, DMR_ID)),
+         mC_neg = mean(lookupMeth(c_dmr_mc, neg_accessions, DMR_ID)),
+         r2 = cor(c(rep(1, length(lookupMeth(c_dmr_mc, pos_accessions, DMR_ID))),
+                    rep(0, length(lookupMeth(c_dmr_mc, neg_accessions, DMR_ID)))),
+                  c(lookupMeth(c_dmr_mc, pos_accessions, DMR_ID), lookupMeth(c_dmr_mc, neg_accessions, DMR_ID))))
+
+te_cg_dmr <- te_cg_dmr %>%
+  rowwise() %>%
+  mutate(mC_pos = mean(lookupMeth(cg_dmr_mc, pos_accessions, DMR_ID)),
+         mC_neg = mean(lookupMeth(cg_dmr_mc, neg_accessions, DMR_ID)),
+         r2 = cor(c(rep(1, length(lookupMeth(cg_dmr_mc, pos_accessions, DMR_ID))),
+                    rep(0, length(lookupMeth(cg_dmr_mc, neg_accessions, DMR_ID)))),
+                  c(lookupMeth(cg_dmr_mc, pos_accessions, DMR_ID), lookupMeth(cg_dmr_mc, neg_accessions, DMR_ID))))
+
+### C-DMRs ###
+# Make dataframe
+c_dmr_info <- na.omit(te_c_dmr %>%
+  mutate(class = ifelse(distance < 1000, "TE-DMR", "Non-TE-DMR")) %>%
+  select(AbsenceClassification, class, mC_pos, mC_neg, r2, distance)) %>%
+  gather(TE_present, mC, mC_pos:mC_neg)
+
+c_dmr_info$TE_present[c_dmr_info$TE_present == "mC_pos"] <- TRUE
+c_dmr_info$TE_present[c_dmr_info$TE_present == "mC_neg"] <- FALSE
+
+c_dmr_info$AbsenceClassification[c_dmr_info$AbsenceClassification == "No insertion"] <- "Insertion"
+c_dmr_info$AbsenceClassification[c_dmr_info$AbsenceClassification == "True deletion"] <- "Deletion"
+
+# Plots
+# r2 vs distance to DMR
+ggplot(c_dmr_info, aes(r2, distance/1000)) +
+  geom_point(alpha=0.1) + theme_bw() + facet_wrap(~AbsenceClassification) +
+  ylab("Distance to C-DMR (kb)") + xlab("r2") +
+  ggsave("../Plots/CDMR/c_dmr_distance_vs_r2.pdf", height=4, width = 6, useDingbats=F)
+
+# on log scale with linear regression
+ggplot(c_dmr_info, aes(r2, distance)) +
+  geom_point(alpha=0.1) + theme_bw() + facet_wrap(~AbsenceClassification) +
+  scale_y_log10() + geom_smooth(method = "lm") +
+  ylab("Distance to C-DMR") + xlab("r2") +
+  ggsave("../Plots/CDMR/c_dmr_distance_vs_r2_log.pdf", height=4, width = 6, useDingbats=F)
+
+# Distribution of r2 values for TE-DMRs vs non-TE-DMRs, for insertions and deletions
+ggplot(c_dmr_info, aes(r2, col=class)) +
+  ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("Pearson correlation values") +
+  stat_ecdf() + theme_bw() + facet_wrap(~AbsenceClassification) +
+  ggsave("../Plots/CDMR/r2_distribution_insertions_deletions_te_dmrs.pdf", height=3, width = 6, useDingbats=F)
+
+# mC density plots for deletions vs insertions, TE-DMRs vs non-TE-DMRs
+ggplot(c_dmr_info, aes(fill=TE_present, mC)) + theme_bw() +
+  geom_density(alpha = 0.5) + facet_wrap(AbsenceClassification~class) +
+  ggsave("../Plots/CDMR/mC_distribution_te_cdmr_insertion_deletion.pdf", height=4, width = 6, useDingbats=F)
+
+# ecdf of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
+ggplot(c_dmr_info, aes(color=TE_present, mC)) + theme_bw() +
+  stat_ecdf() + facet_wrap(AbsenceClassification~class) +
+  ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("DNA methylation") +
+  ggsave("../Plots/CDMR/ecdf_mC_te_c_dmrs_insertions_deletions.pdf", width = 6, height = 6, useDingbats=F)
+
+# boxplots of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
+ggplot(c_dmr_info, aes(TE_present, mC)) + theme_bw() +
+  geom_boxplot() + facet_wrap(AbsenceClassification~class) +
+  xlab("TE present") + ylab("mC / C") +
+  ggsave("../Plots/CDMR/c_dmr_mc_boxplots.pdf", height=6, width = 3, useDingbats=F)
+
+### CG-DMRs ###
+# Make dataframe
+cg_dmr_info <- na.omit(te_cg_dmr %>%
+                        mutate(class = ifelse(distance < 1000, "TE-DMR", "Non-TE-DMR")) %>%
+                        select(AbsenceClassification, class, mC_pos, mC_neg, r2, distance)) %>%
+  gather(TE_present, mC, mC_pos:mC_neg)
+
+cg_dmr_info$TE_present[cg_dmr_info$TE_present == "mC_pos"] <- TRUE
+cg_dmr_info$TE_present[cg_dmr_info$TE_present == "mC_neg"] <- FALSE
+
+cg_dmr_info$AbsenceClassification[cg_dmr_info$AbsenceClassification == "No insertion"] <- "Insertion"
+cg_dmr_info$AbsenceClassification[cg_dmr_info$AbsenceClassification == "True deletion"] <- "Deletion"
+
+# Plots
+# r2 vs distance to DMR
+ggplot(cg_dmr_info, aes(r2, distance/1000)) +
+  geom_point(alpha=0.1) + theme_bw() + facet_wrap(~AbsenceClassification) +
+  ylab("Distance to CG-DMR (kb)") + xlab("r2") +
+  ggsave("../Plots/CGDMR/cg_dmr_distance_vs_r2.pdf", height=4, width = 6, useDingbats=F)
+
+# on log scale with linear regression
+ggplot(cg_dmr_info, aes(r2, distance)) +
+  geom_point(alpha=0.1) + theme_bw() + facet_wrap(~AbsenceClassification) +
+  scale_y_log10() + geom_smooth(method = "lm") +
+  ylab("Distance to CG-DMR") + xlab("r2") +
+  ggsave("../Plots/CGDMR/cg_dmr_distance_vs_r2_log.pdf", height=4, width = 6, useDingbats=F)
+
+# Distribution of r2 values for TE-DMRs vs non-TE-DMRs, for insertions and deletions
+ggplot(cg_dmr_info, aes(r2, col=class)) +
+  ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("Pearson correlation values") +
+  stat_ecdf() + theme_bw() + facet_wrap(~AbsenceClassification) +
+  ggsave("../Plots/CGDMR/r2_distribution_insertions_deletions_te_cgdmrs.pdf", height=3, width = 6, useDingbats=F)
+
+# mC density plots for deletions vs insertions, TE-DMRs vs non-TE-DMRs
+ggplot(cg_dmr_info, aes(fill=TE_present, mC)) + theme_bw() +
+  geom_density(alpha = 0.5) + facet_wrap(AbsenceClassification~class) +
+  ggsave("../Plots/CGDMR/mC_distribution_te_cgdmr_insertion_deletion.pdf", height=4, width = 6, useDingbats=F)
+
+# ecdf of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
+ggplot(cg_dmr_info, aes(color=TE_present, mC)) + theme_bw() +
+  stat_ecdf() + facet_wrap(AbsenceClassification~class) +
+  ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("DNA methylation") +
+  ggsave("../Plots/CGDMR/ecdf_mC_te_cg_dmrs_insertions_deletions.pdf", width = 6, height = 6, useDingbats=F)
+
+# boxplots of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
+ggplot(cg_dmr_info, aes(TE_present, mC)) + theme_bw() +
+  geom_boxplot() + facet_wrap(AbsenceClassification~class) +
+  xlab("TE present") + ylab("mC / C") +
+  ggsave("../Plots/CGDMR/cg_dmr_mc_boxplots.pdf", height=6, width = 3, useDingbats=F)
