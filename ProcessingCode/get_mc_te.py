@@ -104,7 +104,7 @@ def process_all(options):
     else:
         coordinate_file = open(options.infile, "r")
     bins = ['bin_'+str(x) for x in range(int(options.numberbins*3))]
-    print('coords'+"\t"+"\t".join(bins)+"\n")  # header
+    print('coords'+"\t"+"\t".join(bins))  # header
     window = options.binsize * options.numberbins
     for line in coordinate_file:
         line = line.rsplit()
