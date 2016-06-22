@@ -23,11 +23,9 @@ parser.add_argument('-p', '--password', help='mySQL password', required=True)
 parser.add_argument('-d', '--database', help='mySQL database name', required=True)
 parser.add_argument('-t', '--table', help='mySQL table name', required=True)
 parser.add_argument('-i', '--infile', help='input coordinate file', required=True)
-parser.add_argument('-o', '--outfile', help='output file', required=True)
 parser.add_argument('-c', '--context', help='mC context', required=False, default=False)
 parser.add_argument('-b', '--binsize', help='Bin size', required=False, default=100, type=int)
 parser.add_argument('-n', '--numberbins', help='Number of bins', required=False, default=20, type=int)
-parser.add_argument('-m', '--all_mc_tables', help='all mC table names', required=True)
 options = parser.parse_args()
 
 
