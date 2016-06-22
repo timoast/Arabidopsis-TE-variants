@@ -64,7 +64,7 @@ def query_region(upstream, start, stop, options, chrom, cursor):
             mc_start = stop + (a*options.binsize)    # starts with stop == stop, increase by 1 binsize each step
             mc_end = stop + ((a+1)* options.binsize) # one binsize larger
         if options.context is not False:
-            query = "select sum(mc), sum(h) from {db} where class = '{c}' and assembly = '{chrom}' and (position between {mc_start} and {mc_end});".format(
+            query = "select sum(mc), sum(h) from {db} where context = '{c}' and assembly = '{chrom}' and (position between {mc_start} and {mc_end});".format(
                 db=options.database + '.' + options.table,
                 chrom=chrom,
                 c=options.context,
@@ -119,7 +119,8 @@ def process_all(options):
                 pass
             else:
                 mc_values = get_data(chrom, start, stop, options, cursor)
-                print(feature_name+"\t"+"\t".join(map(str,mc_values))+"\n")
+                rounded = [round(x, 4) for x in mc_values]
+                print(feature_name+"\t"+"\t".join(map(str, rounded))+"\n")
     cursor.close()
     link.close()
     coordinate_file.close()
