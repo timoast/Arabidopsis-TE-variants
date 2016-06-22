@@ -53,7 +53,7 @@ def query_region(upstream, start, stop, options, chrom, cursor):
             # upstream region
             mc_start = upstream + (x*options.binsize)           # starts 0 offset (0 x binsize)
             mc_end = upstream + ((x+1)* options.binsize)        # stops at upstream + 1xbinsize
-        else if options.numberbins < x < options.numberbins*2:  # between 20 and 40
+        elif options.numberbins < x < options.numberbins*2:  # between 20 and 40
             # body
             # binsize is different for body (non-standard length)
             a = int(x-(options.numberbins))       # start 0: x = 20, x - numberbins (20) = 0
