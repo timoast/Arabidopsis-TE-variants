@@ -120,7 +120,7 @@ def process_all(options):
             else:
                 mc_values = get_data(chrom, start, stop, options, cursor)
                 rounded = [round(x, 4) for x in mc_values]
-                print(feature_name+"\t"+"\t".join(map(str, rounded))+"\n")
+                print(feature_name+"\t"+"\t".join(map(str, rounded)))
     cursor.close()
     link.close()
     coordinate_file.close()
