@@ -64,3 +64,4 @@ target/
 # R
 .Rhistory
 
+*.ai
