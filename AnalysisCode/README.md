@@ -11,3 +11,4 @@ Code for running analyses on processed datasets goes here
 **TE_insertion_distribution.R**: Find the minor allele frequency distribution, distribution of TE variant lengths, and the genomic distribution of TE insertions, TE deletions, rare variants and common variants. Find the frequency of TE variants occurring in different genomic features, such as genes, DHS sites, other TEs or pseudogenes. Compare rare variants and common variants, and compare TE insertions to TE deletions.  
 **kee_regions.R**: Checks for TEPAV enrichments in the KNOT-engaged elements, calculate p-values and plot results as a histogram and a table.  
 **RNA_heatmaps.R**: Plot heatmaps showing expression of selected genes with TE insertion effects on gene expression.
+**coverage_vs_variants.R**: Plot the number of variants found in each accession vs the sequencing depth of coverage for that accession.  
