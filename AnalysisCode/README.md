@@ -12,3 +12,4 @@ Code for running analyses on processed datasets goes here
 **kee_regions.R**: Checks for TEPAV enrichments in the KNOT-engaged elements, calculate p-values and plot results as a histogram and a table.  
 **RNA_heatmaps.R**: Plot heatmaps showing expression of selected genes with TE insertion effects on gene expression.
 **coverage_vs_variants.R**: Plot the number of variants found in each accession vs the sequencing depth of coverage for that accession.  
+**trans_DMR_analysis.R**: All-vs-all correlations for TE presence/absence and DMR methylation level. Plot results as heatmap.  *Note - this script cannot be run directly to get the figures as output*
