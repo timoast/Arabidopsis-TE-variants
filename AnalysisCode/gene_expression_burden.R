@@ -186,7 +186,7 @@ dot_plot <- function(insertions, deletions, random, title, brk = 72) {
   legend("top", paste("Rsq = ", rsq.deletion, ", p = ", p.deletion), bty = "n")
 
   plot(combined.hist$counts, pch=19, col = "blue", las=1, cex = 0.6,
-       main = paste(title, " combined insertions and deletion"), xlab = "Expression bin", ylab = "Rare variants")
+       main = paste(title, " combined \n insertions and deletion"), xlab = "Expression bin", ylab = "Rare variants")
   lines(model.combined$fitted.values)
   legend("top", paste("Rsq = ", rsq.combined, ", p = ", p.combined), bty = "n")
   
@@ -198,11 +198,12 @@ dot_plot <- function(insertions, deletions, random, title, brk = 72) {
 }
 
 ## Plots
-pdf("../Plots/burden_gene_expression_dot_plots.pdf", width = 4, height = 4, useDingbats=FALSE)
-dot_plot(exon.ranks.insertion, exon.ranks.deletion, exon.rand, "Exon")
+pdf("../Plots/burden_gene_expression_dot_plots.pdf", width = 10, height = 15, useDingbats=FALSE)
+par(mfrow=c(6,4))
 dot_plot(upstream.ranks.insertion, upstream.ranks.deletion, upstream.rand, "Upstream")
-dot_plot(downstream.ranks.insertion, downstream.ranks.deletion, downstream.rand, "Downstream")
+dot_plot(utr5.ranks.insertion, utr5.ranks.deletion, utr5.rand, "5' UTR")
+dot_plot(exon.ranks.insertion, exon.ranks.deletion, exon.rand, "Exon")
 dot_plot(intron.ranks.insertion, intron.ranks.deletion, intron.rand, "Intron")
 dot_plot(utr3.ranks.insertion, utr3.ranks.deletion, utr3.rand, "3' UTR")
-dot_plot(utr5.ranks.insertion, utr5.ranks.deletion, utr5.rand, "5' UTR")
+dot_plot(downstream.ranks.insertion, downstream.ranks.deletion, downstream.rand, "Downstream")
 dev.off()
