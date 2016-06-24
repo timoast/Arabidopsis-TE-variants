@@ -6,8 +6,16 @@ set.seed(1)
 
 # load data
 mC <- read.table("../ProcessedData/c_dmr_allC.tsv.gz", header = T)
+mCG <- read.table("../ProcessedData/cg_dmrs_allC.tsv.gz", header = T)
 
 TE_DMR <- read_tsv("../ProcessedData/TE_C_DMR_distances.bed.gz", col_names = F) %>%
+  filter(X16 < 1000) %>%
+  rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
+         pos_accessions = X8, neg_accessions = X9,
+         AbsenceClassification = X13, FrequencyClassification = X15) %>%
+  filter(FrequencyClassification == "Rare")
+
+TE_CG_DMR <- read_tsv("../ProcessedData/TE_CG_DMR_distances.bed.gz", col_names = F) %>%
   filter(X16 < 1000) %>%
   rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
          pos_accessions = X8, neg_accessions = X9,
@@ -21,11 +29,19 @@ for(i in 1:nrow(mC)) {
 }
 ranks_mc <- cbind(chr = mC$chr, start = mC$start, stop = mC$stop, ranks_mc)
 
+ranks_mCG <- mCG[0,4:ncol(mCG)]
+for(i in 1:nrow(mCG)) {
+  ranks_mCG[i,] <- rank(mCG[i,4:ncol(mCG)], ties.method = "first")
+}
+ranks_mCG <- cbind(chr = mCG$chr, start = mCG$start, stop = mCG$stop, ranks_mCG)
+
 # save mC ranks
 write_tsv(ranks_mc, "../ProcessedData/c_dmr_mc_ranks.tsv")
 system("gzip ../ProcessedData/c_dmr_mc_ranks.tsv")
 
-# from gene expression burden:
+write_tsv(ranks_mc, "../ProcessedData/cg_dmr_mc_ranks.tsv")
+system("gzip ../ProcessedData/cg_dmr_mc_ranks.tsv")
+
 gatherData <- function(tepav, ranks) {
   data <- vector()
   for(i in 1:nrow(tepav)){
@@ -64,6 +80,7 @@ gatherDataRand <- function(tepav, ranks) {
   return(data)
 }
 
+# C-DMRs
 deletions <- filter(TE_DMR, AbsenceClassification == "True deletion")
 insertions <- filter(TE_DMR, AbsenceClassification == "No insertion")
 
@@ -73,6 +90,17 @@ insertion.ranks <- gatherData(insertions, ranks_mc)
 # randomized
 deletion.rand <- gatherDataRand(deletions, ranks_mc)
 insertion.rand <- gatherDataRand(insertions, ranks_mc)
+
+# CG-DMRs
+cg.deletions <- filter(TE_CG_DMR, AbsenceClassification == "True deletion")
+cg.insertions <- filter(TE_CG_DMR, AbsenceClassification == "No insertion")
+
+cg.deletion.ranks <- gatherData(cg.deletions, ranks_mCG)
+cg.insertion.ranks <- gatherData(cg.insertions, ranks_mCG)
+
+# randomized
+cg.deletion.rand <- gatherDataRand(cg.deletions, ranks_mCG)
+cg.insertion.rand <- gatherDataRand(cg.insertions, ranks_mCG)
 
 # plots
 lmp <- function (modelobject) {
@@ -110,13 +138,15 @@ dot_plot <- function(real, random, title, brk = 72) {
   legend("top", paste("Rsq = ", rsq.rand, ", p = ", p.rand), bty = "n")
 }
 
-pdf("../Plots/burden_dmr_methylation_dot_plots.pdf", width = 4, height = 4, useDingbats=FALSE)
+pdf("../Plots/burden_c_dmr_methylation_dot_plots.pdf", width = 6, height = 6, useDingbats=FALSE)
+par(mfrow=c(2,2))
 dot_plot(deletion.ranks, deletion.rand, "Deletions")
 dot_plot(insertion.ranks, insertion.rand, "Insertions")
 dev.off()
-# 
-# df <- data.frame(rank = deletion.ranks, class = "Deletion")
-# df2 <- data.frame(rank = insertion.ranks, class = "Insertion")
-# dat <- rbind(df, df2)
-# 
-# ggplot(dat, aes(rank, fill = class)) + geom_density(alpha = 0.5) + theme_bw()
+
+pdf("../Plots/burden_cg_dmr_methylation_dot_plots.pdf", width = 6, height = 6, useDingbats=FALSE)
+par(mfrow=c(2,2))
+dot_plot(cg.deletion.ranks, cg.deletion.rand, "Deletions")
+dot_plot(cg.insertion.ranks, cg.insertion.rand, "Insertions")
+dev.off()
+
