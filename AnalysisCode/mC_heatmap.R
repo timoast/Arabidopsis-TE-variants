@@ -14,22 +14,6 @@ mc_true_deletion_2kb.sums <- mutate(mc_true_deletion_2kb, sums=rowSums(mc_true_d
 mc_no_insertion_2kb.sort <- arrange(mc_no_insertion_2kb.sums, desc(sums))
 mc_true_deletion_2kb.sort <- arrange(mc_true_deletion_2kb.sums, desc(sums))
 
-# categorical heatmap
-# cat_hmap <- function(d) {
-#   heatmap.2(d,Colv=NA,
-#             #col=brewer.pal(9, "Dark2"),
-#             col=brewer.pal(4, "Spectral"),
-#             labRow = "",
-#             labCol = "",
-#             dendrogram = "none",
-#             trace = "none",
-#             par(cex.main=0.7,
-#                 cex.lab=0.7,
-#                 cex.axis=0.7
-#             ),
-#             cex.lab=0.7)
-# }
-
 scale_max <- function(m, l){
   m.floor <- m > l
   m[m.floor] <- l
@@ -57,4 +41,72 @@ dev.off()
 
 png("../Plots/heatmap_ins_del.png", height = 6, width = 3, units = "in", res = 1200)
 image(both_scaled, col=color)
+dev.off()
+
+# make line charts of each mC context
+
+mCG_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CG_no_insertion.tsv.gz", col_names = T)
+mCG_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CG_true_deletions.tsv.gz", col_names = T)
+
+mCHG_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHG_no_insertion.tsv.gz", col_names = T)
+mCHG_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHG_true_deletions.tsv.gz", col_names = T)
+
+mCHH_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHH_no_insertion.tsv.gz", col_names = T)
+mCHH_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHH_true_deletions.tsv.gz", col_names = T)
+
+
+# get colMeans
+ins_means_cg <- colMeans(mCG_no_insertion_2kb[,2:21])
+ins_means_cg_absent <- colMeans(mCG_no_insertion_2kb[,21:41])
+
+ins_means_chg <- colMeans(mCHG_no_insertion_2kb[,2:21])
+ins_means_chg_absent <- colMeans(mCHG_no_insertion_2kb[,21:41])
+
+ins_means_chh <- colMeans(mCHH_no_insertion_2kb[,2:21])
+ins_means_chh_absent <- colMeans(mCHH_no_insertion_2kb[,21:41])
+
+del_means_cg <- colMeans(mCG_true_deletion_2kb[,2:21])
+del_means_cg_absent <- colMeans(mCG_true_deletion_2kb[,21:41])
+
+del_means_chg <- colMeans(mCHG_true_deletion_2kb[,2:21])
+del_means_chg_absent <- colMeans(mCHG_true_deletion_2kb[,21:41])
+
+del_means_chh <- colMeans(mCHH_true_deletion_2kb[,2:21])
+del_means_chh_absent <- colMeans(mCHH_true_deletion_2kb[,21:41])
+
+# define colours
+cg <- '#B4B464'
+chg <- '#6665AD'
+chh <- '#B29492'
+
+line_plot <- function(d1, d2, d3, scale) {
+  plot(d1,
+       type = 'l',
+       main = "TE insertion",
+       ylab = "Methylation level",
+       xlab = "Position",
+       las = 1,
+       lwd = 2,
+       cex.main=0.6,
+       cex.axis=0.6,
+       cex.lab=0.6,
+       col = cg,
+       ylim = c(0,scale)
+  )
+  lines(d2,
+        col=chg,
+        lwd = 2
+  )
+  lines(d3,
+        col=chh,
+        lwd = 2
+  )
+}
+
+pdf("../Plots/flanking_mc_line_charts.pdf", height=4, width=4, useDingbats = F)
+par(mfrow=c(2,2), mar=c(2,2,2,2))
+line_plot(ins_means_cg,ins_means_chg,ins_means_chh, 0.6)
+line_plot(ins_means_cg_absent, ins_means_chg_absent, ins_means_chh_absent, 0.6)
+line_plot(del_means_cg,del_means_chg,del_means_chh, 0.6)
+line_plot(del_means_cg_absent, del_means_chg_absent, del_means_chh_absent, 0.6)
 dev.off()
