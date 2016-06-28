@@ -16,3 +16,8 @@ wc -l */deletions* \
 | python get_counts.py - \
 | sed '$ d' \
 > ../ProcessedData/deletion_counts.tsv
+
+wc -l */second_pass_insertion* \
+| python get_counts.py -\
+| sed '$ d' \
+> ../ProcessedData/refinement_stats.tsv
