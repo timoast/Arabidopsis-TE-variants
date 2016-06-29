@@ -2,6 +2,7 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
+library(reshape2)
 
 # TEPID TE calls
 tepav <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz", col_names = T)
@@ -38,16 +39,20 @@ dev.off()
 
 # 3. Plot genomic distribution of TE variants, for rare, common, TE deletions vs no insertions, and all together
 
-rare_vs_common_colors <- c("#FC9272", "#67000D")
-ins_vs_del_colors <- c("#9ECAE1", "#08306B")
+rare_col <- "#FC9272"
+common_col <- "#67000D"
+
+insertion_col <- brewer.pal(3, "Set2")[1]
+deletion_col <- brewer.pal(3, "Set2")[3]
+na_col <- brewer.pal(9, "Blues")[2]
 
 ggplot(tepav, aes(start, color = Frequency_classification)) +
-  geom_density(adjust = 1/8) + scale_color_manual(values = rare_vs_common_colors) +
+  geom_density(adjust = 1/8) + scale_color_manual(values = c(rare_col, common_col)) +
   facet_wrap(~chromosome, nrow = 1) + theme_bw() +
   ggsave("chomosomal_dist_rare_vs_common_line_chart.pdf", path = "../Plots", height = 3, width = 20)
 
 ggplot(tepav, aes(start, color = Absence_classification)) +
-  geom_density(adjust = 1/8) + scale_color_manual(values = ins_vs_del_colors) +
+  geom_density(adjust = 1/8) + scale_color_manual(values = c(insertion_col, deletion_col)) +
   facet_wrap(~chromosome, nrow = 1) + theme_bw() +
   ggsave("chomosomal_dist_ins_vs_del_line_chart.pdf", path = "../Plots", height = 3, width = 20)
 
@@ -253,24 +258,33 @@ df %>%
 # make plots
 feature_order <-  c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogene", "TE")
 
+rare_col <- brewer.pal(6, "Set3")[4]
+common_col <- brewer.pal(6, "Set3")[6]
+
+insertion_col <- brewer.pal(3, "Set2")[1]
+deletion_col <- brewer.pal(3, "Set2")[3]
+na_col <- brewer.pal(9, "Blues")[2]
+
 insertionStats %>%
   select(feature, rare_perc, common_perc) %>%
   melt() %>%
   ggplot(., aes(feature, value, fill = variable)) +
   geom_bar(stat = "identity", color = "Black") +theme_bw() +
-  scale_fill_brewer(palette = "BuPu", direction = -1) +
+  ylab("Percentage") + ggtitle("Rare vs common") +
+  scale_fill_manual(values=c(rare_col, common_col)) +
   scale_x_discrete(limits = feature_order) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=8), legend.position="none") +
   ggsave(filename = "rare_vs_common_genomic_feaures.pdf",
-         path = "../Plots", height = 5, width = 5)
+         path = "../Plots", height = 7, width = 5, units = "cm")
 
 insertionStats %>%
   select(feature, insertion_perc, deletion_perc, del_na_perc) %>%
   melt() %>%
   ggplot(., aes(feature, value, fill = variable)) +
   geom_bar(stat = "identity", color = "Black") + theme_bw() + 
-  scale_fill_brewer(palette = "BuGn", direction = -1) +
+  scale_fill_manual(values=c(insertion_col, deletion_col, na_col)) +
+  ylab("Percentage") + ggtitle("Insertions vs deletions") +
   scale_x_discrete(limits = feature_order) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=8), legend.position="none") +
   ggsave(filename = "insertion_vs_deletion_genomic_feaures.pdf",
-       path = "../Plots", height = 5, width = 5)
+       path = "../Plots", height = 7, width = 5, units = "cm")

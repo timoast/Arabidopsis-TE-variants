@@ -184,8 +184,7 @@ deletion_col <- brewer.pal(3, "Set2")[3]
 ggplot(all, aes(Superfamily, Enrichment, fill = indel)) + geom_bar(stat="identity", color="black", position="dodge") + theme_bw() +
   scale_fill_manual(values = c(deletion_col, insertion_col)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
-        text=element_text(size=10),
-        legend.position="none") +
+        text=element_text(size=10)) +
   ggsave(height=6,width=12, units = "cm", filename="../Plots/Enrichments/superfamily_enrichments_indel.pdf", useDingbats=FALSE)
 
 # family
