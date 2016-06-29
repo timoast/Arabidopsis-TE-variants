@@ -11,6 +11,7 @@ dat <- left_join(cov, ins) %>% left_join(del) %>%
   gather(indel, Count, Insertions, Absences)
 
 ref <- left_join(refine, ins) %>% mutate(perc = Refined / Insertions * 100)
+ref <- left_join(ref, cov)
 
 model.del <- lm(Count ~ Coverage, data=filter(dat, indel == "Absences"))
 rsq.del <- signif(summary(model.del)$adj.r.squared, 3)
@@ -18,8 +19,11 @@ rsq.del <- signif(summary(model.del)$adj.r.squared, 3)
 model.ins <- lm(Count ~ Coverage, data=filter(dat, indel == "Insertions"))
 rsq.ins <- signif(summary(model.ins)$adj.r.squared, 3)
 
-pdf("../Plots/coverage_variant_count.pdf", height=4, width = 6.5, useDingbats = F)
-par(mfrow=c(1,2))
+model.ref <- lm(Refined ~ Coverage, data=ref)
+rsq.ref <- signif(summary(model.ref)$adj.r.squared, 3)
+
+pdf("../Plots/coverage_variant_count.pdf", height=3, width = 8, useDingbats = F)
+par(mfrow=c(1,3))
 plot(Count ~ Coverage, data=filter(dat, indel == "Absences"), ylim=c(0, 2000), cex=0.8, las=2)
 abline(model.del)
 title("TE absences")
@@ -29,6 +33,11 @@ plot(Count ~ Coverage, data=filter(dat, indel == "Insertions"), ylim=c(0, 800), 
 abline(model.ins)
 title("TE insertions")
 legend("top", paste("Rsq = ", rsq.ins), bty = "n")
+
+plot(Refined ~ Coverage, data=ref, ylab = "Count", cex=0.8, las=2)
+abline(model.ref)
+title("Refined insertion calls")
+legend("top", paste("Rsq = ", rsq.ref), bty = "n")
 dev.off()
 
 pdf("../Plots/refinement_stats.pdf", height = 4, width = 4)
