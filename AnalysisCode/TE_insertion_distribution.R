@@ -275,7 +275,7 @@ insertionStats %>%
   scale_x_discrete(limits = feature_order) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=8), legend.position="none") +
   ggsave(filename = "rare_vs_common_genomic_feaures.pdf",
-         path = "../Plots", height = 7, width = 5, units = "cm")
+         path = "../Plots", height = 8, width = 5, units = "cm")
 
 insertionStats %>%
   select(feature, insertion_perc, deletion_perc, del_na_perc) %>%
@@ -287,4 +287,4 @@ insertionStats %>%
   scale_x_discrete(limits = feature_order) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=8), legend.position="none") +
   ggsave(filename = "insertion_vs_deletion_genomic_feaures.pdf",
-       path = "../Plots", height = 7, width = 5, units = "cm")
+       path = "../Plots", height = 8, width = 5, units = "cm")
