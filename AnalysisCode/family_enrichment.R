@@ -1,6 +1,8 @@
 library(readr)
 library(dplyr)
 library(xtable)
+library(ggplot2)
+library(RColorBrewer)
 
 
 all_te <- read_tsv("../RawData/TAIR9_TE.bed.gz", col_names = c("chrom", "start", "stop", "strand", "TE", "Family", "Superfamily"))
@@ -66,8 +68,6 @@ ggplot(sfam, aes(Superfamily, Enrichment, fill = cat)) + geom_bar(stat="identity
         text=element_text(size=10),
         legend.position="none") +
   ggsave(height=5,width=8, units = "cm", filename="../Plots/Enrichments/superfamily_enrichments.pdf", useDingbats=FALSE)
-
-### TODO: insertions and deletions separately ###
 
 ### Deletions
 
@@ -178,10 +178,14 @@ all <- left_join(sfam_ins, sfam_del, by="Superfamily") %>%
 all$indel[all$indel == "Enrichment.x"] <- "Insertions"
 all$indel[all$indel == "Enrichment.y"] <- "Deletions"
 
+insertion_col <- brewer.pal(3, "Set2")[1]
+deletion_col <- brewer.pal(3, "Set2")[3]
+
 ggplot(all, aes(Superfamily, Enrichment, fill = indel)) + geom_bar(stat="identity", color="black", position="dodge") + theme_bw() +
-  scale_fill_brewer(type = "qual", palette = 6, direction = -1) +
+  scale_fill_manual(values = c(deletion_col, insertion_col)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
-        text=element_text(size=10)) +
+        text=element_text(size=10),
+        legend.position="none") +
   ggsave(height=6,width=12, units = "cm", filename="../Plots/Enrichments/superfamily_enrichments_indel.pdf", useDingbats=FALSE)
 
 # family
@@ -199,25 +203,25 @@ pt3 <- all_fam[320:480,]
 pt4 <- all_fam[480:642,]
 
 ggplot(pt1, aes(Family, Enrichment, fill = indel)) + geom_bar(stat="identity", color="black", position="dodge") + theme_bw() +
-  scale_fill_brewer(type = "qual", palette = 6, direction = -1) +
+  scale_fill_manual(values = c(deletion_col, insertion_col)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         text=element_text(size=6)) +
   ggsave(height=6,width=25, units = "cm", filename="../Plots/Enrichments/family_enrichments_indel_pt1.pdf", useDingbats=FALSE)
 
 ggplot(pt2, aes(Family, Enrichment, fill = indel)) + geom_bar(stat="identity", color="black", position="dodge") + theme_bw() +
-  scale_fill_brewer(type = "qual", palette = 6, direction = -1) +
+  scale_fill_manual(values = c(deletion_col, insertion_col)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         text=element_text(size=6)) +
   ggsave(height=6,width=25, units = "cm", filename="../Plots/Enrichments/family_enrichments_indel_pt2.pdf", useDingbats=FALSE)
 
 ggplot(pt3, aes(Family, Enrichment, fill = indel)) + geom_bar(stat="identity", color="black", position="dodge") + theme_bw() +
-  scale_fill_brewer(type = "qual", palette = 6, direction = -1) +
+  scale_fill_manual(values = c(deletion_col, insertion_col)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         text=element_text(size=6)) +
   ggsave(height=6,width=25, units = "cm", filename="../Plots/Enrichments/family_enrichments_indel_pt3.pdf", useDingbats=FALSE)
 
 ggplot(pt4, aes(Family, Enrichment, fill = indel)) + geom_bar(stat="identity", color="black", position="dodge") + theme_bw() +
-  scale_fill_brewer(type = "qual", palette = 6, direction = -1) +
+  scale_fill_manual(values = c(deletion_col, insertion_col)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         text=element_text(size=6)) +
   ggsave(height=6,width=25, units = "cm", filename="../Plots/Enrichments/family_enrichments_indel_pt4.pdf", useDingbats=FALSE)
