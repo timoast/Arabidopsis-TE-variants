@@ -39,7 +39,7 @@ ranks_mCG <- cbind(chr = mCG$chr, start = mCG$start, stop = mCG$stop, ranks_mCG)
 write_tsv(ranks_mc, "../ProcessedData/c_dmr_mc_ranks.tsv")
 system("gzip ../ProcessedData/c_dmr_mc_ranks.tsv")
 
-write_tsv(ranks_mc, "../ProcessedData/cg_dmr_mc_ranks.tsv")
+write_tsv(ranks_mCG, "../ProcessedData/cg_dmr_mc_ranks.tsv")
 system("gzip ../ProcessedData/cg_dmr_mc_ranks.tsv")
 
 gatherData <- function(tepav, ranks) {
