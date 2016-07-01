@@ -43,6 +43,12 @@ png("../Plots/heatmap_ins_del.png", height = 6, width = 3, units = "in", res = 1
 image(both_scaled, col=color)
 dev.off()
 
+# scale bar
+pdf("../Plots/mc_heatmap_scale.pdf", height=2, width=5)
+image(data.matrix(seq(100)), col = color)
+dev.off()
+
+
 # make line charts of each mC context
 
 mCG_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CG_no_insertion.tsv.gz", col_names = T)
