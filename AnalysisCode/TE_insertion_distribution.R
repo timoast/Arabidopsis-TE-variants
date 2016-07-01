@@ -39,8 +39,8 @@ dev.off()
 
 # 3. Plot genomic distribution of TE variants, for rare, common, TE deletions vs no insertions, and all together
 
-rare_col <- "#FC9272"
-common_col <- "#67000D"
+rare_col <- brewer.pal(6, "Set3")[4]
+common_col <- brewer.pal(6, "Set3")[6]
 
 insertion_col <- brewer.pal(3, "Set2")[1]
 deletion_col <- brewer.pal(3, "Set2")[3]
@@ -257,13 +257,6 @@ df %>%
 
 # make plots
 feature_order <-  c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogene", "TE")
-
-rare_col <- brewer.pal(6, "Set3")[4]
-common_col <- brewer.pal(6, "Set3")[6]
-
-insertion_col <- brewer.pal(3, "Set2")[1]
-deletion_col <- brewer.pal(3, "Set2")[3]
-na_col <- brewer.pal(9, "Blues")[2]
 
 insertionStats %>%
   select(feature, rare_perc, common_perc) %>%
