@@ -178,9 +178,6 @@ all <- left_join(sfam_ins, sfam_del, by="Superfamily") %>%
 all$indel[all$indel == "Enrichment.x"] <- "Insertions"
 all$indel[all$indel == "Enrichment.y"] <- "Deletions"
 
-insertion_col <- brewer.pal(3, "Set2")[1]
-deletion_col <- brewer.pal(3, "Set2")[3]
-
 ggplot(all, aes(Superfamily, Enrichment, fill = indel)) + geom_bar(stat="identity", color="black", position="dodge") + theme_bw() +
   scale_fill_manual(values = c(deletion_col, insertion_col)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
