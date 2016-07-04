@@ -113,18 +113,17 @@ image(data.matrix(seq(100)), col = color)
 dev.off()
 
 # 3. Find frequency that insertions / deletions occur in different genomic features
-# common header for all most files
+# common header for most files
 intersectHead <- c("chromsome", "start", "end", "TE", "accessions_te_present",
-                   "accessions_te_absent", "present_count", "absent_count", "MinoAllele",
+                   "accessions_te_absent", "present_count", "absent_count", "MinorAllele",
                    "AbsenceClassification", "MAF", "FrequencyClassification", "FeatureChrom",
                    "FeatureStart", "FeatureStop", "FeatureName")
 
 # common header for upstream and downstream
 geneHeader <- c("chromsome", "start", "end", "TE", "accessions_te_present",
-                   "accessions_te_absent", "present_count", "absent_count", "MinoAllele",
+                   "accessions_te_absent", "present_count", "absent_count", "MinorAllele",
                    "AbsenceClassification", "MAF", "FrequencyClassification", "FeatureChrom",
-                   "FeatureStart", "FeatureStop", "GeneName", "Zero", "Strand", "TAIR10", "Feature",
-                "zero2", "ID")
+                   "FeatureStart", "FeatureStop", "GeneName", "Strand", "TAIR10", "Feature", "ID")
 
 
 # upstream
