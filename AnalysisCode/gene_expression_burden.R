@@ -6,14 +6,12 @@ set.seed(1)
 expression <- read.table("../RawData/gene_expression.tsv.gz", header = T, row.names = 1)
 
 upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed.gz", col_names = F) %>%
-  select(X5:X12, X22) %>%
-  mutate(gene = substr(X22, 4, 12)) %>%
-  rename(pos_accessions = X5, neg_accessions = X6)
+  select(X5:X12, X16) %>%
+  rename(pos_accessions = X5, neg_accessions = X6, gene = X16)
 
 downstream <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions_intersections.bed.gz", col_names = F) %>%
-  select(X5:X12, X22) %>%
-  mutate(gene = substr(X22, 4, 12)) %>%
-  rename(pos_accessions = X5, neg_accessions = X6)
+  select(X5:X12, X16) %>%
+  rename(pos_accessions = X5, neg_accessions = X6, gene = X16)
 
 exon <- read_tsv("../ProcessedData/GeneFeatures/exon_intersections.bed.gz", col_names = F) %>%
   mutate(gene = substr(X16, 8, 16)) %>%
