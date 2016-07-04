@@ -1,6 +1,6 @@
-   10311 ../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed
+   11368 ../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed
    28775 ../ProcessedData/GeneFeatures/gene_upstream_regions.bed
-   10371 ../ProcessedData/GeneFeatures/gene_downstream_regions_intersections.bed
+    9308 ../ProcessedData/GeneFeatures/gene_downstream_regions_intersections.bed
    28775 ../ProcessedData/GeneFeatures/gene_downstream_regions.bed
     2574 ../ProcessedData/GeneFeatures/intron_intersections.bed
    86019 ../ProcessedData/GeneFeatures/introns.bed
@@ -14,3 +14,5 @@
      924 ../ProcessedData/GeneFeatures/pseudogene.bed
    15251 ../ProcessedData/GeneFeatures/te_intersections.bed
    31189
+    1769 ../ProcessedData/GeneFeatures/dhs_intersections.bed
+   34637

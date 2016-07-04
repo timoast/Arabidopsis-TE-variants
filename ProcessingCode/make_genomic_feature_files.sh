@@ -19,13 +19,9 @@ gunzip -c ../RawData/TEPID_TEPAV.tsv.gz | sed 1d > tepid_tepav.tsv
 
 touch ../ProcessedData/gene_feature_counts.csv
 
-# Upstream
+# Upstream THIS DOESN'T TAKE INTO ACCOUNT STRANDS
 echo Upstream
-gunzip -c ../RawData/TAIR10_GFF3_genes.gff.gz \
-| awk 'BEGIN {FS=OFS="\t"} {if ($3 == "gene") print $0}' - \
-| awk 'BEGIN {FS=OFS="\t"} {$3 = "upstream"; $5 = $4; $4 = $4 - 2000; if ($4 < 0) $4 = 1; print $0}' - \
-| gff2bed \
-> ../ProcessedData/GeneFeatures/gene_upstream_regions.bed
+python gene_flanking.py -r upstream -f ../RawData/TAIR10_GFF3_genes.gff.gz > ../ProcessedData/GeneFeatures/gene_upstream_regions.bed
 
 bedtools intersect -a tepid_tepav.tsv -b ../ProcessedData/GeneFeatures/gene_upstream_regions.bed -wb \
 > ../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed
@@ -40,11 +36,7 @@ wc -l ../ProcessedData/GeneFeatures/gene_upstream_regions.bed \
 
 # Downstream
 echo Downstream
-gunzip -c ../RawData/TAIR10_GFF3_genes.gff.gz \
-| awk 'BEGIN {FS=OFS="\t"} {if ($3 == "gene") print $0}' - \
-| awk 'BEGIN {FS=OFS="\t"} {$3 = "downstream"; $4 = $5; $5 = $5 + 2000; print $0}' - \
-| gff2bed \
-> ../ProcessedData/GeneFeatures/gene_downstream_regions.bed
+python gene_flanking.py -r downstream -f ../RawData/TAIR10_GFF3_genes.gff.gz > ../ProcessedData/GeneFeatures/gene_downstream_regions.bed
 
 bedtools intersect -a tepid_tepav.tsv -b ../ProcessedData/GeneFeatures/gene_downstream_regions.bed -wb \
 > ../ProcessedData/GeneFeatures/gene_downstream_regions_intersections.bed
