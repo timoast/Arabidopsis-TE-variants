@@ -19,7 +19,7 @@ gunzip -c ../RawData/TEPID_TEPAV.tsv.gz | sed 1d > tepid_tepav.tsv
 
 touch ../ProcessedData/gene_feature_counts.csv
 
-# Upstream THIS DOESN'T TAKE INTO ACCOUNT STRANDS
+# Upstream
 echo Upstream
 python gene_flanking.py -r upstream -f ../RawData/TAIR10_GFF3_genes.gff.gz > ../ProcessedData/GeneFeatures/gene_upstream_regions.bed
 
