@@ -52,7 +52,7 @@ ggplot(tepav, aes(start, color = Frequency_classification)) +
   ggsave("chomosomal_dist_rare_vs_common_line_chart.pdf", path = "../Plots", height = 3, width = 20)
 
 ggplot(tepav, aes(start, color = Absence_classification)) +
-  geom_density(adjust = 1/8) + scale_color_manual(values = c(insertion_col, deletion_col)) +
+  geom_density(adjust = 1/8) + scale_color_manual(values = c(na_col, deletion_col, insertion_col)) +
   facet_wrap(~chromosome, nrow = 1) + theme_bw() +
   ggsave("chomosomal_dist_ins_vs_del_line_chart.pdf", path = "../Plots", height = 3, width = 20)
 
@@ -70,6 +70,9 @@ rare_te <- get_distribution(filter(chr1, Frequency_classification == "Rare")$sta
 common_te <- get_distribution(filter(chr1,  Frequency_classification == "Common")$start, 1000)[1:608]
 te_ins <- get_distribution(filter(chr1, Absence_classification == "No insertion")$start, 1000)[1:608]
 te_del <- get_distribution(filter(chr1, Absence_classification == "True deletion")$start, 1000)[1:608]
+# high_ld <- get_distribution(filter(chr1, LD == "high")$start, 1000)[1:608]
+# mid_ld <- get_distribution(filter(chr1, LD == "mid")$start, 1000)[1:608]
+# low_ld <- get_distribution(filter(chr1, LD == "low")$start, 1000)[1:608]
 
 # # group together and scale each to it's maximum value
 # all_hist_scaled <- cbind(all_tepav, rare_te, common_te, te_ins, te_del)
@@ -280,3 +283,29 @@ insertionStats %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=8), legend.position="none") +
   ggsave(filename = "insertion_vs_deletion_genomic_feaures.pdf",
        path = "../Plots", height = 8, width = 5, units = "cm")
+
+tepav$LD <- factor(tepav$LD, levels = c("high", "mid", "low", NA))
+
+ggplot(tepav, aes(LD, MAF)) +
+  geom_boxplot(fill="lightblue", outlier.shape = NA) + theme_bw() +
+  coord_flip() +
+  ggsave(filename = "MAF_vs_LD.pdf",
+         path = "../Plots", height = 4, width = 10, units = "cm")
+
+data <- tepav %>% 
+  filter(Absence_classification != "NA") %>% 
+  select(Absence_classification, LD)
+
+data <- na.omit(data) %>%
+  group_by(Absence_classification, LD) %>% summarise(count = n()) %>%
+  mutate(n = sum(count)) %>%
+  rowwise() %>% mutate(perc = count / n * 100)
+
+ggplot(data, aes(Absence_classification, perc, fill=LD)) +
+  geom_bar(stat="identity", color="black") +
+  theme_bw() + scale_fill_brewer(type="seq", palette = 7, direction = -1) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 90)) +
+  ylab("Percentage") +
+  ggsave(filename = "LD_vs_indel.pdf",
+         path = "../Plots", height = 10, width = 6, units = "cm")
