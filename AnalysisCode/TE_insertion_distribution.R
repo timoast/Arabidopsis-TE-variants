@@ -70,9 +70,9 @@ rare_te <- get_distribution(filter(chr1, Frequency_classification == "Rare")$sta
 common_te <- get_distribution(filter(chr1,  Frequency_classification == "Common")$start, 1000)[1:608]
 te_ins <- get_distribution(filter(chr1, Absence_classification == "No insertion")$start, 1000)[1:608]
 te_del <- get_distribution(filter(chr1, Absence_classification == "True deletion")$start, 1000)[1:608]
-# high_ld <- get_distribution(filter(chr1, LD == "high")$start, 1000)[1:608]
-# mid_ld <- get_distribution(filter(chr1, LD == "mid")$start, 1000)[1:608]
-# low_ld <- get_distribution(filter(chr1, LD == "low")$start, 1000)[1:608]
+high_ld <- get_distribution(filter(chr1, LD == "high")$start, 1000)[1:608]
+mid_ld <- get_distribution(filter(chr1, LD == "mid")$start, 1000)[1:608]
+low_ld <- get_distribution(filter(chr1, LD == "low")$start, 1000)[1:608]
 
 # # group together and scale each to it's maximum value
 # all_hist_scaled <- cbind(all_tepav, rare_te, common_te, te_ins, te_del)
@@ -93,9 +93,14 @@ cg_dmrs_chr1 <- get_distribution(filter(all_cg_dmrs, X1 == "chr1")$X2, 500)[1:60
 
 all_features_chr1 <- cbind(te_ins, te_del, common_te, rare_te, c_dmrs_chr1, all_tepav, all_te_chr1,
                            cg_dmrs_chr1, all_genes_chr1)
+ld_features_chr1 <- cbind(high_ld, mid_ld, low_ld)
 
 pdf("../Plots/heatmap_te_insertions_chr1_all_features.pdf", height = 4, width = 5)
 image(all_features_chr1, col = color, xlab = "Chromosome 1")
+dev.off()
+
+pdf("../Plots/heatmap_te_insertions_ld.pdf", height = 4, width = 5)
+image(ld_features_chr1, col = color, xlab = "Chromosome 1")
 dev.off()
 
 # order top to bottom:
@@ -286,15 +291,22 @@ insertionStats %>%
 
 tepav$LD <- factor(tepav$LD, levels = c("high", "mid", "low", NA))
 
-ggplot(tepav, aes(LD, MAF)) +
-  geom_boxplot(fill="lightblue", outlier.shape = NA) + theme_bw() +
+low <- brewer.pal(n = 3, "PuRd")[1]
+mid <- brewer.pal(n = 3, "PuRd")[2]
+high <- brewer.pal(n = 3, "PuRd")[3]
+
+ggplot(tepav, aes(LD, MAF, fill=LD)) +
+  geom_boxplot(outlier.shape = NA) + theme_bw() +
+  scale_fill_brewer(type="seq", palette = 11, direction = -1) +
   coord_flip() +
+  theme(legend.position="none") +
   ggsave(filename = "MAF_vs_LD.pdf",
          path = "../Plots", height = 4, width = 10, units = "cm")
 
-data <- tepav %>% 
-  filter(Absence_classification != "NA") %>% 
-  select(Absence_classification, LD)
+data <- select(tepav, Absence_classification, LD)
+
+testable <- filter(tepav, !is.na(LD))
+testable %>% group_by(LD) %>% summarise(count = n(), perc = count/nrow(testable)*100)
 
 data <- na.omit(data) %>%
   group_by(Absence_classification, LD) %>% summarise(count = n()) %>%
@@ -303,9 +315,19 @@ data <- na.omit(data) %>%
 
 ggplot(data, aes(Absence_classification, perc, fill=LD)) +
   geom_bar(stat="identity", color="black") +
-  theme_bw() + scale_fill_brewer(type="seq", palette = 7, direction = -1) +
+  theme_bw() + scale_fill_manual(values = c(high, low, mid)) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90)) +
   ylab("Percentage") +
+  coord_flip() +
   ggsave(filename = "LD_vs_indel.pdf",
-         path = "../Plots", height = 10, width = 6, units = "cm")
+         path = "../Plots", height = 4, width = 15, units = "cm")
+
+ld <- read_tsv("../RawData/snp_association.tsv.gz")
+
+ggplot(ld, aes(ranks_over_median, fill=flag)) + geom_histogram(color="black") +
+  theme_bw() + scale_fill_manual(values = c(mid, high, low)) +
+  geom_vline(xintercept = c(200, 400)) +
+  theme(legend.position = "none") +
+  ggsave(filename = "LD_histogram.pdf",
+         path = "../Plots", height = 4, width = 10, units = "cm")
