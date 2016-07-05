@@ -19,6 +19,15 @@ polarized <- poly %>%
   ungroup()
 
 colnames(polarized) <- c("chromosome", "start", "end", "TE", "Accessions_TE_present", "Accessions_TE_absent", "Count_TE_present", "Count_TE_absent", "Minor_allele", "Absence_classification", "MAF", "Frequency_classification")
-write.table(polarized, file = "../RawData/tepav_regenerated.tsv",
-            quote = F, sep = "\t", na = "NA", row.names = F, col.names = T)
+# add the LD data
+polarized <- mutate(polarized, id = paste(chromosome, start, TE))
+
+ld <- read_tsv("../RawData/snp_association.tsv.gz") %>%
+  rowwise() %>%
+  mutate(id = paste(chrom, pos, TEID), LD = keys[[flag]]) %>%
+  select(id, LD)
+
+data <- left_join(polarized, ld, by = "id") %>%  select(-id)
+
+write_tsv(data,  "../RawData/tepav_regenerated.tsv")
 system("gzip ../RawData/tepav_regenerated.tsv")

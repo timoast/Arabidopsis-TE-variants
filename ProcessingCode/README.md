@@ -1,7 +1,7 @@
 ## Code for processing raw data into processed datasets.
 
 ### TE variant processing  
-**classify_te_absence.R**: Classify TE variants as being either due to the deletion of a common TE, or the insertion of a new TE.  
+**process_TEPAV_data.R**: Classify TE variants as being either due to the deletion of a common TE, or the insertion of a new TE. Add in SNP association data.   
 **split_true_deletions.sh**:  Create separate files for TE insertions and TE deletions.  
 
 ### Gene feature intersections with TE variants  
