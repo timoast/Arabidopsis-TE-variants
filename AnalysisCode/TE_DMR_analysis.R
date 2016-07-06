@@ -7,14 +7,14 @@ library(RColorBrewer)
 te_c_dmr <- read_tsv("../ProcessedData/TE_C_DMR_distances.bed.gz", col_names = F) %>%
   rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
          pos_accessions = X8, neg_accessions = X9,
-         AbsenceClassification = X13, FrequencyClassification = X15,
-         distance = X16)
+         AbsenceClassification = X13, FrequencyClassification = X15, LD=X16,
+         distance = X17)
 
 te_cg_dmr <- read_tsv("../ProcessedData/TE_CG_DMR_distances.bed.gz", col_names = F) %>%
   rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
          pos_accessions = X8, neg_accessions = X9,
-         AbsenceClassification = X13, FrequencyClassification = X15,
-         distance = X16)
+         AbsenceClassification = X13, FrequencyClassification = X15, LD=X16,
+         distance = X17)
 
 random_c_dmr <- read_tsv("../ProcessedData/random_coords_closest_c_dmr.bed.gz", col_names = F)
 random_cg_dmr <- read_tsv("../ProcessedData/random_coords_closest_cg_dmr.bed.gz", col_names = F)
@@ -57,6 +57,12 @@ ggplot(na.omit(te_c_dmr), aes(distance / 1000, fill = AbsenceClassification)) +
   scale_fill_manual(values =c(deletion_col, insertion_col)) + 
   ggsave("../Plots/CDMR/c_dmr_distances_insertion_vs_deletion.pdf", width = 10, height = 6, units = "cm", useDingbats=F)
 
+# Percentage of insertion or deletions near C-DMRs
+te_c_dmr %>%
+  group_by(AbsenceClassification, distance < 1000) %>%
+  summarise(count = n()) %>%
+  mutate(tot = sum(count), perc = count / tot * 100)
+
 # CG-DMRs
 ggplot(te_cg_dmr, aes(distance / 1000, fill = FrequencyClassification)) +
   geom_density(alpha = 0.8) + facet_wrap(~FrequencyClassification) + xlim(0, 5) +
@@ -71,6 +77,12 @@ ggplot(na.omit(te_cg_dmr), aes(distance / 1000, fill = AbsenceClassification)) +
   theme(legend.position="none") +	
   scale_fill_manual(values =c(deletion_col, insertion_col)) + 
   ggsave("../Plots/CGDMR/cg_dmr_distances_insertion_vs_deletion.pdf", width = 10, height = 6, units = "cm", useDingbats=F)
+
+# Percentage of insertion or deletions near C-DMRs
+te_cg_dmr %>%
+  group_by(AbsenceClassification, distance < 1000) %>%
+  summarise(count = n()) %>%
+  mutate(tot = sum(count), perc = count / tot * 100)
 
 # percentage of DMRs with TE variant within 1 kb, compared to random regions replicated 10k times
 # see ProcessingCode/bootstrap_te_variants.sh for source of random overlap percentages
@@ -90,28 +102,28 @@ counts <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz", col_names = T) %>%
 
 pdf("../Plots/DMR_intersections_bootstrap.pdf", height = 5, width = 5)
 par(mfrow = (c(2,2)))
-hist(bootstrap_c_dmr_deletions_1kb$X1/counts$c[2] * 100,
+hist(bootstrap_c_dmr_deletions_1kb$X1/counts$c[3] * 100,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "TE deletions near C-DMRs", border = chh)
 intersections <- nrow(filter(te_c_dmr, AbsenceClassification == "True deletion" & distance < 1000))
 total_class <- nrow(filter(te_c_dmr, AbsenceClassification == "True deletion"))
 abline(v=intersections / total_class * 100)
 
-hist(bootstrap_c_dmr_insertions_1kb$X1/counts$c[1] * 100,
+hist(bootstrap_c_dmr_insertions_1kb$X1/counts$c[2] * 100,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "TE insertions near C-DMRs", border = chh)
 intersections <- nrow(filter(te_c_dmr, AbsenceClassification == "No insertion" & distance < 1000))
 total_class <- nrow(filter(te_c_dmr, AbsenceClassification == "No insertion"))
 abline(v=intersections / total_class * 100)
 
-hist(bootstrap_cg_dmr_deletions_1kb$X1/counts$c[2] * 100,
+hist(bootstrap_cg_dmr_deletions_1kb$X1/counts$c[3] * 100,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "TE deletions near CG-DMRs", border = cg)
 intersections <- nrow(filter(te_cg_dmr, AbsenceClassification == "True deletion" & distance < 1000))
 total_class <- nrow(filter(te_cg_dmr, AbsenceClassification == "True deletion"))
 abline(v=intersections / total_class * 100)
 
-hist(bootstrap_cg_dmr_insertions_1kb$X1/counts$c[1] * 100,
+hist(bootstrap_cg_dmr_insertions_1kb$X1/counts$c[2] * 100,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "TE insertions near CG-DMRs", border = cg)
 intersections <- nrow(filter(te_cg_dmr, AbsenceClassification == "No insertion" & distance < 1000))
