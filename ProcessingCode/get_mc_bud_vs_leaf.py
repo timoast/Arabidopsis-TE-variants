@@ -36,8 +36,7 @@ def get_data(chrom, start, stop, options, cursor, tables, suffix):
         table += suffix
         x += 1
         l = query_region(upstream, stop, options, table, chrom, cursor)  # pandas dataframe
-        levels.append(l)
-    levels = levels / x
+        levels = levels.append(l)
     means = levels.mean().tolist()
     return means
 
@@ -135,7 +134,7 @@ def process_all(options):
                     mc_values_non_accessions_leaf = get_data(chrom, start, stop, options, cursor, neg_tables, '')
                     mc_values_accessions_bud = get_data(chrom, start, stop, options, cursor, pos_tables, '_bud')
                     mc_values_non_accessions_bud = get_data(chrom, start, stop, options, cursor, neg_tables, '_bud')
-
+                    
                     all_data = mc_values_accessions_leaf + mc_values_non_accessions_leaf + mc_values_accessions_bud + mc_values_non_accessions_bud
                     outf.write(coords+"\t"+"\t".join(map(str,all_data))+"\n")
     cursor.close()
