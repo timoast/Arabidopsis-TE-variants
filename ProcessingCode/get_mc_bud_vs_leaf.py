@@ -30,11 +30,9 @@ def get_data(chrom, start, stop, options, cursor, tables, suffix):
     data = []
     window = options.binsize * options.numberbins  # default 4 kb
     upstream = int(start - (window/2))
-    x = 0
     levels = pd.DataFrame()
     for table in tables:
         table += suffix
-        x += 1
         l = query_region(upstream, stop, options, table, chrom, cursor)  # pandas dataframe
         levels = levels.append(l)
     means = levels.mean().tolist()
