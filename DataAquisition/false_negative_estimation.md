@@ -56,7 +56,7 @@ As the coverage is estimated by TEPID using the first chromosome, this is one of
 
 
 ```python
-! /usr/bin/env python
+#! /usr/bin/env python
 
 """
 calc_cov.py
