@@ -2,9 +2,9 @@
 
 from __future__ import division
 import MySQLdb
-import numpy as np
 from argparse import ArgumentParser
 import gzip
+import pandas as pd
 
 
 parser = ArgumentParser(description='gather mC data from mySQL database between given intervals, for bud and leaf tissue separately')
@@ -31,17 +31,19 @@ def get_data(chrom, start, stop, options, cursor, tables, suffix):
     window = options.binsize * options.numberbins  # default 4 kb
     upstream = int(start - (window/2))
     x = 0
-    levels = np.zeros(options.numberbins)
+    levels = pd.DataFrame()
     for table in tables:
         table += suffix
         x += 1
-        levels += query_region(upstream, stop, options, table, chrom, cursor)
+        l = query_region(upstream, stop, options, table, chrom, cursor)  # pandas dataframe
+        levels.append(l)
     levels = levels / x
-    return levels.tolist()
+    means = levels.mean().tolist()
+    return means
 
 
 def query_region(upstream, stop, options, table, chrom, cursor):
-    data = np.zeros(options.numberbins)
+    data = []
     # need to do two parts, upstream and downstream
     for x in xrange(options.numberbins):
         if x < options.numberbins/2:
@@ -72,13 +74,13 @@ def query_region(upstream, stop, options, table, chrom, cursor):
             mc = row[0]
             h = row[1]
         if h == 0 or h is None:
-            level = "NA"
+            level = None
         else:
             level = float(mc / h)
             if level < 0.:
                 level = 0.
-        data[x] += level
-    return data
+        data.append(level)
+    return pd.DataFrame(data).transpose()
 
 
 def setup_sql(options):
@@ -129,7 +131,7 @@ def process_all(options):
                 if ((start-window) <= 0) or len(pos_tables) == 0 or len(neg_tables) == 0 or chrom == "Mt" or chrom == "Pt":
                     pass
                 else:
-                    mc_values_accessions_leaf = get_data(chrom, start, stop, options, cursor, pos_tables, '')
+                    mc_values_accessions_leaf = get_data(chrom, start, stop, options, cursor, pos_tables, '')  # list
                     mc_values_non_accessions_leaf = get_data(chrom, start, stop, options, cursor, neg_tables, '')
                     mc_values_accessions_bud = get_data(chrom, start, stop, options, cursor, pos_tables, '_bud')
                     mc_values_non_accessions_bud = get_data(chrom, start, stop, options, cursor, neg_tables, '_bud')
