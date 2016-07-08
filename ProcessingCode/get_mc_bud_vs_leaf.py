@@ -17,7 +17,6 @@ parser.add_argument('-o', '--outfile', help='output file', required=True)
 parser.add_argument('-c', '--context', help='mC context', required=False, default=False)
 parser.add_argument('-b', '--binsize', help='Bin size', required=False, default=200, type=int)
 parser.add_argument('-n', '--numberbins', help='Number of bins', required=False, default=20, type=int)
-parser.add_argument('-m', '--all_mc_tables', help='all mC table names', required=True)
 options = parser.parse_args()
 
 
