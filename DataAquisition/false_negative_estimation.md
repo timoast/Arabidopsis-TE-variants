@@ -99,6 +99,4 @@ bedtools intersect -c -a quadrana_ler_te.bed -b disc_split_ins.temp \
 ## 173
 ```
 
-173 out of the 193 Col-0 insertions found in the 10 largest scaffolds (89.6%) have enough
-read evidence to be called as an insertion by TEPID, had a high-quality TE annotation been
-given. This amounts to a false negative rate of 10%.
+173 out of the 193 Col-0 insertions found (89.6%) have enough read evidence to be called as an insertion by TEPID, had a high-quality TE annotation been given. This amounts to a false negative rate of 10%.
