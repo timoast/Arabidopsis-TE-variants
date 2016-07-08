@@ -2,7 +2,7 @@
 
 from __future__ import division
 import MySQLdb
-import numpy as np
+import pandas as pd
 from argparse import ArgumentParser
 import gzip
 
@@ -31,17 +31,16 @@ def get_data(chrom, start, stop, options, cursor, tables):
     data = []
     window = options.binsize * options.numberbins  # default 4 kb
     upstream = int(start - (window/2))
-    x = 0
-    levels = np.zeros(options.numberbins)
+    levels = pd.DataFrame()
     for table in tables:
-        x += 1
-        levels += query_region(upstream, stop, options, table, chrom, cursor)
-    levels = levels / x
-    return levels.tolist()
+        l = query_region(upstream, stop, options, table, chrom, cursor)
+        levels = levels.append(l)
+    means = levels.mean().tolist()
+    return means
 
 
 def query_region(upstream, stop, options, table, chrom, cursor):
-    data = np.zeros(options.numberbins)
+    data = []
     # need to do two parts, upstream and downstream
     for x in xrange(options.numberbins):
         if x < options.numberbins/2:
@@ -72,13 +71,13 @@ def query_region(upstream, stop, options, table, chrom, cursor):
             mc = row[0]
             h = row[1]
         if h == 0 or h is None:
-            level = 0.
+            level = None
         else:
             level = float(mc / h)
             if level < 0.:
                 level = 0.
-        data[x] += level
-    return data
+        data.append(level)
+    return pd.DataFrame(data).transpose()
 
 
 def setup_sql(options):
