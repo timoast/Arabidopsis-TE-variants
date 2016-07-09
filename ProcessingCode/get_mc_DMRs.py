@@ -45,7 +45,7 @@ class mcDatabase:
         self.tables = [row[0] for row in results]
         cursor.close()
 
-    def gatherDataFromMySQL(self, line, context):
+    def gatherDataFromMySQL(self, line):
         """ collect mC data from each table in database between coordinates in line """
         cursor = self.link.cursor()
         data = []
@@ -85,7 +85,7 @@ else:
     infile = open(options.file, "r")
 for line in infile:
     line = line.rsplit()
-    data = mc.gatherDataFromMySQL(line, str(options.context))
+    data = mc.gatherDataFromMySQL(line)
     data = (str(x) for x in data)
     print '\t'.join(line) + '\t' + '\t'.join(data)
 infile.close()
