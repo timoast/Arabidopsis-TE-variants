@@ -72,7 +72,7 @@ def processResults(results):
         mc = row[0]
         h = row[1]
     if h == 0 or h is None:
-        return 0.
+        return None
     elif h > 0:
         level = float(mc / h)
         return round(level, 4)
