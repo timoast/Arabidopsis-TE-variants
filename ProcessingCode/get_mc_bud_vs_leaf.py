@@ -110,7 +110,7 @@ def process_all(options):
         no_ins_bins_leaf = ['no_ins_leaf'+str(x) for x in range(int(options.numberbins))]
         ins_bins_bud = ['ins_bud'+str(x) for x in range(int(options.numberbins))]
         no_ins_bins_bud = ['no_ins_bud'+str(x) for x in range(int(options.numberbins))]
-        outf.write('coords'+"\t"+"\t".join(ins_bins_leaf)+"\t"+"\t".join(no_ins_bins_leaf)+"\t".join(ins_bins_bud)+"\t"+"\t".join(no_ins_bins_bud)+"\n")  # header
+        outf.write('coords'+"\t"+"\t".join(ins_bins_leaf)+"\t"+"\t".join(no_ins_bins_leaf)+"\t" + "\t".join(ins_bins_bud)+"\t"+"\t".join(no_ins_bins_bud)+"\n")  # header
         window = options.binsize * options.numberbins
         for line in insertions:
             line = line.rsplit()
