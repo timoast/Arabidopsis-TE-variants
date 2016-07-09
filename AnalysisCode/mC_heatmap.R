@@ -19,27 +19,21 @@ scale_max <- function(m, l){
   m[m.floor] <- l
   return(t(data.matrix(m)))
 }
-both <- rbind(mc_no_insertion_2kb.sort, mc_true_deletion_2kb.sort)
+both <- rbind(mc_true_deletion_2kb.sort, mc_no_insertion_2kb.sort)
 ins <- scale_max(mc_no_insertion_2kb.sort[,2:40], 0.5)
 del <- scale_max(mc_true_deletion_2kb.sort[,2:40], 0.5)
 both_scaled <- scale_max(both[,2:40], 0.5)
 color <- colorRampPalette(brewer.pal(9,"Reds"))(100)
 
-pdf("../Plots/heatmap_mc.pdf", height = 6, width = 3)
-image(ins, col = color, main = "TE insertions")
-image(del, col = color, main = "TE deletions")
-image(both_scaled, col=color)
-dev.off()
-
-png("../Plots/heatmap_insertion.png", height = 6, width = 3, units = "in", res = 1200)
+png("../Plots/heatmap_insertion.png", height = 6, width = 3, units = "in", res = 600, bg = "grey")
 image(ins, col = color, main = "TE insertions")
 dev.off()
 
-png("../Plots/heatmap_deletion.png", height = 6, width = 3, units = "in", res = 1200)
+png("../Plots/heatmap_deletion.png", height = 6, width = 3, units = "in", res = 600, bg = "grey")
 image(del, col = color, main = "TE deletions")
 dev.off()
 
-png("../Plots/heatmap_ins_del.png", height = 6, width = 3, units = "in", res = 1200)
+png("../Plots/heatmap_ins_del.png", height = 6, width = 3, units = "in", res = 600, bg = "grey")
 image(both_scaled, col=color)
 dev.off()
 
