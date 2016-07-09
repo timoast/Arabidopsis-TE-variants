@@ -7,12 +7,12 @@ mc_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_n
 mc_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_true_deletions.tsv.gz", col_names = T)
 
 # sum rows for sort order
-mc_no_insertion_2kb.sums <- mutate(mc_no_insertion_2kb, sums=rowSums(mc_no_insertion_2kb[,2:41]))
-mc_true_deletion_2kb.sums <- mutate(mc_true_deletion_2kb, sums=rowSums(mc_true_deletion_2kb[,2:41]))
+mc_no_insertion_2kb.sums <- mutate(mc_no_insertion_2kb, sums=rowSums(mc_no_insertion_2kb[,2:41], na.rm = T))
+mc_true_deletion_2kb.sums <- mutate(mc_true_deletion_2kb, sums=rowSums(mc_true_deletion_2kb[,2:41], na.rm = T))
 
 # Sort by total mC level
-mc_no_insertion_2kb.sort <- arrange(mc_no_insertion_2kb.sums, desc(sums))
-mc_true_deletion_2kb.sort <- arrange(mc_true_deletion_2kb.sums, desc(sums))
+mc_no_insertion_2kb.sort <- arrange(mc_no_insertion_2kb.sums, sums) %>% select(-sums)
+mc_true_deletion_2kb.sort <- arrange(mc_true_deletion_2kb.sums, sums) %>% select(-sums)
 
 scale_max <- function(m, l){
   m.floor <- m > l
@@ -62,23 +62,23 @@ mCHH_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHH
 
 
 # get colMeans
-ins_means_cg <- colMeans(mCG_no_insertion_2kb[,2:21])
-ins_means_cg_absent <- colMeans(mCG_no_insertion_2kb[,21:41])
+ins_means_cg <- colMeans(mCG_no_insertion_2kb[,2:21], na.rm = T)
+ins_means_cg_absent <- colMeans(mCG_no_insertion_2kb[,21:41], na.rm = T)
 
-ins_means_chg <- colMeans(mCHG_no_insertion_2kb[,2:21])
-ins_means_chg_absent <- colMeans(mCHG_no_insertion_2kb[,21:41])
+ins_means_chg <- colMeans(mCHG_no_insertion_2kb[,2:21], na.rm = T)
+ins_means_chg_absent <- colMeans(mCHG_no_insertion_2kb[,21:41], na.rm = T)
 
-ins_means_chh <- colMeans(mCHH_no_insertion_2kb[,2:21])
-ins_means_chh_absent <- colMeans(mCHH_no_insertion_2kb[,21:41])
+ins_means_chh <- colMeans(mCHH_no_insertion_2kb[,2:21], na.rm = T)
+ins_means_chh_absent <- colMeans(mCHH_no_insertion_2kb[,21:41], na.rm = T)
 
-del_means_cg <- colMeans(mCG_true_deletion_2kb[,2:21])
-del_means_cg_absent <- colMeans(mCG_true_deletion_2kb[,21:41])
+del_means_cg <- colMeans(mCG_true_deletion_2kb[,2:21], na.rm = T)
+del_means_cg_absent <- colMeans(mCG_true_deletion_2kb[,21:41], na.rm = T)
 
-del_means_chg <- colMeans(mCHG_true_deletion_2kb[,2:21])
-del_means_chg_absent <- colMeans(mCHG_true_deletion_2kb[,21:41])
+del_means_chg <- colMeans(mCHG_true_deletion_2kb[,2:21], na.rm = T)
+del_means_chg_absent <- colMeans(mCHG_true_deletion_2kb[,21:41], na.rm = T)
 
-del_means_chh <- colMeans(mCHH_true_deletion_2kb[,2:21])
-del_means_chh_absent <- colMeans(mCHH_true_deletion_2kb[,21:41])
+del_means_chh <- colMeans(mCHH_true_deletion_2kb[,2:21], na.rm = T)
+del_means_chh_absent <- colMeans(mCHH_true_deletion_2kb[,21:41], na.rm = T)
 
 # define colours
 cg <- '#B4B464'
@@ -111,10 +111,10 @@ line_plot <- function(d1, d2, d3, scale) {
 
 pdf("../Plots/flanking_mc_line_charts.pdf", height=4, width=4, useDingbats = F)
 par(mfrow=c(2,2), mar=c(2,2,2,2))
-line_plot(ins_means_cg,ins_means_chg,ins_means_chh, 0.6)
-line_plot(ins_means_cg_absent, ins_means_chg_absent, ins_means_chh_absent, 0.6)
-line_plot(del_means_cg,del_means_chg,del_means_chh, 0.6)
-line_plot(del_means_cg_absent, del_means_chg_absent, del_means_chh_absent, 0.6)
+line_plot(ins_means_cg,ins_means_chg,ins_means_chh, 0.8)
+line_plot(ins_means_cg_absent, ins_means_chg_absent, ins_means_chh_absent, 0.8)
+line_plot(del_means_cg,del_means_chg,del_means_chh, 0.8)
+line_plot(del_means_cg_absent, del_means_chg_absent, del_means_chh_absent, 0.8)
 dev.off()
 
 # correlation between flanking DNA methylation levels and TE presence/absence
@@ -143,3 +143,22 @@ ggplot(data, aes(MAF, cor, fill=LD)) +
   scale_fill_brewer(type="seq", palette = 11, direction = -1) +
   theme(text = element_text(size=8)) +
   ggsave("../Plots/mc_flanking_correlation_by_ld.pdf", height = 20, width = 8, units = "cm", useDingbats=F)
+
+# Bud vs lead methylation
+
+bud_leaf_ins <- read_tsv("../ProcessedData/DNAmethylation/bud_vs_leaf_allC_insertions.tsv.gz", col_names = T, na = c("NaN"))
+bud_leaf_del <- read_tsv("../ProcessedData/DNAmethylation/bud_vs_leaf_allC_deletions.tsv.gz", col_names = T, na = c("NaN"))
+
+bud_leaf_ins.sums <- mutate(bud_leaf_ins, sums=rowSums(bud_leaf_ins[,2:ncol(bud_leaf_ins)], na.rm = T))
+bud_leaf_del.sums <- mutate(bud_leaf_del, sums=rowSums(bud_leaf_del[,2:ncol(bud_leaf_del)], na.rm = T))
+
+bud_leaf_ins.sort <- arrange(bud_leaf_ins.sums, sums) %>% select(-sums)
+bud_leaf_del.sort <- arrange(bud_leaf_del.sums, sums) %>% select(-sums)
+
+both_bud <- rbind(bud_leaf_ins.sort, bud_leaf_del.sort)
+
+bl <- scale_max(both_bud[,2:ncol(both_bud)], 0.5)
+
+png("../Plots/heatmap_bud_leaf_indel.png", height = 6, width = 3, units = "in", res = 600, bg = "transparent")
+image(bl, col = color)
+dev.off()
