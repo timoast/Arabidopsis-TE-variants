@@ -3,8 +3,8 @@ library(RColorBrewer)
 library(readr)
 library(ggplot2)
 
-mc_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_no_insertion.tsv.gz", col_names = T)
-mc_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_true_deletions.tsv.gz", col_names = T)
+mc_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_no_insertion.tsv.gz", col_names = T, na = c("NaN"))
+mc_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_allC_true_deletions.tsv.gz", col_names = T, na = c("NaN"))
 
 # sum rows for sort order
 mc_no_insertion_2kb.sums <- mutate(mc_no_insertion_2kb, sums=rowSums(mc_no_insertion_2kb[,2:41], na.rm = T))
@@ -42,7 +42,6 @@ pdf("../Plots/mc_heatmap_scale.pdf", height=2, width=5)
 image(data.matrix(seq(100)), col = color)
 dev.off()
 
-
 # make line charts of each mC context
 
 mCG_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CG_no_insertion.tsv.gz", col_names = T)
@@ -53,7 +52,6 @@ mCHG_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHG
 
 mCHH_no_insertion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHH_no_insertion.tsv.gz", col_names = T)
 mCHH_true_deletion_2kb <- read_tsv("../ProcessedData/DNAmethylation/flanking_CHH_true_deletions.tsv.gz", col_names = T)
-
 
 # get colMeans
 ins_means_cg <- colMeans(mCG_no_insertion_2kb[,2:21], na.rm = T)
@@ -112,6 +110,7 @@ line_plot(del_means_cg_absent, del_means_chg_absent, del_means_chh_absent, 0.8)
 dev.off()
 
 # correlation between flanking DNA methylation levels and TE presence/absence
+# NEEDS TO BE UPDATED
 flanking_mc_corr <- read_tsv("../ProcessedData/DNAmethylation/flanking_mc_correlations.txt") %>%
   mutate(id = paste(chr, start, stop)) %>%
   select(-(chr:stop))
@@ -149,10 +148,10 @@ bud_leaf_del.sums <- mutate(bud_leaf_del, sums=rowSums(bud_leaf_del[,2:ncol(bud_
 bud_leaf_ins.sort <- arrange(bud_leaf_ins.sums, sums) %>% select(-sums)
 bud_leaf_del.sort <- arrange(bud_leaf_del.sums, sums) %>% select(-sums)
 
-both_bud <- rbind(bud_leaf_ins.sort, bud_leaf_del.sort)
+both_bud <- rbind(bud_leaf_del.sort, bud_leaf_ins.sort)
 
 bl <- scale_max(both_bud[,2:ncol(both_bud)], 0.5)
 
-png("../Plots/heatmap_bud_leaf_indel.png", height = 6, width = 3, units = "in", res = 600, bg = "transparent")
+png("../Plots/heatmap_bud_leaf_indel.png", height = 6, width = 3, units = "in", res = 600, bg = "grey")
 image(bl, col = color)
 dev.off()
