@@ -5,33 +5,51 @@ library(ggplot2)
 set.seed(1)
 
 # load data
-mC <- read.table("../ProcessedData/c_dmr_allC.tsv.gz", header = T)
-mCG <- read.table("../ProcessedData/cg_dmrs_allC.tsv.gz", header = T)
+mC <- read.table("../ProcessedData/c_dmr_allC.tsv.gz", header = T, na.strings = c("None"))
+mCG <- read.table("../ProcessedData/cg_dmrs_allC.tsv.gz", header = T, na.strings = c("None"))
 
-TE_DMR <- read_tsv("../ProcessedData/TE_C_DMR_distances.bed.gz", col_names = F) %>%
-  filter(X16 < 1000) %>%
+# exclude bud tissue methylomes (drop column if contains the word "bud")
+mC <- mC[,!grepl("bud", colnames(mC))]
+mCG <- mCG[,!grepl("bud", colnames(mCG))]
+
+# Load the DMR data and filter where the DMR is within 1 kb of a TE variant, and the variant is rare
+TE_DMR <- read_tsv("../ProcessedData/TE_C_DMR_distances.bed.gz", col_names = F) %>% 
+  filter(X17 < 1000) %>% 
   rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
          pos_accessions = X8, neg_accessions = X9,
          AbsenceClassification = X13, FrequencyClassification = X15) %>%
   filter(FrequencyClassification == "Rare")
 
 TE_CG_DMR <- read_tsv("../ProcessedData/TE_CG_DMR_distances.bed.gz", col_names = F) %>%
-  filter(X16 < 1000) %>%
+  filter(X17 < 1000) %>%
   rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
          pos_accessions = X8, neg_accessions = X9,
          AbsenceClassification = X13, FrequencyClassification = X15) %>%
   filter(FrequencyClassification == "Rare")
 
-# convert DNA methylation values to ranks
+# convert DNA methylation values to ranks and exclude those with no coverage (NA)
+# to maintain the same range of ranks for each TE variant, convert to percentiles excluding the NAs
+# ie, we divide each rank by the number of non-NA ranks & multiply by 100,
+# so the highest becomes 100 and lowest 1.
+# We can them compare between ranks, and 100 will always be the highest in the population etc.
+
+# CDMR
+numNAsCDMR <- rowSums(is.na(mC[,4:ncol(mC)]))
 ranks_mc <- mC[0,4:ncol(mC)]
 for(i in 1:nrow(mC)) {
-  ranks_mc[i,] <- rank(mC[i,4:ncol(mC)], ties.method = "first")
+  l <- ncol(mC) - 3 - numNAsCDMR[i]  # -3 because there are 3 coordinate columns that are not ranks
+  d <- rank(mC[i,4:ncol(mC)], ties.method = "first", na.last = "keep")  # keep NAs when calculating ranks
+  ranks_mc[i,] <- d / l * 100
 }
 ranks_mc <- cbind(chr = mC$chr, start = mC$start, stop = mC$stop, ranks_mc)
 
+#CGDMR
+numNAsCGDMR <- rowSums(is.na(mCG[,4:ncol(mCG)]))
 ranks_mCG <- mCG[0,4:ncol(mCG)]
 for(i in 1:nrow(mCG)) {
-  ranks_mCG[i,] <- rank(mCG[i,4:ncol(mCG)], ties.method = "first")
+  l <- ncol(mCG) - 3 - numNAsCGDMR[i]
+  d <- rank(mCG[i,4:ncol(mCG)], ties.method = "first", na.last = "keep")
+  ranks_mCG[i,] <- d / l * 100
 }
 ranks_mCG <- cbind(chr = mCG$chr, start = mCG$start, stop = mCG$stop, ranks_mCG)
 
@@ -42,6 +60,7 @@ system("gzip ../ProcessedData/c_dmr_mc_ranks.tsv")
 write_tsv(ranks_mCG, "../ProcessedData/cg_dmr_mc_ranks.tsv")
 system("gzip ../ProcessedData/cg_dmr_mc_ranks.tsv")
 
+# Function to look up mC rank for the accession containing each rare TE variant
 gatherData <- function(tepav, ranks) {
   data <- vector()
   for(i in 1:nrow(tepav)){
@@ -60,6 +79,7 @@ gatherData <- function(tepav, ranks) {
   return(data)
 }
 
+# same function, but choose an accession rank at random rather than the one containing the rare variant
 gatherDataRand <- function(tepav, ranks) {
   data <- vector()
   all_names <- colnames(ranks)[4:ncol(ranks)]
@@ -80,6 +100,9 @@ gatherDataRand <- function(tepav, ranks) {
   return(data)
 }
 
+# Get the TE deletion variants and TE insertion varaints separately
+# Count the mC ranks for each TE variant
+# Repeat for a random selection of accession names
 # C-DMRs
 deletions <- filter(TE_DMR, AbsenceClassification == "True deletion")
 insertions <- filter(TE_DMR, AbsenceClassification == "No insertion")
