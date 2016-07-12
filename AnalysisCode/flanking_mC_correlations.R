@@ -46,8 +46,8 @@ calc_r2 <- function(pos_acc, neg_acc, data, TEID, minimum) {
     ln <- length(data_neg)
     if(lp > minimum && ln > minimum) {
       # run correlation
-      p <- rep(1, l_pos)
-      n <- rep(0, l_neg)
+      p <- rep(1, lp)
+      n <- rep(0, ln)
       r2 <- cor(c(p, n), c(data_pos, data_neg))
       return(r2)
     } else {
