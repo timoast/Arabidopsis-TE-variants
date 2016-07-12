@@ -132,53 +132,81 @@ abline(v=intersections / total_class * 100)
 dev.off()
 
 # TE-DMR methylation level
-c_dmr_mc <- read_tsv("../ProcessedData/c_dmr_allC.tsv.gz", col_names = T)
-cg_dmr_mc <- read_tsv("../ProcessedData/cg_dmrs_allC.tsv.gz", col_names = T)
-
+c_dmr_mc <- read_tsv("../ProcessedData/c_dmr_allC.tsv.gz", col_names = T, na = c("None"))
+cg_dmr_mc <- read_tsv("../ProcessedData/cg_dmrs_allC.tsv.gz", col_names = T, na = c("None"))
 
 # Add common ID (DMR)
 c_dmr_mc <-  c_dmr_mc %>%
-  mutate(DMR_ID = paste(chr, start, stop, sep = ",")) %>%
+  mutate(ID = paste(chr, start, stop)) %>%
   select(-(chr:stop))
 
 te_c_dmr <-  te_c_dmr %>%
-  mutate(DMR_ID = paste(dmr_chr, dmr_start, dmr_stop, sep = ",")) %>%
+  mutate(ID = paste(dmr_chr, dmr_start, dmr_stop)) %>%
   select(-(dmr_chr:dmr_stop))
 
 cg_dmr_mc <-  cg_dmr_mc %>%
-  mutate(DMR_ID = paste(chr, start, stop, sep = ",")) %>%
+  mutate(ID = paste(chr, start, stop)) %>%
   select(-(chr:stop))
 
 te_cg_dmr <-  te_cg_dmr %>%
-  mutate(DMR_ID = paste(dmr_chr, dmr_start, dmr_stop, sep = ",")) %>%
+  mutate(ID = paste(dmr_chr, dmr_start, dmr_stop)) %>%
   select(-(dmr_chr:dmr_stop))
 
 # function to get mC values from mC dataframe given DMR ID and list of accessions
-lookupMeth <- function(df, acc, dmr) {
+lookupMeth <- function(df, acc, TEID) {
   x <- vector()
-  acc <- unlist(strsplit(gsub("-", "_", acc), ","))  # reformat accession names (input is raw list from file)
-  filtered <- intersect(acc, colnames(df))           # filter out those that don't have mC data
-  for(i in filtered) {
-    x <- c(x, as.numeric(df[df$DMR_ID == dmr, i]))	 # match DMR ID, get mC value for accession, append to list
+  for(i in acc) {
+    x <- c(x, as.numeric(df[df$ID == TEID, i])) # match TE ID, get mC value for accession, append to list
   }
   if(length(x) == 0) { return(NA) } else { return(x) }
 }
 
+# function that takes list of pos/neg accession, returns r2 if length of each list > x
+calc_r2 <- function(pos_acc, neg_acc, data, TEID, minimum) {
+  # first filter each list of accessions to include only those that have DNA methylation data
+  pos <- intersect(unlist(strsplit(pos_acc, ",")), colnames(data))
+  neg <- intersect(unlist(strsplit(neg_acc, ",")), colnames(data))
+  l_pos <- length(pos)
+  l_neg <- length(neg)
+  # if we have enough in each group, find the correlation
+  if(l_pos > minimum && l_neg > minimum) {
+    data_pos <- na.omit(lookupMeth(data, pos, TEID))
+    data_neg <- na.omit(lookupMeth(data, neg, TEID))
+    lp <- length(data_pos)
+    ln <- length(data_neg)
+    if(lp > minimum && ln > minimum) {
+      # run correlation
+      p <- rep(1, lp)
+      n <- rep(0, ln)
+      r2 <- cor(c(p, n), c(data_pos, data_neg))
+      mC_pos <- mean(data_pos)
+      mC_neg <- mean(data_neg)
+      return(paste(r2, mC_pos, mC_neg, sep = "_"))
+    } else {
+      return(paste(NA, NA, NA, sep = "_"))
+    }
+  } else {
+    return(paste(NA, NA, NA, sep = "_"))
+  }
+}
+
+# make column names match
+colnames(c_dmr_mc) <- gsub("_", "-", colnames(c_dmr_mc))
+colnames(cg_dmr_mc) <- gsub("_", "-", colnames(cg_dmr_mc))
+
 te_c_dmr <- te_c_dmr %>%
   rowwise() %>%
-  mutate(mC_pos = mean(lookupMeth(c_dmr_mc, pos_accessions, DMR_ID)),
-         mC_neg = mean(lookupMeth(c_dmr_mc, neg_accessions, DMR_ID)),
-         r2 = cor(c(rep(1, length(lookupMeth(c_dmr_mc, pos_accessions, DMR_ID))),
-                    rep(0, length(lookupMeth(c_dmr_mc, neg_accessions, DMR_ID)))),
-                  c(lookupMeth(c_dmr_mc, pos_accessions, DMR_ID), lookupMeth(c_dmr_mc, neg_accessions, DMR_ID))))
+  mutate(d = calc_r2(pos_accessions, neg_accessions, c_dmr_mc, ID, 3)) %>%
+  separate(d, c("r2", "mC_pos", "mC_neg"), sep = "_", remove = TRUE)
 
 te_cg_dmr <- te_cg_dmr %>%
   rowwise() %>%
-  mutate(mC_pos = mean(lookupMeth(cg_dmr_mc, pos_accessions, DMR_ID)),
-         mC_neg = mean(lookupMeth(cg_dmr_mc, neg_accessions, DMR_ID)),
-         r2 = cor(c(rep(1, length(lookupMeth(cg_dmr_mc, pos_accessions, DMR_ID))),
-                    rep(0, length(lookupMeth(cg_dmr_mc, neg_accessions, DMR_ID)))),
-                  c(lookupMeth(cg_dmr_mc, pos_accessions, DMR_ID), lookupMeth(cg_dmr_mc, neg_accessions, DMR_ID))))
+  mutate(d = calc_r2(pos_accessions, neg_accessions, cg_dmr_mc, ID, 3)) %>%
+  separate(d, c("r2", "mC_pos", "mC_neg"), sep = "_", remove = TRUE)
+
+# save data
+write_tsv(te_c_dmr, "../ProcessedData/c_dmr_correlations.tsv")
+write_tsv(te_cg_dmr, "../ProcessedData/cg_dmr_correlations.tsv")
 
 ### C-DMRs ###
 # Make dataframe
@@ -193,49 +221,61 @@ c_dmr_info$TE_present[c_dmr_info$TE_present == "mC_neg"] <- FALSE
 c_dmr_info$AbsenceClassification[c_dmr_info$AbsenceClassification == "No insertion"] <- "Insertion"
 c_dmr_info$AbsenceClassification[c_dmr_info$AbsenceClassification == "True deletion"] <- "Deletion"
 
+# sapply(c_dmr_info, mode)
+
+# convert to numeric
+c_dmr_info <- transform(c_dmr_info, r2 = as.numeric(r2), mC = as.numeric(mC))
+
+filtered_cdmr <- filter(c_dmr_info, AbsenceClassification == "Deletion" | AbsenceClassification == "Insertion")
+
 # Plots
 # r2 vs distance to DMR
-ggplot(c_dmr_info, aes(r2, distance/1000)) +
+ggplot(filtered_cdmr, aes(r2, distance/1000)) +
   geom_point(alpha=0.1) + theme_bw() + facet_wrap(~AbsenceClassification) +
   ylab("Distance to C-DMR (kb)") + xlab("r2") +
   ggsave("../Plots/CDMR/c_dmr_distance_vs_r2.pdf", height=4, width = 6, useDingbats=F)
 
 # on log scale with linear regression
-ggplot(c_dmr_info, aes(r2, distance)) +
+ggplot(filtered_cdmr, aes(r2, distance)) +
   geom_point(alpha=0.1, size=0.4) + theme_bw() + facet_wrap(~AbsenceClassification) +
   scale_y_log10() + geom_smooth(method = "lm") +
   xlim(-1,1) +
   ylab("Distance to C-DMR") + xlab("r2") +
-  ggsave("../Plots/CDMR/c_dmr_distance_vs_r2_log.png", height=3, width = 5)
+  ggsave("../Plots/CDMR/c_dmr_distance_vs_r2_log.png", height=6, width = 10, units = "cm", dpi = 600)
 
 # Distribution of r2 values for TE-DMRs vs non-TE-DMRs, for insertions and deletions
-ggplot(c_dmr_info, aes(r2, col=class)) +
+ggplot(filtered_cdmr, aes(r2, col=class)) +
   ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("Pearson correlation values") +
   stat_ecdf() + theme_bw() + facet_wrap(~AbsenceClassification) +
+  scale_color_brewer(palette = "Set1") +
   ggsave("../Plots/CDMR/r2_distribution_insertions_deletions_te_dmrs.pdf", height=3, width = 6, useDingbats=F)
 
 # mC density plots for deletions vs insertions, TE-DMRs vs non-TE-DMRs
-ggplot(c_dmr_info, aes(fill=TE_present, mC)) + theme_bw() +
+ggplot(filtered_cdmr, aes(fill=TE_present, mC)) + theme_bw() +
   geom_density(alpha = 0.5) + facet_wrap(AbsenceClassification~class) +
+  scale_fill_brewer(palette = "Set1") +
   ggsave("../Plots/CDMR/mC_distribution_te_cdmr_insertion_deletion.pdf", height=4, width = 6, useDingbats=F)
 
 # ecdf of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
-ggplot(c_dmr_info, aes(color=TE_present, mC)) + theme_bw() +
+ggplot(filtered_cdmr, aes(color=TE_present, mC)) + theme_bw() +
   stat_ecdf() + facet_wrap(AbsenceClassification~class) +
+  scale_color_brewer(palette = "Set1") +
   ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("DNA methylation") +
   ggsave("../Plots/CDMR/ecdf_mC_te_c_dmrs_insertions_deletions.pdf", width = 6, height = 6, useDingbats=F)
 
 # boxplots of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
-ggplot(c_dmr_info, aes(TE_present, mC)) + theme_bw() +
+ggplot(filtered_cdmr, aes(TE_present, mC, fill=AbsenceClassification)) + theme_bw() +
   geom_boxplot() + facet_wrap(AbsenceClassification~class) +
   xlab("TE present") + ylab("mC / C") +
+  scale_fill_manual(values = c(deletion_col, insertion_col)) +
+  theme(legend.position = "none") +
   ggsave("../Plots/CDMR/c_dmr_mc_boxplots.pdf", height=6, width = 3, useDingbats=F)
 
 ### CG-DMRs ###
 # Make dataframe
 cg_dmr_info <- te_cg_dmr %>%
-                        mutate(class = ifelse(distance < 1000, "TE-DMR", "Non-TE-DMR")) %>%
-                        select(AbsenceClassification, class, mC_pos, mC_neg, r2, distance) %>%
+  mutate(class = ifelse(distance < 1000, "TE-DMR", "Non-TE-DMR")) %>%
+  select(AbsenceClassification, class, mC_pos, mC_neg, r2, distance) %>%
   gather(TE_present, mC, mC_pos:mC_neg)
 
 cg_dmr_info$TE_present[cg_dmr_info$TE_present == "mC_pos"] <- TRUE
@@ -244,40 +284,52 @@ cg_dmr_info$TE_present[cg_dmr_info$TE_present == "mC_neg"] <- FALSE
 cg_dmr_info$AbsenceClassification[cg_dmr_info$AbsenceClassification == "No insertion"] <- "Insertion"
 cg_dmr_info$AbsenceClassification[cg_dmr_info$AbsenceClassification == "True deletion"] <- "Deletion"
 
+# sapply(cg_dmr_info, mode)
+
+# convert to numeric
+cg_dmr_info <- transform(cg_dmr_info, r2 = as.numeric(r2), mC = as.numeric(mC))
+
+filtered_cgdmr <- filter(cg_dmr_info, AbsenceClassification == "Deletion" | AbsenceClassification == "Insertion")
+
 # Plots
 # r2 vs distance to DMR
-ggplot(cg_dmr_info, aes(r2, distance/1000)) +
+ggplot(filtered_cgdmr, aes(r2, distance/1000)) +
   geom_point(alpha=0.1) + theme_bw() + facet_wrap(~AbsenceClassification) +
   ylab("Distance to CG-DMR (kb)") + xlab("r2") +
   ggsave("../Plots/CGDMR/cg_dmr_distance_vs_r2.pdf", height=3, width = 5, useDingbats=F)
 
 # on log scale with linear regression
-ggplot(cg_dmr_info, aes(r2, distance)) +
+ggplot(filtered_cgdmr, aes(r2, distance)) +
   geom_point(alpha=0.1, size=0.4) + theme_bw() + facet_wrap(~AbsenceClassification) +
   scale_y_log10() + geom_smooth(method = "lm") +
   xlim(-1,1) +
   ylab("Distance to CG-DMR") + xlab("r2") +
-  ggsave("../Plots/CGDMR/cg_dmr_distance_vs_r2_log.png", height=3, width = 5)
+  ggsave("../Plots/CGDMR/cg_dmr_distance_vs_r2_log.png", height=6, width = 10, units = "cm", dpi = 600)
 
 # Distribution of r2 values for TE-DMRs vs non-TE-DMRs, for insertions and deletions
-ggplot(cg_dmr_info, aes(r2, col=class)) +
+ggplot(filtered_cgdmr, aes(r2, col=class)) +
   ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("Pearson correlation values") +
   stat_ecdf() + theme_bw() + facet_wrap(~AbsenceClassification) +
+  scale_color_brewer(palette = "Set1") +
   ggsave("../Plots/CGDMR/r2_distribution_insertions_deletions_te_cgdmrs.pdf", height=3, width = 6, useDingbats=F)
 
 # mC density plots for deletions vs insertions, TE-DMRs vs non-TE-DMRs
-ggplot(cg_dmr_info, aes(fill=TE_present, mC)) + theme_bw() +
+ggplot(filtered_cgdmr, aes(fill=TE_present, mC)) + theme_bw() +
   geom_density(alpha = 0.5) + facet_wrap(AbsenceClassification~class) +
+  scale_fill_brewer(palette = "Set1") +
   ggsave("../Plots/CGDMR/mC_distribution_te_cgdmr_insertion_deletion.pdf", height=4, width = 6, useDingbats=F)
 
 # ecdf of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
-ggplot(cg_dmr_info, aes(color=TE_present, mC)) + theme_bw() +
+ggplot(filtered_cgdmr, aes(color=TE_present, mC)) + theme_bw() +
   stat_ecdf() + facet_wrap(AbsenceClassification~class) +
   ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("DNA methylation") +
+  scale_color_brewer(palette = "Set1") +
   ggsave("../Plots/CGDMR/ecdf_mC_te_cg_dmrs_insertions_deletions.pdf", width = 6, height = 6, useDingbats=F)
 
 # boxplots of mC values for TE-DMRs vs non-TE-DMRs, insertions vs deletions
-ggplot(cg_dmr_info, aes(TE_present, mC)) + theme_bw() +
+ggplot(filtered_cgdmr, aes(TE_present, mC, fill=AbsenceClassification)) + theme_bw() +
   geom_boxplot() + facet_wrap(AbsenceClassification~class) +
   xlab("TE present") + ylab("mC / C") +
+  scale_fill_manual(values = c(deletion_col, insertion_col)) +
+  theme(legend.position = "none") +
   ggsave("../Plots/CGDMR/cg_dmr_mc_boxplots.pdf", height=6, width = 3, useDingbats=F)
