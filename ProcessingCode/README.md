@@ -3,6 +3,7 @@
 ### TE variant processing  
 **process_TEPAV_data.R**: Classify TE variants as being either due to the deletion of a common TE, or the insertion of a new TE. Add in SNP association data.   
 **split_true_deletions.sh**:  Create separate files for TE insertions and TE deletions.  
+**reformat_tepav_matrix.py**: Reformat the TE variants file into a binary matrix.  
 
 ### Gene feature intersections with TE variants  
 **make_genomic_feature_files.sh**:  Create annotation files for gene upstream and downstream regions, exons, introns, UTRs, pseudogenes, DHS sites and TEs. Intersect each with the TE variants. Count the number of intersections for each feature.  
