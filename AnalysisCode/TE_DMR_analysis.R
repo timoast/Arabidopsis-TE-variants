@@ -248,7 +248,20 @@ ggplot(filtered_cdmr, aes(r2, col=class)) +
   ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("Pearson correlation values") +
   stat_ecdf() + theme_bw() + facet_wrap(~AbsenceClassification) +
   scale_color_brewer(palette = "Set1") +
+  xlim(-1,1) +
   ggsave("../Plots/CDMR/r2_distribution_insertions_deletions_te_dmrs.pdf", height=3, width = 6, useDingbats=F)
+
+# perform Kolmogorov-Smirnov tests
+get_ks <- function(df, s) {
+  filtered <- filter(df, AbsenceClassification == s)
+  tedmr <- na.omit(filter(filtered, class == "TE-DMR")$r2)
+  nontedmr <- na.omit(filter(filtered, class == "Non-TE-DMR")$r2)
+  ks.test(tedmr, nontedmr)
+}
+get_ks(filtered_cdmr, "Insertion")
+# D = 0.23019, p-value < 2.2e-16
+get_ks(filtered_cdmr, "Deletion")
+# D = 0.098078, p-value = 0.0005356
 
 # mC density plots for deletions vs insertions, TE-DMRs vs non-TE-DMRs
 ggplot(filtered_cdmr, aes(fill=TE_present, mC)) + theme_bw() +
@@ -311,7 +324,19 @@ ggplot(filtered_cgdmr, aes(r2, col=class)) +
   ylab(expression(italic("F"['n']*"(x)"))) + ggtitle("Pearson correlation values") +
   stat_ecdf() + theme_bw() + facet_wrap(~AbsenceClassification) +
   scale_color_brewer(palette = "Set1") +
+  xlim(-1,1) +
   ggsave("../Plots/CGDMR/r2_distribution_insertions_deletions_te_cgdmrs.pdf", height=3, width = 6, useDingbats=F)
+
+# perform Kolmogorov-Smirnov tests
+get_ks(filtered_cgdmr, "Insertion")
+# D = 0.094844, p-value = 4.261e-08
+get_ks(filtered_cgdmr, "Deletion")
+# D = 0.073487, p-value = 0.001093
+
+del_cg <- filter(filtered_cgdmr, AbsenceClassification == "Deletion")
+del_cg_tedmr <- na.omit(filter(del_cg, class == "TE-DMR")$r2)
+del_cg_nontedmr <- na.omit(filter(ins_cg, class == "Non-TE-DMR")$r2)
+ks.test(ins_cg_tedmr, ins_cg_nontedmr)
 
 # mC density plots for deletions vs insertions, TE-DMRs vs non-TE-DMRs
 ggplot(filtered_cgdmr, aes(fill=TE_present, mC)) + theme_bw() +
