@@ -79,4 +79,5 @@ ggplot(data, aes(MAF, r2, fill=LD)) +
   theme_bw() + geom_hline(yintercept = 0) + facet_wrap(~LD, ncol = 1) +
   scale_fill_brewer(type="seq", palette = 11, direction = -1) +
   theme(text = element_text(size=8)) +
+  ylim(-1,1) +
   ggsave("../Plots/mc_flanking_correlation_by_ld.pdf", height = 20, width = 8, units = "cm", useDingbats=F)
