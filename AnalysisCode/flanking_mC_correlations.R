@@ -64,20 +64,27 @@ data <- tepav %>%
 
 data$LD <- factor(data$LD, levels = c("high", "mid", "low", NA))
 
-# Plots
-d <- filter(data, Absence_classification == "True deletion" | Absence_classification == "No insertion")
-ggplot(d, aes(Absence_classification, r2, fill=LD)) +
-  geom_boxplot(outlier.shape = 1) + theme_bw() +
-  scale_fill_brewer(type="seq", palette = 11, direction = -1) +
-  geom_hline(yintercept = 0) + ylim(c(-1, 1)) +
-  coord_flip() + ylab("Correlation") + xlab("TE variant") + 
-  theme(text = element_text(size=8)) +
-  ggsave("../Plots/mc_flanking_correlation.pdf", height = 5, width = 10, units = "cm", useDingbats = F)
+get_centro_distance <- function(crds, centromeres) {
+  cent <- filter(centromeres, chrom == crds[[1]])
+  midpoint <- (cent[[3]] + cent[[2]]) / 2
+  d <- abs(as.numeric(crds[[2]]) - midpoint)
+  return(d)
+}
 
-ggplot(data, aes(MAF, r2, fill=LD)) +
-  geom_boxplot(aes(group = cut_width(MAF, 0.04)), outlier.shape = 1, outlier.size = 0.8) +
-  theme_bw() + geom_hline(yintercept = 0) + facet_wrap(~LD, ncol = 1) +
-  scale_fill_brewer(type="seq", palette = 11, direction = -1) +
-  theme(text = element_text(size=8)) +
-  ylim(-1,1) +
-  ggsave("../Plots/mc_flanking_correlation_by_ld.pdf", height = 20, width = 8, units = "cm", useDingbats=F)
+centromeres <- read_tsv("../RawData/centromere_positions.txt", col_names = c("chrom", "start", "stop"))
+
+data <- data %>% mutate(distance = get_centro_distance(c(chromosome, start, end), centromeres),
+                        peri = distance < 3*10^6)
+
+# Plot r vs distance to centromere
+insertion_col <- brewer.pal(3, "Set2")[1]
+deletion_col <- brewer.pal(3, "Set2")[3]
+
+ggplot(data, aes(distance/1000000, r2, color=Absence_classification)) +
+  geom_point(alpha=0.7, size=0.3) +
+  facet_wrap(~Absence_classification, ncol=1) + theme_bw() +
+  geom_hline(yintercept = 0) + ylim(c(-1, 1)) + 
+  scale_color_manual(values = c("black", insertion_col, deletion_col)) +
+  geom_vline(xintercept = 3) +
+  theme(text = element_text(size=8), legend.position="none") +
+  ggsave("../Plots/mc_flanking_correlation_indel_distance_point.pdf", height = 15, width = 6, units = "cm", useDingbats = F)
