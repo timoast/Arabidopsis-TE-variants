@@ -1,5 +1,5 @@
-TEPAV	CDMR	CGDMR
-TE deletions	17.52	4.17
-TE insertions	28.85	9.29
-NA calls	9.05	1.68
-Total	55.41	15.14
+TEPAV	observeC	expectC	CIC	observeCG	expectCG	CICG
+TE deletions	8.7	16	0.0078	4.3	16	0.0041
+TE insertions	36	26	0.0089	9.4	26	0.0047
+NA calls	3.4	6.2	0.0052	1.7	6.2	0.0027
+Total	48	41	0.01	15	42	0.0054

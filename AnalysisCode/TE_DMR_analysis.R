@@ -7,18 +7,20 @@ library(RColorBrewer)
 # Distance from each C-DMR to the closest TEPAV
 # Contains duplicates where a DMR was equally close to 2 or more TE variants
 te_c_dmr <- read_tsv("../ProcessedData/TE_C_DMR_distances.bed.gz", col_names = F) %>%
-  rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
-         pos_accessions = X8, neg_accessions = X9,
-         AbsenceClassification = X13, FrequencyClassification = X15, LD=X16,
-         distance = X17)
+  rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3, dmr_feature = X4,
+         pos_accessions = X9, neg_accessions = X10,
+         AbsenceClassification = X14, MAF=X15, FrequencyClassification = X16, LD=X17,
+         distance = X18) %>%
+  mutate(TE_close = distance < 1000)
 
 # Distance from each CG-DMR to the closest TEPAV
 # Contains duplicates where a DMR was equally close to 2 or more TE variants
 te_cg_dmr <- read_tsv("../ProcessedData/TE_CG_DMR_distances.bed.gz", col_names = F) %>%
-  rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3,
-         pos_accessions = X8, neg_accessions = X9,
-         AbsenceClassification = X13, FrequencyClassification = X15, LD=X16,
-         distance = X17)
+  rename(dmr_chr = X1, dmr_start = X2, dmr_stop = X3, dmr_feature = X4,
+         pos_accessions = X9, neg_accessions = X10,
+         AbsenceClassification = X14, MAF=X15, FrequencyClassification = X16, LD=X17,
+         distance = X18) %>%
+  mutate(TE_close = distance < 1000)
 
 random_c_dmr <- read_tsv("../ProcessedData/random_coords_closest_c_dmr.bed.gz", col_names = F)
 random_cg_dmr <- read_tsv("../ProcessedData/random_coords_closest_cg_dmr.bed.gz", col_names = F)
@@ -77,129 +79,117 @@ ggplot(na.omit(te_cg_dmr), aes(distance / 1000, fill = AbsenceClassification)) +
   ggsave("../Plots/CGDMR/cg_dmr_distances_insertion_vs_deletion.pdf", width = 10, height = 6, units = "cm", useDingbats=F)
 
 # Of the CG-DMRs with a TE variant within 1 kb, what percentage of those are TE deletion, what percentage are insertions
-te_cg_dmr %>%
-  group_by(AbsenceClassification, distance < 1000) %>%
-  summarise(count = n()) %>%
-  mutate(tot = sum(count), perc = count / tot * 100)
+# te_cg_dmr %>%
+#   group_by(AbsenceClassification, distance < 1000) %>%
+#   summarise(count = n()) %>%
+#   mutate(tot = sum(count), perc = count / tot * 100)
 
 # percentage of DMRs with TE variant within 1 kb, compared to random regions replicated 10k times
 # see ProcessingCode/bootstrap_te_variants.sh for source of random overlap percentages
 c_dmrs <- read_tsv("../RawData/c_dmrs.tsv.gz", col_names = F)
 cg_dmrs <- read_tsv("../RawData/cg_dmrs.tsv.gz", col_names = F)
 
-bootstrap_c_dmr_insertions_1kb <- read_table("../ProcessedData/random_selections_c_dmr_rep_10k_insertions.txt", col_names = F)
-bootstrap_c_dmr_deletions_1kb <- read_table("../ProcessedData/random_selections_c_dmr_rep_10k_deletions.txt", col_names = F)
+n_cdmr <- nrow(c_dmrs)
+n_cgdmr <- nrow(cg_dmrs)
 
-bootstrap_cg_dmr_insertions_1kb <- read_table("../ProcessedData/random_selections_cg_dmr_rep_10k_insertions.txt", col_names = F)
-bootstrap_cg_dmr_deletions_1kb <- read_table("../ProcessedData/random_selections_cg_dmr_rep_10k_deletions.txt", col_names = F)
+bootstrap_c_dmr <- read_table("../ProcessedData/random_selections_c_dmr_rep_10k.txt", col_names = F) %>%
+  mutate(c_dmr_all = X1 / n_cdmr * 100) %>% select(-X1)
 
-# Of the C-DMRs with a TE variant within 1 kb, what percentage of those are TE deletion, what percentage are insertions
-te_c_dmr %>%
-  group_by(AbsenceClassification, distance < 1000) %>%
-  summarise(count = n()) %>%
-  mutate(tot = sum(count), perc = count / tot * 100)
+bootstrap_c_dmr_insertions_1kb <- read_table("../ProcessedData/random_selections_c_dmr_rep_10k_insertions.txt", col_names = F) %>%
+  mutate(c_dmr_ins = X1 / n_cdmr * 100) %>% select(-X1)
+
+bootstrap_c_dmr_deletions_1kb <- read_table("../ProcessedData/random_selections_c_dmr_rep_10k_deletions.txt", col_names = F) %>%
+  mutate(c_dmr_dels = X1 / n_cdmr * 100) %>% select(-X1)
+
+bootstrap_c_dmr_na_1kb <- read_table("../ProcessedData/random_selections_c_dmr_rep_10k_intermediate.txt", col_names = F) %>%
+  mutate(c_dmr_na = X1 / n_cdmr * 100) %>% select(-X1)
+
+bootstrap_cg_dmr <- read_table("../ProcessedData/random_selections_cg_dmr_rep_10k.txt", col_names = F) %>%
+  mutate(cg_dmr_all = X1 / n_cgdmr * 100) %>% select(-X1)
+
+bootstrap_cg_dmr_insertions_1kb <- read_table("../ProcessedData/random_selections_cg_dmr_rep_10k_insertions.txt", col_names = F) %>%
+  mutate(cg_dmr_ins = X1 / n_cgdmr * 100) %>% select(-X1)
+
+bootstrap_cg_dmr_deletions_1kb <- read_table("../ProcessedData/random_selections_cg_dmr_rep_10k_deletions.txt", col_names = F) %>%
+  mutate(cg_dmr_dels = X1 / n_cgdmr * 100) %>% select(-X1)
+
+bootstrap_cg_dmr_na_1kb <- read_table("../ProcessedData/random_selections_cg_dmr_rep_10k_intermediate.txt", col_names = F) %>%
+  mutate(cg_dmr_na = X1 / n_cgdmr * 100) %>% select(-X1)
+
+bootstrapping <- cbind(bootstrap_c_dmr, bootstrap_c_dmr_insertions_1kb, bootstrap_c_dmr_deletions_1kb, bootstrap_c_dmr_na_1kb,
+                       bootstrap_cg_dmr, bootstrap_cg_dmr_insertions_1kb, bootstrap_cg_dmr_deletions_1kb, bootstrap_cg_dmr_na_1kb)
 
 # What is the percentage of all C-DMRs with a TE variant within 1 kb
-te_c_dmr %>% 
+close_c_dmrs <- te_c_dmr %>% 
+  group_by(AbsenceClassification) %>%
+  filter(distance > 1000) %>%
+  select(dmr_chr, dmr_start, dmr_stop, AbsenceClassification) %>% 
+  unique() %>%
+  summarise(count = n())
+
+close_cg_dmrs <- te_cg_dmr %>% 
   group_by(AbsenceClassification) %>%
   filter(distance < 1000) %>%
   select(dmr_chr, dmr_start, dmr_stop, AbsenceClassification) %>%
   unique() %>%
-  summarise(count = n()) -> close_c_dmrs
+  summarise(count = n())
 
-c_dmr_overlap <- sum(close_c_dmrs[,2]) / nrow(c_dmrs) * 100
+# 95% CI = qnorm(0.975) * sd(sample) / sqrt(length(sample))
+ci <- function(d) {
+  m <- mean(d)
+  s <- sd(d)
+  n <- length(d)
+  z <- qnorm(0.975)
+  ci <- (z * s) / sqrt(n)
+  return(ci)
+}
 
-te_cg_dmr %>% 
-  group_by(AbsenceClassification) %>%
-  filter(distance < 1000) %>%
-  select(dmr_chr, dmr_start, dmr_stop, AbsenceClassification) %>%
-  unique() %>%
-  summarise(count = n()) -> close_cg_dmrs
-
-cg_dmr_overlap <- sum(close_cg_dmrs[,2]) / nrow(cg_dmrs) * 100
+conf <- lapply(bootstrapping, ci)
+means <- lapply(bootstrapping, mean)
 
 overlaps <- data_frame(TEPAV = c("TE deletions", "TE insertions", "NA calls", "Total"),
-                       CDMR = c(close_c_dmrs[1,2][[1]]/n_cdmr * 100,
+                       observeC = c(close_c_dmrs[1,2][[1]]/n_cdmr * 100,
                                 close_c_dmrs[2,2][[1]]/n_cdmr * 100,
                                 close_c_dmrs[3,2][[1]]/n_cdmr * 100,
                                 sum(close_c_dmrs[,2]/n_cdmr * 100)),
-                       CGDMR = c(close_cg_dmrs[1,2][[1]]/n_cgdmr * 100,
+                       expectC = c(means$c_dmr_dels, means$c_dmr_ins, means$c_dmr_na, means$c_dmr_all),
+                       CIC = c(conf$c_dmr_dels, conf$c_dmr_ins, conf$c_dmr_na, conf$c_dmr_all),
+                       observeCG = c(close_cg_dmrs[1,2][[1]]/n_cgdmr * 100,
                                  close_cg_dmrs[2,2][[1]]/n_cgdmr * 100,
                                  close_cg_dmrs[3,2][[1]]/n_cgdmr * 100,
-                                 sum(close_cg_dmrs[,2]/n_cgdmr * 100)))
+                                 sum(close_cg_dmrs[,2]/n_cgdmr * 100)),
+                       expectCG = c(means$cg_dmr_dels, means$cg_dmr_ins, means$cg_dmr_na, means$cg_dmr_all),
+                       CICG = c(conf$cg_dmr_dels, conf$cg_dmr_ins, conf$cg_dmr_na, conf$cg_dmr_all)
+                       )
+
 is.num <- sapply(overlaps, is.numeric)
-overlaps[is.num] <- lapply(overlaps[is.num], round, 2)
+overlaps[is.num] <- lapply(overlaps[is.num], signif, 2)
+
 write_tsv(overlaps, "../ProcessedData/dmr_overlaps.tsv")
-
-# p-values, 0 for each
-sum(bootstrap_c_dmr_deletions_1kb$X1 > close_c_dmrs[1,2][[1]])
-sum(bootstrap_c_dmr_insertions_1kb$X1 > close_c_dmrs[2,2][[1]])
-
-sum(bootstrap_cg_dmr_deletions_1kb$X1 < close_cg_dmrs[1,2][[1]])
-sum(bootstrap_cg_dmr_insertions_1kb$X1 < close_cg_dmrs[2,2][[1]])
-
-# counts <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz", col_names = T) %>%
-#   mutate(l = end-start) %>%
-#   group_by(Absence_classification) %>%
-#   summarise(ml = mean(l), c = n())
-# 
-# pdf("../Plots/DMR_intersections_bootstrap.pdf", height = 5, width = 5)
-# par(mfrow = (c(2,2)))
-# hist(bootstrap_c_dmr_deletions_1kb$X1/counts$c[3] * 100,
-#      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
-#      main = "TE deletions near C-DMRs", border = chh)
-# intersections <- nrow(filter(te_c_dmr, AbsenceClassification == "True deletion" & distance < 1000))
-# total_class <- nrow(filter(te_c_dmr, AbsenceClassification == "True deletion"))
-# abline(v=intersections / total_class * 100)
-# 
-# hist(bootstrap_c_dmr_insertions_1kb$X1/counts$c[2] * 100,
-#      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
-#      main = "TE insertions near C-DMRs", border = chh)
-# intersections <- nrow(filter(te_c_dmr, AbsenceClassification == "No insertion" & distance < 1000))
-# total_class <- nrow(filter(te_c_dmr, AbsenceClassification == "No insertion"))
-# abline(v=intersections / total_class * 100)
-# 
-# hist(bootstrap_cg_dmr_deletions_1kb$X1/counts$c[3] * 100,
-#      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
-#      main = "TE deletions near CG-DMRs", border = cg)
-# intersections <- nrow(filter(te_cg_dmr, AbsenceClassification == "True deletion" & distance < 1000))
-# total_class <- nrow(filter(te_cg_dmr, AbsenceClassification == "True deletion"))
-# abline(v=intersections / total_class * 100)
-# 
-# hist(bootstrap_cg_dmr_insertions_1kb$X1/counts$c[2] * 100,
-#      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
-#      main = "TE insertions near CG-DMRs", border = cg)
-# intersections <- nrow(filter(te_cg_dmr, AbsenceClassification == "No insertion" & distance < 1000))
-# total_class <- nrow(filter(te_cg_dmr, AbsenceClassification == "No insertion"))
-# abline(v=intersections / total_class * 100)
-# dev.off()
-
-n_cdmr <- nrow(c_dmrs)
-n_cgdmr <- nrow(cg_dmrs)
 
 pdf("../Plots/TE-DMRs.pdf", height = 5, width = 5)
 par(mfrow = (c(2,2)))
 # plot percentage of C-DMRs near randomly selected genomcic coordinates
-hist(bootstrap_c_dmr_deletions_1kb$X1/n_cdmr * 100,
+hist(bootstrapping$c_dmr_dels,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "C-DMRs near TE deletions", border = chh)
 # add line showing pecentage near deletions
 intersections <- close_c_dmrs[1,2][[1]] / n_cdmr * 100
 abline(v=intersections)
 
-hist(bootstrap_c_dmr_insertions_1kb$X1/n_cdmr * 100,
+hist(bootstrapping$c_dmr_ins,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "C-DMRs near TE insertions", border = chh)
 intersections <- close_c_dmrs[2,2][[1]] / n_cdmr * 100
 abline(v=intersections)
 
-hist(bootstrap_cg_dmr_deletions_1kb$X1/n_cgdmr * 100,
+hist(bootstrapping$cg_dmr_dels,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "CG-DMRs near TE deletions", border = cg)
 intersections <- close_cg_dmrs[1,2][[1]] / n_cgdmr * 100
 abline(v=intersections)
 
-hist(bootstrap_cg_dmr_insertions_1kb$X1/n_cgdmr * 100,
+hist(bootstrapping$cg_dmr_ins,
      breaks = 10, xlim = c(0, 100), xlab = "Percent within 1 kb",
      main = "CG-DMRs near TE insertions", border = cg)
 intersections <- close_cg_dmrs[2,2][[1]] / n_cgdmr * 100
@@ -215,17 +205,13 @@ c_dmr_mc <-  c_dmr_mc %>%
   mutate(ID = paste(chr, start, stop)) %>%
   select(-(chr:stop))
 
-te_c_dmr <-  te_c_dmr %>%
-  mutate(ID = paste(dmr_chr, dmr_start, dmr_stop)) %>%
-  select(-(dmr_chr:dmr_stop))
+te_c_dmr <- mutate(te_c_dmr, ID = paste(dmr_chr, dmr_start, dmr_stop))
 
 cg_dmr_mc <-  cg_dmr_mc %>%
   mutate(ID = paste(chr, start, stop)) %>%
   select(-(chr:stop))
 
-te_cg_dmr <-  te_cg_dmr %>%
-  mutate(ID = paste(dmr_chr, dmr_start, dmr_stop)) %>%
-  select(-(dmr_chr:dmr_stop))
+te_cg_dmr <- mutate(te_cg_dmr, ID = paste(dmr_chr, dmr_start, dmr_stop))
 
 # function to get mC values from mC dataframe given DMR ID and list of accessions
 lookupMeth <- function(df, acc, TEID) {
@@ -272,34 +258,49 @@ colnames(cg_dmr_mc) <- gsub("_", "-", colnames(cg_dmr_mc))
 te_c_dmr <- te_c_dmr %>%
   rowwise() %>%
   mutate(d = calc_r2(pos_accessions, neg_accessions, c_dmr_mc, ID, 3)) %>%
-  separate(d, c("r2", "mC_pos", "mC_neg"), sep = "_", remove = TRUE)
+  separate(d, c("r2", "mC_pos", "mC_neg"), sep = "_", remove = TRUE) %>%
+  select(-ID)
 
 te_cg_dmr <- te_cg_dmr %>%
   rowwise() %>%
   mutate(d = calc_r2(pos_accessions, neg_accessions, cg_dmr_mc, ID, 3)) %>%
-  separate(d, c("r2", "mC_pos", "mC_neg"), sep = "_", remove = TRUE)
+  separate(d, c("r2", "mC_pos", "mC_neg"), sep = "_", remove = TRUE) %>%
+  select(-ID)
 
 # save data
 write_tsv(te_c_dmr, "../ProcessedData/c_dmr_correlations.tsv")
 write_tsv(te_cg_dmr, "../ProcessedData/cg_dmr_correlations.tsv")
+system("gzip ../ProcessedData/c_dmr_correlations.tsv")
+system("gzip ../ProcessedData/cg_dmr_correlations.tsv")
+
+## WHAT GENOMIC FEATURES ARE TE-DMRS AND NON-TE-DMRS FOUND IN?
+# te_c_dmr %>%
+#   filter(AbsenceClassification == "No insertion") %>%
+#   select(dmr_feature, TE_close) %>%
+#   group_by(dmr_feature) %>%
+#   mutate(total = n()) %>%
+#   group_by(dmr_feature, TE_close) %>%
+#   mutate(count = n()) %>%
+#   rowwise() %>%
+#   filter(count > 200) %>%
+#   mutate(perc = count / total * 100) %>%
+#   select(dmr_feature, TE_close, perc) %>%
+#   unique() %>%
+#   ggplot(., aes(dmr_feature, perc, fill=TE_close)) + geom_bar(stat="identity", position="dodge", color = "black") + theme_bw()
 
 ### C-DMRs ###
 # Make dataframe
 c_dmr_info <- te_c_dmr %>%
   mutate(class = ifelse(distance < 1000, "TE-DMR", "Non-TE-DMR")) %>% 
-  select(AbsenceClassification, class, mC_pos, mC_neg, r2, distance) %>% 
+  select(AbsenceClassification, class, mC_pos, mC_neg, r2, distance, dmr_feature) %>% 
   gather(TE_present, mC, mC_pos:mC_neg)
 
+c_dmr_info <- transform(c_dmr_info, r2 = as.numeric(r2), mC = as.numeric(mC), AbsenceClassification = as.character(AbsenceClassification))
 c_dmr_info$TE_present[c_dmr_info$TE_present == "mC_pos"] <- TRUE
 c_dmr_info$TE_present[c_dmr_info$TE_present == "mC_neg"] <- FALSE
-
 c_dmr_info$AbsenceClassification[c_dmr_info$AbsenceClassification == "No insertion"] <- "Insertion"
 c_dmr_info$AbsenceClassification[c_dmr_info$AbsenceClassification == "True deletion"] <- "Deletion"
-
-# sapply(c_dmr_info, mode)
-
-# convert to numeric
-c_dmr_info <- transform(c_dmr_info, r2 = as.numeric(r2), mC = as.numeric(mC))
+c_dmr_info <- tbl_df(c_dmr_info)
 
 filtered_cdmr <- filter(c_dmr_info, AbsenceClassification == "Deletion" | AbsenceClassification == "Insertion")
 
@@ -366,16 +367,13 @@ cg_dmr_info <- te_cg_dmr %>%
   select(AbsenceClassification, class, mC_pos, mC_neg, r2, distance) %>%
   gather(TE_present, mC, mC_pos:mC_neg)
 
+cg_dmr_info <- transform(cg_dmr_info, r2 = as.numeric(r2), mC = as.numeric(mC), AbsenceClassification = as.character(AbsenceClassification))
+
 cg_dmr_info$TE_present[cg_dmr_info$TE_present == "mC_pos"] <- TRUE
 cg_dmr_info$TE_present[cg_dmr_info$TE_present == "mC_neg"] <- FALSE
-
 cg_dmr_info$AbsenceClassification[cg_dmr_info$AbsenceClassification == "No insertion"] <- "Insertion"
 cg_dmr_info$AbsenceClassification[cg_dmr_info$AbsenceClassification == "True deletion"] <- "Deletion"
-
-# sapply(cg_dmr_info, mode)
-
-# convert to numeric
-cg_dmr_info <- transform(cg_dmr_info, r2 = as.numeric(r2), mC = as.numeric(mC))
+cg_dmr_info <- tbl_df(cg_dmr_info)
 
 filtered_cgdmr <- filter(cg_dmr_info, AbsenceClassification == "Deletion" | AbsenceClassification == "Insertion")
 
@@ -391,7 +389,7 @@ ggplot(filtered_cgdmr, aes(r2, distance)) +
   geom_point(alpha=0.1, size=0.4) + theme_bw() + facet_wrap(~AbsenceClassification) +
   scale_y_log10() + geom_smooth(method = "lm") +
   xlim(-1,1) +
-  ylab("Distance to CG-DMR") + xlab("r2") +
+  ylab("Distance to CG-DMR") + xlab("r") +
   ggsave("../Plots/CGDMR/cg_dmr_distance_vs_r2_log.png", height=6, width = 10, units = "cm", dpi = 600)
 
 # Distribution of r2 values for TE-DMRs vs non-TE-DMRs, for insertions and deletions
