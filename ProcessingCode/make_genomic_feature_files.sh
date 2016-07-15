@@ -181,3 +181,18 @@ gunzip -c ../RawData/Sullivan_DHS_PE_peaks_control.bed.gz \
 
 rm tepid_tepav.tsv
 gzip ../ProcessedData/GeneFeatures/*
+
+# Make file with main genomic features
+wget https://www.arabidopsis.org/download_files/Genes/TAIR10_genome_release/TAIR10_gff3/TAIR10_GFF3_genes_transposons.gff
+
+# process file to get only genes, TEs, pseudogenes. Change Chr to chr
+sed 's/Chr/chr/g' TAIR10_GFF3_genes_transposons.gff \
+| awk 'BEGIN {FS=OFS="\t"} {print $1, $4, $5, $3}' - \
+| egrep "gene|psuedogene|transposable|tRNA|rRNA" - \
+| sed 's/trans.*/TE/g' \
+| sort -k1,1 -k2,2n \
+| bedtools merge -c 4 -o distinct -i - \
+| gzip \
+> ../ProcessedData/GeneFeatures/genomic_features.bed.gz
+
+rm TAIR10_GFF3_genes_transposons.gff
