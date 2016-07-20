@@ -80,7 +80,7 @@ perm_deletions_cgdmr <- permute_labels(cgdmr, deletions, 500)
 lookup_perm <- function(row, column, perm) {
   d <- c()
   for(x in 1:length(perm)) {
-    d <- c(d, perm_matricies[[x]][row, column])
+    d <- c(d, perm[[x]][row, column])
   }
   return(d)
 }
@@ -90,7 +90,7 @@ estimate_pval <- function(real, perm) {
   n <- length(perm)
   for(column in 1:ncol(real)) {
     for(row in 1:nrow(real)) {
-      d <- lookup_perm(row, column, perm_matricies)
+      d <- lookup_perm(row, column, perm)
       p <- sum(abs(d) > abs(real[row, column])) / n
       pvals[row, column] <- p
     }
