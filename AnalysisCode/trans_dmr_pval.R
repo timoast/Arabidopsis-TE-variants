@@ -4,7 +4,7 @@ library(dplyr)
 # get the names of chromosomes we will compare
 args <- commandArgs(trailingOnly = TRUE)
 
-if (length(args) != 6) {
+if (length(args) != 7) {
   stop("Must supply c/cgdmr, two chromosomes and two output files", call.=FALSE)
 } else {
   dmr_file <- args[1]
@@ -12,7 +12,8 @@ if (length(args) != 6) {
   chrom_dmr <- args[3]
   outfile_sig <- args[4]
   outfile_cor <- args[5]
-  outfile_matrix <- args[6]
+  outfile_insertions <- args[6]
+  outfile_deletions <- args[7]
 }
 
 # Load data
@@ -163,4 +164,5 @@ dmr_cor <- rbind(high_cor_insertions, high_cor_deletions)
 # Save the data
 write_tsv(dmr_sig, outfile_sig)
 write_tsv(dmr_cor, outfile_cor)
-write_tsv(as.data.frame(cor_insertions_dmr), outfile_matrix)
+write_tsv(as.data.frame(pval_insertion_dmr), outfile_insertions)
+write_tsv(as.data.frame(pval_deletions_dmr), outfile_deletions)
