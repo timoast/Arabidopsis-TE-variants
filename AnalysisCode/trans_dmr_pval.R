@@ -68,14 +68,6 @@ permute_labels <- function(dmr, te, n) {
   return(perm_matricies)
 }
 
-# insertions
-perm_insertions_cdmr <- permute_labels(cdmr, insertions, 500)
-perm_insertions_cgdmr <- permute_labels(cgdmr, insertions, 500)
-
-# deletions
-perm_deletions_cdmr <- permute_labels(cdmr, deletions, 500)
-perm_deletions_cgdmr <- permute_labels(cgdmr, deletions, 500)
-
 # Calculate p-value for each correlation based on above bootstrap
 lookup_perm <- function(row, column, perm) {
   d <- c()
@@ -98,33 +90,35 @@ estimate_pval <- function(real, perm) {
   return(pvals)
 }
 
-# insertions
-pval_insertion_cdmr <- estimate_pval(cor_insertions_cdmr, perm_insertions_cdmr)
-pval_insertion_cgdmr <- estimate_pval(cor_insertions_cgdmr, perm_insertions_cgdmr)
-
-# deletions
-pval_deletions_cdmr <- estimate_pval(cor_deletions_cdmr, perm_deletions_cdmr)
-pval_deletions_cgdmr <- estimate_pval(cor_deletions_cgdmr, perm_deletions_cgdmr)
-
 # Get row and column number of each significant correlation, look up positions of TE and DMR
 # Gives dataframe with coordinates of correlated DMR-TE pairs
-get_points <- function(te_positions, dmr_positions, dat, cutoff) {
+get_points <- function(te_positions, dmr_positions, dat, cutoff, side) {
   df <- data.frame(dmr_chr = character(),
-                     dmr_pos = integer(),
-                     te_chr = character(),
-                     te_pos = integer(),
+                   dmr_pos = integer(),
+                   te_chr = character(),
+                   te_pos = integer(),
                    stringsAsFactors = FALSE)
   x <- 1
   for(column in 1:ncol(dat)) {
     for(row in 1:nrow(dat)) {
       # te = row, dmr = column
       if(!is.na(dat[row, column])) {
-        if(dat[row, column] < cutoff) {
-          df[x,] <- c(dmr_positions[column,1],
-                      dmr_positions[column,2],
-                      te_positions[row,1],
-                      te_positions[row,2])
-          x <- x + 1
+        if(side == "lower") {
+          if(dat[row, column] < cutoff) {
+            df[x,] <- c(dmr_positions[column,1],
+                        dmr_positions[column,2],
+                        te_positions[row,1],
+                        te_positions[row,2])
+            x <- x + 1
+          }
+        } else if(side == "higher") {
+          if(dat[row, column] > cutoff) {
+            df[x,] <- c(dmr_positions[column,1],
+                        dmr_positions[column,2],
+                        te_positions[row,1],
+                        te_positions[row,2])
+            x <- x + 1
+          }
         }
       }
     }
@@ -132,22 +126,66 @@ get_points <- function(te_positions, dmr_positions, dat, cutoff) {
   return(df)
 }
 
-# Insertions
-cdmr_insertions <- get_points(insertion_positions, cdmr_positions, pval_insertion_cdmr, 0.01)
-cgdmr_insertions <- get_points(insertion_positions, cgdmr_positions, pval_insertion_cgdmr, 0.01)
+# These are each about 9 GB of memory, so need to do one at a time and then delete the permuted dataframes
+# cdmr insertions
+perm_insertions_cdmr <- permute_labels(cdmr, insertions, 500)
+pval_insertion_cdmr <- estimate_pval(cor_insertions_cdmr, perm_insertions_cdmr)
+rm(perm_insertions_cdmr)
+cdmr_insertions <- get_points(insertion_positions, cdmr_positions, pval_insertion_cdmr, 0.01, "lower")
+high_cor_insertion_cdmr <- get_points(insertion_positions, cdmr_positions, cor_insertions_cdmr, 0.5, "higher")
+rm(pval_insertion_cdmr)
 
-# Deletions
-cdmr_deletions <- get_points(deletion_positions, cdmr_deletions, pval_deletions_cdmr, 0.01)
-cgdmr_deletions <- get_points(deletion_positions, cgdmr_deletions, pval_deletions_cgdmr, 0.01)
+# cgdmr insertions
+perm_insertions_cgdmr <- permute_labels(cgdmr, insertions, 500)
+pval_insertion_cgdmr <- estimate_pval(cor_insertions_cgdmr, perm_insertions_cgdmr)
+rm(perm_insertions_cgdmr)
+cgdmr_insertions <- get_points(insertion_positions, cgdmr_positions, pval_insertion_cgdmr, 0.01, "lower")
+high_cor_insertion_cgdmr <- get_points(insertion_positions, cgdmr_positions, cor_insertions_cgdmr, 0.5, "higher")
+rm(pval_insertion_cgdmr)
+
+# cdmr deletions
+perm_deletions_cdmr <- permute_labels(cdmr, deletions, 500)
+pval_deletions_cdmr <- estimate_pval(cor_deletions_cdmr, perm_deletions_cdmr)
+rm(perm_deletions_cdmr)
+cdmr_deletions <- get_points(deletion_positions, cdmr_deletions, pval_deletions_cdmr, 0.01, "lower")
+high_cor_deletions_cdmr <- get_points(deletion_positions, cdmr_deletions, pval_deletions_cdmr, 0.5, "higher")
+rm(pval_deletions_cdmr)
+
+# cgdmr deletions
+perm_deletions_cgdmr <- permute_labels(cgdmr, deletions, 500)
+pval_deletions_cgdmr <- estimate_pval(cor_deletions_cgdmr, perm_deletions_cgdmr)
+rm(perm_deletions_cgdmr)
+cgdmr_deletions <- get_points(deletion_positions, cgdmr_deletions, pval_deletions_cgdmr, 0.01, "lower")
+high_cor_deletions_cgdmr <- get_points(deletion_positions, cgdmr_deletions, pval_deletions_cgdmr, 0.5, "higher")
+rm(pval_deletions_cgdmr)
+
+# We now have coordinates of all TE-DMRs pairs that were highly correlated
+# and those that were significantly different than expected based on 500 bootstraps (2 separate dataframes)
 
 # Join insertions and deletions, adding column with insertion/deletion
 cdmr_insertions <- mutate(cdmr_insertions, class = "Insertion")
+high_cor_insertion_cdmr <- mutate(high_cor_insertion_cdmr, class = "Insertion")
+
 cgdmr_insertions <- mutate(cgdmr_insertions, class = "Insertion")
+high_cor_insertion_cgdmr <- mutate(high_cor_insertion_cgdmr, class = "Insertion")
+
 cdmr_deletions <- mutate(cdmr_deletions, class = "Deletion")
+high_cor_deletions_cdmr <- mutate(high_cor_deletions_cdmr, class = "Deletion")
+
 cgdmr_deletions <- mutate(cgdmr_deletions, class = "Deletion")
+high_cor_deletions_cgdmr <- mutate(high_cor_deletions_cgdmr, class = "Deletion")
 
 cdmr_sig <- rbind(cdmr_insertions, cdmr_deletions)
 cgdmr_sig <- rbind(cgdmr_insertions, cgdmr_deletions)
+
+cdmr_cor <- rbind(high_cor_insertion_cdmr, high_cor_deletions_cdmr)
+cgdmr_cor <- rbind(high_cor_insertion_cgdmr, high_cor_deletions_cgdmr)
+
+# Save the data
+write_tsv(cdmr_sig, "../ProcessedData/sig_correlations_cdmr.tsv")
+write_tsv(cgdmr_sig, "../ProcessedData/sig_correlations_cgdmr.tsv")
+write_tsv(cdmr_cor, "../ProcessedData/high_correlations_cdmr.tsv")
+write_tsv(cgdmr_cor, "../ProcessedData/high_correlations_cgdmr.tsv")
 
 # Now plot as scatterplot
 
