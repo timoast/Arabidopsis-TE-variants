@@ -10,7 +10,8 @@
 ### DNA methylation    
 **burden_mC_DMRs.R**: Run burden analysis for TE insertions and deletions on C-DMR or CG-DMR methylation level and plot the results.  
 **mC_heatmaps.R**: Plot the DNA methylation level in regions flanking TE variants as a heatmap.  
-**trans_DMR_analysis.R**: All-vs-all correlations for TE presence/absence and DMR methylation level. Plot results as heatmap.  *Note - this script cannot be run directly to get the figures as output*  
+**trans_DMR_analysis.R**: All-vs-all correlations for TE presence/absence and DMR methylation level.  
+**run_trans_analysis.sh**: Run all pairwise comparisons between chromosomes for the trans-DMR analysis.  
 **TE_DMR_analysis.R**: Analyse the proportion of DMRs that are physically close to a TE variant and compare the the expected proportion. For DMRs within 1 kb of a TE variant, compare the DNA methylation levels in these DMRs in the presence/absence of the nearby TE. Plot the results as a cumulative density function, scatterplot, boxplot and density plot.  
 **flanking_mC_correlations.R**: Correlate flanking +/- 200 bp mC levels with TE presence / absence, generate plots.  
 
