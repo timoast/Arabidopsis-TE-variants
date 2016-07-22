@@ -139,12 +139,12 @@ rm(perm_insertions_dmr)
 dmr_insertions <- get_points(insertion_positions, dmr_positions, pval_insertion_dmr, 0.01, "lower")
 high_cor_insertions <- get_points(insertion_positions, dmr_positions, cor_insertions_dmr, 0.5, "higher")
 
-# dmr deletions
+# deletions
 perm_deletions_dmr <- permute_labels(dmr, deletions, 500)
 pval_deletions_dmr <- estimate_pval(cor_deletions_dmr, perm_deletions_dmr)
 rm(perm_deletions_dmr)
-dmr_deletions <- get_points(deletion_positions, dmr_deletions, pval_deletions_dmr, 0.01, "lower")
-high_cor_deletions <- get_points(deletion_positions, dmr_deletions, pval_deletions_dmr, 0.5, "higher")
+dmr_deletions <- get_points(deletion_positions, dmr_positions, pval_deletions_dmr, 0.01, "lower")
+high_cor_deletions <- get_points(deletion_positions, dmr_positions, pval_deletions_dmr, 0.5, "higher")
 
 # We now have coordinates of all TE-DMRs pairs that were highly correlated
 # and those that were significantly different than expected based on 500 bootstraps (2 separate dataframes)
