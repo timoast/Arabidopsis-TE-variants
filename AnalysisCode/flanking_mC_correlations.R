@@ -1,6 +1,7 @@
 library(dplyr)
 library(readr)
 library(ggplot2)
+library(RColorBrewer)
 
 # Load TE variant data, add a unique ID that will allow tables to be joined later
 tepav <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz") %>%
@@ -75,6 +76,13 @@ centromeres <- read_tsv("../RawData/centromere_positions.txt", col_names = c("ch
 
 data <- data %>% mutate(distance = get_centro_distance(c(chromosome, start, end), centromeres),
                         peri = distance < 3*10^6)
+
+## Percentage of correlated vs uncorrelated deletions that are in each LD classification
+# uncor_del <- filter(data, abs(r2) < 0.1, Absence_classification == "True deletion", peri == FALSE)
+# cor_del <- filter(data, r2 > 0.5, Absence_classification == "True deletion", peri == FALSE)
+# 
+# cor_del %>% group_by(LD) %>% summarise(count = n(), perc = count / nrow(cor_del) * 100)
+# uncor_del %>% group_by(LD) %>% summarise(count = n(), perc = count / nrow(uncor_del) * 100)
 
 # Plot r vs distance to centromere
 insertion_col <- brewer.pal(3, "Set2")[1]
