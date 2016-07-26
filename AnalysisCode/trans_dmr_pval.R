@@ -136,14 +136,14 @@ get_points <- function(te_positions, dmr_positions, dat, cutoff, side) {
 perm_insertions_dmr <- permute_labels(dmr, insertions, 500)
 pval_insertion_dmr <- estimate_pval(cor_insertions_dmr, perm_insertions_dmr)
 rm(perm_insertions_dmr)
-dmr_insertions <- get_points(insertion_positions, dmr_positions, pval_insertion_dmr, 0.01, "lower")
+dmr_insertions <- get_points(insertion_positions, dmr_positions, pval_insertion_dmr, 0.001, "lower")
 high_cor_insertions <- get_points(insertion_positions, dmr_positions, cor_insertions_dmr, 0.5, "higher")
 
 # deletions
 perm_deletions_dmr <- permute_labels(dmr, deletions, 500)
 pval_deletions_dmr <- estimate_pval(cor_deletions_dmr, perm_deletions_dmr)
 rm(perm_deletions_dmr)
-dmr_deletions <- get_points(deletion_positions, dmr_positions, pval_deletions_dmr, 0.01, "lower")
+dmr_deletions <- get_points(deletion_positions, dmr_positions, pval_deletions_dmr, 0.001, "lower")
 high_cor_deletions <- get_points(deletion_positions, dmr_positions, pval_deletions_dmr, 0.5, "higher")
 
 # We now have coordinates of all TE-DMRs pairs that were highly correlated
