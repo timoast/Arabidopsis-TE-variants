@@ -3,7 +3,6 @@
 # run from directory containing mC_calls files
 
 import os
-from sys import argv
 import MySQLdb
 from argparse import ArgumentParser
 
@@ -71,7 +70,7 @@ def indexTables(options):
     cursor = link.cursor()
     acc_data = {}
     col_data = {}
-    cursor.execute("use population_epigenetics;")
+    cursor.execute("use {};".format(options.database))
     cursor.execute("show tables")
     tables_result = cursor.fetchall()
     names = []
