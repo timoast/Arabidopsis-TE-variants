@@ -12,6 +12,7 @@
 **mC_heatmaps.R**: Plot the DNA methylation level in regions flanking TE variants as a heatmap.  
 **trans_dmr_pval.R**: All-vs-all correlations for TE presence/absence and DMR methylation level. Calculate p-values for each pairwise correlation between TE and DMR, based on bootstrap. Save p-values and coordinates of significant correlations and strong correlations to specified file.  
 **run_trans_analysis.sh**: Run all pairwise comparisons between chromosomes for the trans-DMR analysis.  
+**plot_trans_scatter.R**: Plot significant TE-DMR associations as scatterplot.  
 **TE_DMR_analysis.R**: Analyse the proportion of DMRs that are physically close to a TE variant and compare the the expected proportion. For DMRs within 1 kb of a TE variant, compare the DNA methylation levels in these DMRs in the presence/absence of the nearby TE. Plot the results as a cumulative density function, scatterplot, boxplot and density plot.  
 **flanking_mC_correlations.R**: Correlate flanking +/- 200 bp mC levels with TE presence / absence, generate plots.  
 
