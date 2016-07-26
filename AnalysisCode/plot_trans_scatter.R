@@ -4,7 +4,7 @@ library(ggplot2)
 library(RColorBrewer)
 library(grid)
 
-pvals <- read_tsv("../ProcessedData/dat/cdmr_sig_pvals.tsv", col_names = c("dmr_chr", "dmr_start", "te_chr", "te_start", "indel"))
+pvals <- read_tsv("../ProcessedData/cdmr_sig_pvals.tsv", col_names = c("dmr_chr", "dmr_start", "te_chr", "te_start", "indel"))
 
 pvals$te_chr <- factor(pvals$te_chr, levels = c("chr1", "chr2", "chr3", "chr4", "chr5"))	
 pvals$dmr_chr <- factor(pvals$dmr_chr, levels = c("chr5", "chr4", "chr3", "chr2", "chr1"))	
@@ -28,7 +28,7 @@ ggplot(., aes(te_start, dmr_start)) +
         axis.ticks.y=element_blank(),
         panel.margin = unit(0, "lines"))
 
-ggsave("../Plots/pval_ins.png", height=5, width = 5, dpi = 600)
+ggsave("../Plots/pval_del.png", height=5, width = 5, dpi = 600)
 
 pvals %>%
   filter(indel=="Insertion") %>%
@@ -46,4 +46,4 @@ pvals %>%
         axis.ticks.y=element_blank(),
         panel.margin = unit(0, "lines"))
 
-ggsave("../Plots/pval_del.png", height=5, width = 5, dpi = 600)
+ggsave("../Plots/pval_ins.png", height=5, width = 5, dpi = 600)
