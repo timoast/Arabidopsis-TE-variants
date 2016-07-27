@@ -1,0 +1,7 @@
+Absence_call	Absence_classification	count
+FALSE	"NA"	310
+FALSE	No insertion	14689
+FALSE	True deletion	8
+TRUE	"NA"	1852
+TRUE	No insertion	388
+TRUE	True deletion	5848

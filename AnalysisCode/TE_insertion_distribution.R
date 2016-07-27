@@ -7,6 +7,12 @@ library(reshape2)
 # TEPID TE calls
 tepav <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz", col_names = T)
 
+tepav %>%
+  mutate(Absence_call = grepl("Col-0", Accessions_TE_present)) %>%
+  group_by(Absence_call, Absence_classification) %>%
+  summarise(count = n()) %>% View
+  write_tsv("../ProcessedData/deletion_stats.tsv")
+
 # 1. Plot minor allele frequency
 pdf("../Plots/MAF.pdf", height = 4, width = 4)
 hist(tepav$MAF*100, breaks = 100, col = "grey", xlab = "MAF", main = "Minor allele frequency distribution")
