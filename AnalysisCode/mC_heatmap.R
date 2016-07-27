@@ -206,19 +206,41 @@ dev.off()
 
 # Bud vs lead methylation
 
-bud_leaf_ins <- read_tsv("../ProcessedData/DNAmethylation/bud_vs_leaf_allC_insertions.tsv.gz", col_names = T, na = c("NaN"))
-bud_leaf_del <- read_tsv("../ProcessedData/DNAmethylation/bud_vs_leaf_allC_deletions.tsv.gz", col_names = T, na = c("NaN"))
+bud_leaf_ins <- read_tsv("../ProcessedData/DNAmethylation/bud_vs_leaf_allC_insertions.tsv.gz", col_names = T, na = c("nan")) %>%
+  mutate(class = "Insertion")
+bud_leaf_del <- read_tsv("../ProcessedData/DNAmethylation/bud_vs_leaf_allC_deletions.tsv.gz", col_names = T, na = c("nan")) %>%
+  mutate(class = "Deletion")
 
-bud_leaf_ins.sums <- mutate(bud_leaf_ins, sums=rowSums(bud_leaf_ins[,2:ncol(bud_leaf_ins)], na.rm = T))
-bud_leaf_del.sums <- mutate(bud_leaf_del, sums=rowSums(bud_leaf_del[,2:ncol(bud_leaf_del)], na.rm = T))
+# bud_leaf_ins.sums <- mutate(bud_leaf_ins, sums=rowSums(bud_leaf_ins[,2:ncol(bud_leaf_ins)], na.rm = T))
+# bud_leaf_del.sums <- mutate(bud_leaf_del, sums=rowSums(bud_leaf_del[,2:ncol(bud_leaf_del)], na.rm = T))
 
-bud_leaf_ins.sort <- arrange(bud_leaf_ins.sums, sums) %>% select(-sums)
-bud_leaf_del.sort <- arrange(bud_leaf_del.sums, sums) %>% select(-sums)
+bud_all <- rbind(bud_leaf_del, bud_leaf_ins)
 
-both_bud <- rbind(bud_leaf_del.sort, bud_leaf_ins.sort)
+# sum rows for sort order
+bud_all_sort <- bud_all %>%
+  mutate(mn = rowMeans(bud_all[,2:41], na.rm = T)) %>%
+  rowwise() %>%
+  mutate(distance = get_centro_distance(coords, centromeres),
+         pericentromeric = distance < 3 * 10^6) %>%
+  arrange(class, pericentromeric, mn)
 
-bl <- scale_max(both_bud[,2:ncol(both_bud)], 0.5)
+dels_bud <- filter(bud_all_sort, class == "Deletion")
+ins_bud <- filter(bud_all_sort, class == "Insertion")
+
+distance_dels <- select(dels_bud, distance)
+distance_ins <- select(ins_bud, distance)
+
+bud_all_sort <- select(bud_all_sort, -(class:pericentromeric))
+bl <- scale_max(bud_all_sort[,2:ncol(bud_all_sort)], 0.5)
 
 png("../Plots/heatmap_bud_leaf_indel.png", height = 6, width = 3, units = "in", res = 600, bg = "grey")
 image(bl, col = color)
+dev.off()
+
+png("../Plots/heatmap_bud_leaf_indel_distance_dels.png", height = 6, width = 3, units = "in", res = 600, bg = "grey")
+image(scale_max(distance_dels, 15 * 10^6), col = d_color)
+dev.off()
+
+png("../Plots/heatmap_bud_leaf_indel_distance_ins.png", height = 6, width = 3, units = "in", res = 600, bg = "grey")
+image(scale_max(distance_ins, 15 * 10^6), col = d_color)
 dev.off()
