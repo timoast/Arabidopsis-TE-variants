@@ -48,12 +48,16 @@ pvals %>%
 
 ggsave("../Plots/pval_ins.png", height=5, width = 5, dpi = 600)
 
-dot_plot <- function(pval, chr, y) {
+dot_plot <- function(pval, chr, y, z) {
   filtered <- subset(pval, te_chr == chr)
   h <- hist(filtered$te_start, breaks = 10000, plot=F)
-  d <- data.frame(x = h$breaks[1:length(h$breaks) - 1], y = h$counts)
+  d <- data.frame(x = h$breaks[1:length(h$breaks) - 1], y = h$counts, z = NA)
   d <- d[d$y > 0,]
-  plot(d, pch=19, cex=0.5, ylim = c(0, y))
+  # add column with color
+  d[d$y > z, 3] <- 1
+  d[d$y <= z, 3] <- 2
+  plot(d$x, d$y, pch=19, cex=0.5, ylim = c(0, y), col=c("red", "grey")[d$z])
+  abline(h=z, col="grey")
 }
 
 ins <- filter(pvals, indel == "Insertion")
@@ -61,18 +65,18 @@ del <- filter(pvals, indel == "Deletion")
 
 pdf("../Plots/trans_dotplot_insertions.pdf", height=1.5, width=10, useDingbats = F)
 par(mfrow=c(1,5), mar = c(1,1,1,1))
-dot_plot(ins, "chr1", 400)
-dot_plot(ins, "chr2", 400)
-dot_plot(ins, "chr3", 400)
-dot_plot(ins, "chr4", 400)
-dot_plot(ins, "chr5", 400)
+dot_plot(ins, "chr1", 400, 200)
+dot_plot(ins, "chr2", 400, 200)
+dot_plot(ins, "chr3", 400, 200)
+dot_plot(ins, "chr4", 400, 200)
+dot_plot(ins, "chr5", 400, 200)
 dev.off()
 
 pdf("../Plots/trans_dotplot_deletions.pdf", height=1.5, width=10, useDingbats = F)
 par(mfrow=c(1,5), mar = c(1,1,1,1))
-dot_plot(del, "chr1", 700)
-dot_plot(del, "chr2", 700)
-dot_plot(del, "chr3", 700)
-dot_plot(del, "chr4", 700)
-dot_plot(del, "chr5", 700)
+dot_plot(del, "chr1", 700, 200)
+dot_plot(del, "chr2", 700, 200)
+dot_plot(del, "chr3", 700, 200)
+dot_plot(del, "chr4", 700, 200)
+dot_plot(del, "chr5", 700, 200)
 dev.off()
