@@ -29,3 +29,4 @@ bedtools intersect -a ./temp/reordered_pvals.tsv -b ./temp/both_combinations_lon
 awk 'BEGIN {FS=OFS="\t"} {if ($4 != $10) $14 = "NA"; else $14 = sqrt(($5 - $11)^2); if ($14 < 2000) print $0}' ./temp/intersections_pval.tsv \
     > ../ProcessedData/ghost_trans_associations.tsv
 
+rm -r ./temp
