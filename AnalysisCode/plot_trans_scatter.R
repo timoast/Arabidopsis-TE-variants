@@ -80,3 +80,23 @@ dot_plot(del, "chr3", 700, 200)
 dot_plot(del, "chr4", 700, 200)
 dot_plot(del, "chr5", 700, 200)
 dev.off()
+
+# draw heatmaps of TE density to go along the edges of the plots
+te <- read_tsv("../RawData/TAIR9_TE.bed.gz", col_names = c("chr", "start", "stop", "strand", "TE", "Family", "Superfamily"))
+
+color <- colorRampPalette(brewer.pal(9, "YlGnBu"))(100)
+
+plot_heatmap <- function(d, chr, color) {
+  c <- d[d$chr == chr,]
+  h <- hist(c$start, breaks = 200, plot = F)
+  image(as.matrix(h$counts), col = color)
+}
+
+pdf("../Plots/te_density_heatmaps.pdf", height = 10, width = 5)
+par(mfrow = c(5,1))
+plot_heatmap(te, "chr1", color)
+plot_heatmap(te, "chr2", color)
+plot_heatmap(te, "chr3", color)
+plot_heatmap(te, "chr4", color)
+plot_heatmap(te, "chr5", color)
+dev.off()
