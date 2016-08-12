@@ -10,7 +10,7 @@ tepav <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz", col_names = T)
 tepav %>%
   mutate(Absence_call = grepl("Col-0", Accessions_TE_present)) %>%
   group_by(Absence_call, Absence_classification) %>%
-  summarise(count = n()) %>% View
+  summarise(count = n()) %>%
   write_tsv("../ProcessedData/deletion_stats.tsv")
 
 # 1. Plot minor allele frequency
@@ -125,6 +125,26 @@ dev.off()
 pdf("../Plots/chr1_heatmap_scale.pdf", height=2, width=5)
 image(data.matrix(seq(100)), col = color)
 dev.off()
+
+# Now compare insertion distribution of Type 1 and Type 2 elements (reviewer request)
+# First add annotation of TE superfamily to each variant
+te <- rename(all_te, TE = X5, family = X6, superfamily = X7) %>%
+  select(TE, family, superfamily)
+
+k <- select(te, superfamily) %>% rename(s = superfamily) %>% unique()
+t <- c(1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, NA, 2, 1, 1, 1, 1)
+names(t) <- k$s
+
+annotations <- left_join(tepav, te) %>% mutate(class = t[superfamily])
+
+annotations %>%
+  filter(chromosome == "chr1", !is.na(Absence_classification), !is.na(class)) %>%
+  ggplot(., aes(start, fill=Absence_classification)) +
+  geom_density(adjust=1/7) +
+  facet_wrap(Absence_classification~class) +
+  theme_bw() +
+  theme(legend.position = "none")
+ggsave("../Plots/type_1_type_2_distribution.pdf", height = 5, width = 5, useDingbats=F)
 
 # 3. Find frequency that insertions / deletions occur in different genomic features
 # common header for most files
