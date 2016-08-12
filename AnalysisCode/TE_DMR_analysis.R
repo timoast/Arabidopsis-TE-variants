@@ -274,19 +274,20 @@ system("gzip ../ProcessedData/c_dmr_correlations.tsv")
 system("gzip ../ProcessedData/cg_dmr_correlations.tsv")
 
 ## WHAT GENOMIC FEATURES ARE TE-DMRS AND NON-TE-DMRS FOUND IN?
-# te_c_dmr %>%
-#   filter(AbsenceClassification == "No insertion") %>%
-#   select(dmr_feature, TE_close) %>%
-#   group_by(dmr_feature) %>%
-#   mutate(total = n()) %>%
-#   group_by(dmr_feature, TE_close) %>%
-#   mutate(count = n()) %>%
-#   rowwise() %>%
-#   filter(count > 200) %>%
-#   mutate(perc = count / total * 100) %>%
-#   select(dmr_feature, TE_close, perc) %>%
-#   unique() %>%
-#   ggplot(., aes(dmr_feature, perc, fill=TE_close)) + geom_bar(stat="identity", position="dodge", color = "black") + theme_bw()
+te_c_dmr %>%
+  select(dmr_feature, TE_close, AbsenceClassification) %>%
+  group_by(dmr_feature) %>%
+  mutate(total = n()) %>%
+  group_by(dmr_feature, TE_close) %>%
+  mutate(count = n()) %>%
+  rowwise() %>%
+  filter(count > 200) %>%
+  mutate(perc = count / total * 100) %>%
+  select(dmr_feature, TE_close, perc, AbsenceClassification) %>%
+  unique() %>%
+  ggplot(., aes(dmr_feature, perc, fill=TE_close)) +
+  geom_bar(stat="identity", position="dodge", color = "black") + theme_bw() +
+  facet_wrap(~AbsenceClassification)
 
 ### C-DMRs ###
 # Make dataframe
