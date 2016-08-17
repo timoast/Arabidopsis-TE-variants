@@ -122,7 +122,7 @@ bootstrapping <- cbind(bootstrap_c_dmr, bootstrap_c_dmr_insertions_1kb, bootstra
 # What is the percentage of all C-DMRs with a TE variant within 1 kb
 close_c_dmrs <- te_c_dmr %>% 
   group_by(AbsenceClassification) %>%
-  filter(distance > 1000) %>%
+  filter(distance < 1000) %>%
   select(dmr_chr, dmr_start, dmr_stop, AbsenceClassification) %>% 
   unique() %>%
   summarise(count = n())
@@ -288,6 +288,26 @@ te_c_dmr %>%
   ggplot(., aes(dmr_feature, perc, fill=TE_close)) +
   geom_bar(stat="identity", position="dodge", color = "black") + theme_bw() +
   facet_wrap(~AbsenceClassification)
+
+# How many C-DMRs are distant from a TE variant, but close to a fixed TE?
+# Add distance of each C-DMR to closest TE. Find percentage of C-DMRs not close to a TE variant
+# that are within 1 kb of a TE (will be a lot)
+c_dmr_tepav_distance <- read_tsv("../ProcessedData/c_dmr_tepav_distance.tsv.gz",
+                                 col_names = c("dmr_chr", "dmr_start", "dmr_stop", "dmr_tepav_distance"))
+c_dmr_te_distance <- read_tsv("../ProcessedData/c_dmrs_closest_te.tsv.gz",
+                              col_names = c("dmr_chr", "dmr_start", "dmr_stop", "dmr_te", "dmr_te_distance"))
+
+dmr_distances <- left_join(c_dmr_tepav_distance, c_dmr_te_distance)
+
+dmr_distances %>%
+  filter(dmr_tepav_distance > 1000) %>%
+  ggplot(., aes(dmr_te_distance)) +
+  geom_histogram(bins = 100) +
+  geom_vline(xintercept = 1000)
+
+dmr_distances %>%
+  filter(dmr_tepav_distance > 1000, dmr_te_distance < 1000) %>%
+  count()
 
 ### C-DMRs ###
 # Make dataframe

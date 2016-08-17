@@ -27,7 +27,7 @@ for (( i=1; i <= 10000; i++ )); do
     > ../ProcessedData/random_coords.bed
 
     # c-dmrs
-    bedtools closest -b ../ProcessedData/random_coords.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+    bedtools closest -wb -d -t first -b ../ProcessedData/random_coords.bed -a ../RawData/c_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -35,7 +35,7 @@ for (( i=1; i <= 10000; i++ )); do
     >> ../ProcessedData/random_selections_c_dmr_rep_10k.txt
 
     #cg-dmrs
-    bedtools closest -b ../ProcessedData/random_coords.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+    bedtools closest -wb -d -t first -b ../ProcessedData/random_coords.bed -a ../RawData/cg_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -49,7 +49,7 @@ for (( i=1; i <= 10000; i++ )); do
     > ../ProcessedData/random_coords_insertions.bed
 
     # c-dmrs
-    bedtools closest -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+    bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/c_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -57,7 +57,7 @@ for (( i=1; i <= 10000; i++ )); do
     >> ../ProcessedData/random_selections_c_dmr_rep_10k_insertions.txt
 
     #cg-dmrs
-    bedtools closest -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+    bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/cg_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -71,7 +71,7 @@ for (( i=1; i <= 10000; i++ )); do
     > ../ProcessedData/random_coords_deletions.bed
 
     # c-dmrs
-    bedtools closest -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+    bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/c_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -79,7 +79,7 @@ for (( i=1; i <= 10000; i++ )); do
     >> ../ProcessedData/random_selections_c_dmr_rep_10k_deletions.txt
 
     #cg-dmrs
-    bedtools closest -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+    bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/cg_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -93,7 +93,7 @@ for (( i=1; i <= 10000; i++ )); do
     > ../ProcessedData/random_coords_intermediate.bed
 
     # c-dmrs
-    bedtools closest -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+    bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/c_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -101,7 +101,7 @@ for (( i=1; i <= 10000; i++ )); do
     >> ../ProcessedData/random_selections_c_dmr_rep_10k_intermediate.txt
 
     #cg-dmrs
-    bedtools closest -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+    bedtools closest -d -wb -t first -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/cg_dmrs.tsv.gz \
     | awk 'BEGIN {FS=OFS="\t"} {if ($7 < 1000) print $1, $2, $3}' - \
     | sort -k1,1 -k2,2n - \
     | uniq \
@@ -109,34 +109,34 @@ for (( i=1; i <= 10000; i++ )); do
     >> ../ProcessedData/random_selections_cg_dmr_rep_10k_intermediate.txt
 done
 
-bedtools closest -b ../ProcessedData/random_coords.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords.bed -a ../RawData/c_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_c_dmr.bed.gz
 
-bedtools closest -b ../ProcessedData/random_coords.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords.bed -a ../RawData/cg_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_cg_dmr.bed.gz
 
-bedtools closest -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/c_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_c_dmr_insertions.bed.gz
 
-bedtools closest -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_insertions.bed -a ../RawData/cg_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_cg_dmr_insertions.bed.gz
 
-bedtools closest -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/c_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_c_dmr_deletions.bed.gz
 
-bedtools closest -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_deletions.bed -a ../RawData/cg_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_cg_dmr_deletions.bed.gz
 
-bedtools closest -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/c_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/c_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_c_dmr_intermediate.bed.gz
 
-bedtools closest -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/cg_dmrs.tsv.gz -d -wb \
+bedtools closest -wb -d -t first -b ../ProcessedData/random_coords_intermediate.bed -a ../RawData/cg_dmrs.tsv.gz \
 | gzip - \
 > ../ProcessedData/random_coords_closest_cg_dmr_intermediate.bed.gz
