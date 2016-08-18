@@ -152,13 +152,13 @@ overlaps <- data_frame(TEPAV = c("TE deletions", "TE insertions", "NA calls", "T
                                 close_c_dmrs[2,2][[1]]/n_cdmr * 100,
                                 close_c_dmrs[3,2][[1]]/n_cdmr * 100,
                                 sum(close_c_dmrs[,2]/n_cdmr * 100)),
-                       expectC = c(means$c_dmr_dels, means$c_dmr_ins, means$c_dmr_na, means$c_dmr_all),
+                       expectC = c(means$c_dmr_dels, means$c_dmr_ins, means$c_dmr_na, sum(means$c_dmr_ins, means$c_dmr_na, means$c_dmr_dels)),
                        CIC = c(conf$c_dmr_dels, conf$c_dmr_ins, conf$c_dmr_na, conf$c_dmr_all),
                        observeCG = c(close_cg_dmrs[1,2][[1]]/n_cgdmr * 100,
                                  close_cg_dmrs[2,2][[1]]/n_cgdmr * 100,
                                  close_cg_dmrs[3,2][[1]]/n_cgdmr * 100,
                                  sum(close_cg_dmrs[,2]/n_cgdmr * 100)),
-                       expectCG = c(means$cg_dmr_dels, means$cg_dmr_ins, means$cg_dmr_na, means$cg_dmr_all),
+                       expectCG = c(means$cg_dmr_dels, means$cg_dmr_ins, means$cg_dmr_na, sum(means$cg_dmr_ins, means$cg_dmr_na, means$cg_dmr_dels)),
                        CICG = c(conf$cg_dmr_dels, conf$cg_dmr_ins, conf$cg_dmr_na, conf$cg_dmr_all)
                        )
 
@@ -305,9 +305,17 @@ dmr_distances %>%
   geom_histogram(bins = 100) +
   geom_vline(xintercept = 1000)
 
+# How many DMRs are near a fixed TE but distant from a variable TE?
 dmr_distances %>%
-  filter(dmr_tepav_distance > 1000, dmr_te_distance < 1000) %>%
+  filter(dmr_tepav_distance > 1000, dmr_te_distance < 1000) %>% 
   count()
+
+# Which DMRs are distant from TEs of any type?
+non_te_dmr <- filter(dmr_distances, dmr_tepav_distance > 1000, dmr_te_distance > 1000)
+
+left_join(non_te_dmr, te_c_dmr) %>% 
+  group_by(dmr_feature) %>%
+  summarise(count = n())
 
 ### C-DMRs ###
 # Make dataframe
@@ -356,9 +364,9 @@ get_ks <- function(df, s) {
   ks.test(tedmr, nontedmr)
 }
 get_ks(filtered_cdmr, "Insertion")
-# D = 0.23019, p-value < 2.2e-16
+# D = 0.24358, p-value < 2.2e-16
 get_ks(filtered_cdmr, "Deletion")
-# D = 0.098078, p-value = 0.0005356
+# D = 0.099061, p-value = 0.0005991
 
 # mC density plots for deletions vs insertions, TE-DMRs vs non-TE-DMRs
 ggplot(filtered_cdmr, aes(fill=TE_present, mC)) + theme_bw() +
@@ -423,9 +431,9 @@ ggplot(filtered_cgdmr, aes(r2, col=class)) +
 
 # perform Kolmogorov-Smirnov tests
 get_ks(filtered_cgdmr, "Insertion")
-# D = 0.094844, p-value = 4.261e-08
+# D = 0.094552, p-value = 1.989e-07
 get_ks(filtered_cgdmr, "Deletion")
-# D = 0.073487, p-value = 0.001093
+# D = 0.072675, p-value = 0.001733
 
 del_cg <- filter(filtered_cgdmr, AbsenceClassification == "Deletion")
 del_cg_tedmr <- na.omit(filter(del_cg, class == "TE-DMR")$r2)

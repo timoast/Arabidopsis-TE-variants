@@ -1,5 +1,5 @@
 TEPAV	observeC	expectC	CIC	observeCG	expectCG	CICG
-TE deletions	18.0	16.0	0.0079	4.3	16.0	0.004
-TE insertions	28.0	26.0	0.0088	9.2	26.0	0.0047
-NA calls	9.0	6.2	0.0053	1.7	6.2	0.0027
-Total	56.0	41.0	0.01	15.0	42.0	0.0054
+TE deletions	17.0	16.0	0.0079	4.1	16.0	0.004
+TE insertions	28.0	26.0	0.0088	9.1	26.0	0.0047
+NA calls	8.7	6.2	0.0053	1.6	6.2	0.0027
+Total	54.0	48.0	0.01	15.0	48.0	0.0054

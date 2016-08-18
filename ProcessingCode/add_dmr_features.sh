@@ -1,11 +1,13 @@
 # Alter DMR files with the genomic features that they intersect
 # Add distance from each DMR to the closest TE
 
-bedtools intersect -a ../RawData/c_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz -wb \
+bedtools intersect -wa -wb -a ../RawData/c_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz \
     | cut -f1,2,3,7 \
+    | sort -k1,1 -k2,2n \
+    | bedtools merge -i - -c 4 -o distinct \
 	  > c_dmr_intersections.bed
 
-bedtools intersect -a ../RawData/c_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz -v \
+bedtools intersect -wa -a ../RawData/c_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz -v \
     | awk 'BEGIN {FS=OFS="\t"} {print $0, "intergenic"}' \
     | cat c_dmr_intersections.bed - \
     | sort -k1,1 -k2,2n \
@@ -14,11 +16,13 @@ bedtools intersect -a ../RawData/c_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/
 
 rm c_dmr_intersections.bed
 
-bedtools intersect -a ../RawData/cg_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz -wb \
+bedtools intersect -wa -wb -a ../RawData/cg_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz \
     | cut -f1,2,3,7 \
+    | sort -k1,1 -k2,2n \
+    | bedtools merge -i - -c 4 -o distinct \
 	  > cg_dmr_intersections.bed
 
-bedtools intersect -a ../RawData/cg_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz -v \
+bedtools intersect -wa -a ../RawData/cg_dmrs.tsv.gz -b ../ProcessedData/GeneFeatures/genomic_features.bed.gz -v \
     | awk 'BEGIN {FS=OFS="\t"} {print $0, "intergenic"}' \
     | cat cg_dmr_intersections.bed - \
     | sort -k1,1 -k2,2n \
