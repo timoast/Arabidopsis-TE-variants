@@ -128,49 +128,50 @@ Corresponding author: Ryan Lister \href{mailto:ryan.lister@uwa.edu.au}{ryan.list
 
 \section{Abstract}
 
-Variation in the presence or absence of transposable elements (TEs) is a
-major source of genetic variation between individuals. Here, we
+Variation in the presence or absence of transposable elements (TEs) is
+a major source of genetic variation between individuals. Here, we
 identified 23,095 TE presence/absence variants between 216 Arabidopsis
 accessions. Most TE variants were rare, and we find a burden of rare
 variants associated with local extremes of gene expression and DNA
 methylation levels within the population. Of the common alleles
 identified, two thirds were not in linkage disequilibrium with nearby
-SNPs, implicating these variants as a source of novel genetic diversity.
-Nearly 200 common TE variants were associated with significantly altered
-expression of nearby genes, and a major fraction of inter-accession DNA
-methylation differences were associated with nearby TE insertions.
-Overall, this demonstrates that TE variants are a rich source of genetic
-diversity that likely plays an important role in facilitating epigenomic
-and transcriptional differences between individuals, and indicates a
-strong genetic basis for epigenetic variation.
-
-\pagebreak
+SNPs, implicating these variants as a source of novel genetic
+diversity.  Nearly 200 common TE variants were associated with
+significantly altered expression of nearby genes, and a major fraction
+of inter-accession DNA methylation differences were associated with
+nearby TE insertions.  Overall, this demonstrates that TE variants are
+a rich source of genetic diversity that likely plays an important role
+in facilitating epigenomic and transcriptional differences between
+individuals, and indicates a strong genetic basis for epigenetic
+variation.
 
 \section{Introduction}
 
 Transposable elements (TEs) are mobile genetic elements present in
 nearly all studied organisms, and comprise a large fraction of most
-eukaryotic genomes. The two classes of TEs are retrotransposons (type I
+eukaryotic genomes. The two types of TEs are retrotransposons (type I
 elements), which transpose via an RNA intermediate requiring a reverse
 transcription reaction, and DNA transposons (type II elements), which
-transpose via either a cut-paste or, in the case of Helitrons, a rolling
-circle mechanism with no RNA intermediate \cite{Wicker:2007en}. TE
-activity poses mutagenic potential as a TE insertion may disrupt
-functional regions of the genome. Consequently, safeguard mechanisms
-have evolved to suppress this activity, including the methylation of
-cytosine nucleotides (DNA methylation) to produce 5-methylcytosine (mC),
-a modification that can induce transcriptional silencing of the
-methylated locus. In \emph{Arabidopsis thaliana }(Arabidopsis), DNA
-methylation occurs in all three DNA sequence contexts: mCG, mCHG, and
-mCHH, where H is any base but G. Establishment of DNA methylation marks
-can be carried out by two distinct pathways -- the RNA-directed DNA
-methylation pathway guided by 24 nucleotide (nt) small RNAs (smRNAs),
-and the DDM1/CMT2 pathway \cite{Zemach:2013dj, Matzke:2014ek}. A major
-function of DNA methylation in Arabidopsis is in the transcriptional
-silencing of TEs. Loss of DNA methylation due to mutations in genes
-essential for its establishment or maintenance leads to expression of
-previously silent TEs, and in some cases transposition
-\cite{Mirouze:2009km, Miura:2001eg, Saze:2003du, Lippman:2004cm, Jeddeloh:1999gu, Zemach:2013dj}.
+transpose via either a cut-paste or, in the case of Helitrons, a
+rolling circle mechanism with no RNA intermediate
+\cite{Wicker:2007en}. TE activity poses mutagenic potential as a TE
+insertion may disrupt functional regions of the genome. Consequently,
+safeguard mechanisms have evolved to suppress this activity, including
+the methylation of cytosine nucleotides (DNA methylation) to produce
+5-methylcytosine (mC), a modification that can induce transcriptional
+silencing of the methylated locus. In \emph{Arabidopsis thaliana}
+(Arabidopsis), DNA methylation occurs in all three DNA sequence
+contexts: mCG, mCHG, and mCHH, where H is any base but
+G. Establishment of DNA methylation marks can be carried out by two
+distinct pathways -- the RNA-directed DNA methylation pathway guided
+by 24 nucleotide (nt) small RNAs (smRNAs), and the DDM1/CMT2 pathway
+\cite{Zemach:2013dj, Matzke:2014ek}. A major function of DNA
+methylation in Arabidopsis is in the transcriptional silencing of
+TEs. Loss of DNA methylation due to mutations in genes essential for
+its establishment or maintenance leads to expression of previously
+silent TEs, and in some cases transposition \cite{Mirouze:2009km,
+  Miura:2001eg, Saze:2003du, Lippman:2004cm, Jeddeloh:1999gu,
+  Zemach:2013dj}.
 
 TEs are thought to play an important role in evolution, not only because
 of the disruptive potential of their transposition. The release of
@@ -198,23 +199,24 @@ variants is essential in order to develop a more comprehensive
 understanding of the genetic variation that exists between genomes, and
 of the consequences of TE movement on genome and cellular function.
 
-The tools developed previously for identification of novel TE insertion
-events have several limitations. They either require a library of active
-TE sequences, cannot identify TE absence variants, are not designed with
-population studies in mind, or suffer from a high degree of
-false-negatives
+The tools developed previously for identification of novel TE
+insertion events have several limitations. They either require a
+library of active TE sequences, cannot identify TE absence variants,
+are not designed with population studies in mind, or specifically aim
+to reduce false-positives rather than false-negatives
 \cite{Thung:2014ir, Robb:2013gw, Henaff:2015dl, Quadrana:2016bi}. In
 order to accurately map the locations of TE presence/absence variants
-with respect to a reference genome, we have developed a novel algorithm,
-TEPID (Transposable Element Polymorphism IDentification), which is
-designed for population studies. We tested our algorithm using both
-simulated and real Arabidopsis sequencing data, finding that TEPID is
-able to accurately identify TE presence/absence variants with respect to
-the Col-0 reference genome. We applied our TE variant identification
-method to existing genome resequencing data for 216 different
-Arabidopsis accessions \cite{Schmitz:2013iu}, identifying widespread TE
-variation amongst these accessions and enabling exploration of TE
-diversity and links to gene regulation and epigenomic variation.
+with respect to a reference genome, we have developed a novel
+algorithm, TEPID (Transposable Element Polymorphism IDentification),
+which is designed for population studies. We tested our algorithm
+using both simulated and real Arabidopsis sequencing data, finding
+that TEPID is able to accurately identify TE presence/absence variants
+with respect to the Col-0 reference genome. We applied our TE variant
+identification method to existing genome resequencing data for 216
+different Arabidopsis accessions \cite{Schmitz:2013iu}, identifying
+widespread TE variation amongst these accessions and enabling
+exploration of TE diversity and links to gene regulation and
+epigenomic variation.
 
 \section{Results}
 
@@ -239,35 +241,36 @@ the Arabidopsis genome showed that it was able to reliably detect
 simulated TE variants at sequencing coverage levels commonly used in
 genomics studies (Figure 1 - figure supplement \ref{fig1s1}).
 
-In order to further assess the sensitivity and specificity of TE variant
-discovery using TEPID, we identified TE variants in the Landsberg
-\emph{erecta} (L\emph{er}) accession, and compared these with the
-L\emph{er }genome assembly created using long PacBio sequencing reads
-\cite{Chin:2013iw}. Previously published 100 bp paired-end L\emph{er}
-genome resequencing reads \cite{Schneeberger:2011ft} were first analyzed
-using TEPID, enabling identification of 446 TE insertions (Figure 1 -
-source data 1) and 758 TE absence variants (Figure 1 - source data 2)
-with respect to the Col-0 reference TE annotation. Reads providing
-evidence for these variants were then mapped to the L\emph{er} reference
-genome, generated by \emph{de novo} assembly using Pacific Biosciences
-P5-C3 chemistry with a 20 kb insert library \cite{Chin:2013iw}, using
-the same alignment parameters as were used to map reads to the Col-0
+In order to further assess the sensitivity and specificity of TE
+variant discovery using TEPID, we identified TE variants in the
+Landsberg \emph{erecta} (L\emph{er}) accession, and compared these
+with the L\emph{er }genome assembly created using long PacBio
+sequencing reads \cite{Chin:2013iw}. Previously published 100 bp
+paired-end L\emph{er} genome resequencing reads
+\cite{Schneeberger:2011ft} were first analyzed using TEPID, enabling
+identification of 446 TE insertions (Figure 1 - source data 1) and 758
+TE absence variants (Figure 1 - source data 2) with respect to the
+Col-0 reference TE annotation. Reads providing evidence for these
+variants were then mapped to the L\emph{er} reference genome,
+generated by \emph{de novo} assembly using Pacific Biosciences P5-C3
+chemistry with a 20 kb insert library \cite{Chin:2013iw}, using the
+same alignment parameters as were used to map reads to the Col-0
 reference genome. This resulted in 98.7\% of reads being aligned
 concordantly to the L\emph{er} reference, whereas 100\% aligned
-discordantly or as split reads to the Col-0 reference genome (Table \ref{table1}).
-To find whether reads mapped to homologous regions in both the Col-0 and
-L\emph{er} reference genomes, we conducted a blast search
+discordantly or as split reads to the Col-0 reference genome (Table
+\ref{table1}). To find whether reads mapped to homologous regions in both the
+Col-0 and L\emph{er} reference genomes, we conducted a blast search
 \cite{Camacho:2009fc} using the DNA sequence between read pair mapping
-locations in the L\emph{er }genome against the Col-0 genome, and found
+locations in the L\emph{er} genome against the Col-0 genome, and found
 the top blast result for 80\% of reads providing evidence for TE
-insertions, and 89\% of reads providing evidence for TE absence variants
-in L\emph{er}, to be located within 200 bp of the TE variant
+insertions, and 89\% of reads providing evidence for TE absence
+variants in L\emph{er}, to be located within 200 bp of the TE variant
 reported by TEPID. Thus, reads providing evidence for TE variants map
 discordantly or as split reads when mapped to the Col-0 reference
-genome, but map concordantly to homologous regions of the L\emph{er} \emph{de
-novo} assembled reference genome, indicating that structural variation
-is present at the sites identified by TEPID, and that this is resolved
-in the \emph{de novo} assembled genome.
+genome, but map concordantly to homologous regions of the L\emph{er}
+\emph{de novo} assembled reference genome, indicating that structural
+variation is present at the sites identified by TEPID, and that this
+is resolved in the \emph{de novo} assembled genome.
 
 To estimate the rate of false negative TE absence calls made using
 TEPID, we compared our L\emph{er} TE absence calls to the set of TE
@@ -284,13 +287,13 @@ available for the L\emph{er }assembly, we looked for discordant and
 split read evidence at the known Col-0-specific TE insertion sites
 \cite{Quadrana:2016bi}, and found evidence reaching the TEPID threshold
 for a TE insertion call to be made at 89.6\% (173/193) of these sites,
-indicating a false negative rate of \textasciitilde{}10\%. However, it should be noted
-that this estimate does not take into account the TEPID refinement step
-used on large populations, and so the false negative rate for samples
-analyzed in the population from Schmitz et al. (2013) is likely to be
-lower than this estimate, as each accession gained on average 4\% more
-insertion calls following this refinement step (Figure 2 - figure
-supplement \hyperref[fig2s1]{1}).
+indicating a false negative rate of \textasciitilde{}10\%. However, it
+should be noted that this estimate does not take into account the TEPID
+refinement step used on large populations, and so the false negative
+rate for samples analyzed in the population from Schmitz et al. (2013)
+is likely to be lower than this estimate, as each accession gained on
+average 4\% more insertion calls following this refinement step (Figure
+2 - figure supplement \hyperref[fig2s1]{1}).
 
 \subsection{Abundant TE positional variation among natural Arabidopsis
 populations}
@@ -300,23 +303,27 @@ genome resequencing data for 216 different Arabidopsis accessions
 \cite{Schmitz:2013iu}, and identified 15,007 TE insertions (Figure 2 -
 source data 1) and 8,088 TE absence variants (Figure 2 - source data
 2) relative to the Col-0 reference accession, totalling 23,095 unique
-TE variants. In most accessions TEPID identified 300-500 TE insertions
-(mean = 378) and 1,000-1,500 TE absence variants (mean = 1,279), the
-majority of which were shared by two or more accessions (Figure 2 -
-figure supplement \hyperref[fig2s2]{2}).  PCR validations were
-performed for a random subset of 10 insertion and 10 absence variants
-in 14 accessions (totalling 280 validations), confirming the high
-accuracy of TE variant discovery using the TEPID package, with a false
-positive rate for both TE insertion and TE absence identification of
+TE variants.  A recent study focused on identifying recent TE
+insertions containing target site duplications in this population
+\cite{Quadrana:2016bi}.  Our goal was to provide a comprehensive
+assessment of TE presence/absence variation in Arabidopsis.  In most
+accessions TEPID identified 300-500 TE insertions (mean = 378) and
+1,000-1,500 TE absence variants (mean = 1,279), the majority of which
+were shared by two or more accessions (Figure 2 - figure supplement
+\hyperref[fig2s2]{2}).  PCR validations were performed for a random
+subset of 10 insertion and 10 absence variants in 14 accessions
+(totalling 280 validations), confirming the high accuracy of TE
+variant discovery using the TEPID package, with a false positive rate
+for both TE insertion and TE absence identification of
 \textasciitilde{}9\%, similar to that observed using simulated data
-and the L\emph{er} genome analysis (Figure 2 - figure supplement
-\hyperref[fig2s3]{3}). The number of TE insertions identified was
+and the Ler genome analysis (Figure 2 - figure supplement
+\hyperref[fig2s3]{3}).  The number of TE insertions identified was
 positively correlated with sequencing depth of coverage, while the
 number of TE absence variants identified had no correlation with
 sequencing coverage (Figure 2 - figure supplement
 \hyperref[fig2s4]{4}A, B), indicating that the sensitivity of TE
 absence calls is not limited by sequencing depth, while TE insertion
-identification benefits from high sequencing depth.  However,
+identification benefits from high sequencing depth. However,
 accessions with low coverage gained more TE insertion calls during the
 TEPID refinement step (Figure 2 - figure supplement
 \hyperref[fig2s4]{4}C), indicating that these false negatives were
@@ -329,32 +336,33 @@ comparisons and classify each variant as a new TE insertion or true
 deletion of an ancestral TE in the population. To do this,the minor
 allele frequency (MAF) of each variant in the population was examined,
 under the expectation that the minor allele is the derived allele.
-Common TE absences relative to Col-0 were re-classified as TE insertions
-in Col-0, and common TE insertions relative to Col-0 as true TE
-deletions in Col-0. Cases where the TE variant had a high MAF
+Common TE absences relative to Col-0 were re-classified as TE
+insertions in Col-0, and common TE insertions relative to Col-0 as
+true TE deletions in Col-0. Cases where the TE variant had a high MAF
 (\textgreater{}20\%) were assigned NA calls, as it could not be
-determined if these were cases where the variant was most likely to be a
-true TE deletion or a new TE insertion. While these classifications are
-not definitive, as there will be rare cases where a true TE deletion has
-spread through the population and becomes the common allele, it will
-correctly classify most TE variants. Overall, 72.3\% of the TE absence
-variants identified with respect to the Col-0 reference genome were
-likely due to a true TE deletion in these accessions, while 4.8\% were
-due to insertions in Col-0 not shared by other accessions in the
-population (Table \ref{table2}). Overall, we identified 15,077 TE insertions, 5,856
-true TE deletions, and 2,162 TE variants at a high MAF that were unable
-to be classified as an insertion or deletion (Figure 2 - source data 3).
+determined if these were cases where the variant was most likely to be
+a true TE deletion or a new TE insertion. While these classifications
+are not definitive, as there will be rare cases where a true TE
+deletion has spread through the population and becomes the common
+allele, it will correctly classify most TE variants. Overall, 72.3\%
+of the TE absence variants identified with respect to the Col-0
+reference genome were likely due to a true TE deletion in these
+accessions, while 4.8\% were due to insertions in Col-0 not shared by
+other accessions in the population (Table \ref{table2}). Overall, we
+identified 15,077 TE insertions, 5,856 true TE deletions, and 2,162 TE
+variants at a high MAF that were unable to be classified as an
+insertion or deletion (Figure 2 - source data 3).
 
 TE insertions and deletions were distributed throughout chromosome 1
 in a pattern that was similar to the distribution of all Col-0 TEs
 (Figure \ref{fig2}A). TE deletions and common TE variants were found
 in similar chromosomal regions, as deletion variants represent the
-rare loss of common variants. TE deletions and common variants were
+rare loss of common variants.  TE deletions and common variants were
 more highly enriched in the pericentromeric regions than rare variants
-or TE insertions. Among TE deletions, type II elements were slightly
+or TE insertions.  Among TE deletions, type II elements were slightly
 less biased towards the centromeres in comparison to the distribution
 of type I elements (Figure 2 - figure supplement
-\hyperref[fig2s5]{5}). The distribution of rare TE variants and TE
+\hyperref[fig2s5]{5}).  The distribution of rare TE variants and TE
 insertions was similar to that observed for regions of the genome
 previously identified as being differentially methylated in all DNA
 methylation contexts (mCG, mCHG, mCHH) between the wild accessions
@@ -365,15 +373,16 @@ variants were depleted within genes and DNase I hypersensitivity sites
 \cite{Sullivan:2014ii}, while they were enriched in gene flanking
 regions and within other annotated TEs or pseudogenes (Figure
 \ref{fig2}B). TE deletions and common TE variants were enriched within
-the set of TE variants found in gene bodies (Figure 2C, D). No
-significant enrichment was found for TE variants within the \emph{KNOT
-  ENGAGED ELEMENT (KEE) }regions, previously identified as regions
-that may act as a ``TE sink'' \cite{Grob:2014kg} (Figure 2 - figure
-supplement \hyperref[fig2s6]{6}). This may indicate that these regions
-do not act as a ``TE sink'' as has been previously proposed, or that
-the ``TE sink'' activity is restricted to very recent insertions, as
-the insertions we analysed in this population were likely older than
-those used in the \emph{KEE} study \cite{Grob:2014kg}.
+the set of TE variants found in gene bodies (Figure \ref{fig2}C,
+D). No significant enrichment was found for TE variants within the
+\emph{KNOT ENGAGED ELEMENT (KEE) }regions, previously identified as
+regions that may act as a ``TE sink'' \cite{Grob:2014kg} (Figure 2 -
+figure supplement \hyperref[fig2s6]{6}). This may indicate that these
+regions do not act as a ``TE sink'' as has been previously proposed,
+or that the ``TE sink'' activity is restricted to very recent
+insertions, as the insertions we analysed in this population were
+likely older than those used in the \emph{KEE} study
+\cite{Grob:2014kg}.
 
 Among the identified TE variants, several TE superfamilies were over-
 or under-represented compared to the number expected by chance given
@@ -415,42 +424,41 @@ polymorphisms}
 Although thousands of TE variants were identified, they may be linked
 to the previously identified single nucleotide polymorphisms (SNPs),
 or unlinked from SNPs across the accessions. We tested how frequently
-common TE variants (\textgreater{}3 \% MAF, \textgreater{}7
-accessions) were linked to adjacent SNPs to determine when they would
-represent a previously unassessed source of genetic variation between
-accessions.  SNPs that were previously identified between the
-accessions \cite{Schmitz:2013iu} were compared to the presence/absence
-of individual TE variants.  For the testable TE variants in the
-population, the nearest 300 flanking SNPs upstream and 300 SNPs
+common TE variants (\textgreater{}3\% MAF, \textgreater{}7 accessions)
+were linked to adjacent SNPs to determine when they would represent a
+previously unassessed source of genetic variation between accessions.
+SNPs that were previously identified between the accessions
+\cite{Schmitz:2013iu} were compared to the presence/absence of
+individual TE variants. For the testable TE variants in the
+population, the nearest flanking 300 SNPs upstream and 300 SNPs
 downstream of the TE variant site were analyzed for local linkage
 disequilibrium (LD, r\textsuperscript{2}; see methods). TE variants
 were classified as being either `low', `mid', or `high' LD variants by
 comparing ranked r\textsuperscript{2} values of TE variant to SNPs
-against the median ranked r\textsuperscript{2} value for all between
-SNP comparisons (SNP-SNP) to account for regional variation in the
-extent of SNP-SNP LD (Figure \ref{fig3}A, B) due to recombination rate
-variation or selection \cite{Horton:2012jh}. The majority (61\%) of
-testable TE variants had low LD with nearby SNPs, and represent a
-source of genetic diversity not previously assessed by SNP-based
-genotype calling methods (Figure \ref{fig3}C).  29\% of TE variants
-displayed high levels of LD and are tagged by nearby SNPs, while only
-10\% had intermediate levels of LD. We observed a positive correlation
-between TE variant MAF and LD state, with variants of a high minor
-allele frequency more often classified as high-LD (Figure
-\ref{fig3}D). While the proportion of TE variants classified as high,
-mid, or low-LD was mostly the same for both TE insertions and TE
-deletions, TE variants with a high MAF (\textgreater{}20\%) that were
-unable to be classified as either true deletions or as new insertions
-had a much higher proportion of high-LD variants (Figure \ref{fig3}E).
-This was consistent with the observation that the more common alleles
-were more often in a high-LD state.  TE variants displayed a similar
-distribution over chromosome 1 regardless of linkage classification
-(Figure 3 - figure supplement \hyperref[fig3s1]{1}). Overall, this
-analysis revealed an abundance of previously uncharacterized genetic
-variation that exists amongst Arabidopsis accessions caused by the
-presence or absence of TEs, and illustrates the importance of
-identifying TE variants alongside other genetic diversity such as
-SNPs.
+against the median ranked r\textsuperscript{2} value for all between SNP comparisons
+(SNP-SNP) to account for regional variation in the extent of SNP-SNP
+LD (Figure \ref{fig3}A, B) due to recombination rate variation or
+selection \cite{Horton:2012jh}. The majority (61\%) of testable TE
+variants had low LD with nearby SNPs, and represent a source of
+genetic diversity not previously assessed by SNP-based genotype
+calling methods (Figure \ref{fig3}C).  29\% of TE variants displayed
+high levels of LD and are tagged by nearby SNPs, while only 10\% had
+intermediate levels of LD. We observed a positive correlation between
+TE variant MAF and LD state, with variants of a high minor allele
+frequency more often classified as high-LD (Figure \ref{fig3}D). While
+the proportion of TE variants classified as high, mid, or low-LD was
+mostly the same for both TE insertions and TE deletions, TE variants
+with a high MAF (\textgreater{}20\%) that were unable to be classified
+as either true deletions or as new insertions had a much higher
+proportion of high-LD variants (Figure \ref{fig3}E). This was
+consistent with the observation that the more common alleles were more
+often in a high-LD state. TE variants displayed a similar distribution
+over chromosome 1 regardless of linkage classification (Figure 3 -
+figure supplement \hyperref[fig3s1]{1}). Overall, this analysis
+revealed an abundance of previously uncharacterized genetic variation
+that exists amongst Arabidopsis accessions caused by the presence or
+absence of TEs, and illustrates the importance of identifying TE
+variants alongside other genetic diversity such as SNPs.
 
 \subsection{TE variants affect gene expression}
 
@@ -459,35 +467,34 @@ nearby gene expression, the steady state transcript abundance within
 mature leaf tissue was compared between accessions with and without TE
 insertions or deletions, for genes with TE variants located in the 2
 kb gene upstream region, 5' UTR, exons, introns, 3' UTR or 2 kb
-downstream region (Figure \ref{fig4}A). While the steady state
-transcript abundance of most genes appeared to be unaffected by the
-presence of a TE, 196 genes displayed significant differences in
-transcript abundance linked with the presence of a TE variant,
-indicating a role for these variants in the local regulation of gene
-expression (1\% false discovery rate; \textgreater{}2-fold change in
-transcript abundance; Figure \ref{fig4}A, Figure 4 - source data
-1). No functional category enrichments in this set of differentially
-expressed genes were identified. As rare TE variants with a MAF less
-than 3\% may also be associated with a difference in transcript
-abundance, but were unable to be statistically tested due to their
-rarity, a burden test for enrichment of rare variants in the extremes
-of expression was performed \cite{Zhao:2016gc}. Briefly, this method
-counts the frequency of rare variants within each gene expression rank
-in the population, and aggregates this information over the entire
-population to determine whether an enrichment of rare variants exists
-within any gene expression rank. A strong enrichment for gene
-expression extremes was observed for TE variants in all gene features
-tested (Figure \ref{fig4}B). While TE variants in gene upstream
-regions showed a strong enrichment of both high and low gene
-expression ranks, TE variants in exons or gene downstream regions had
-a stronger enrichment for low expression ranks than high
-ranks. Randomization of the accession names removed these enrichments
-completely (Figure 4 - figure supplement \hyperref[fig4s1]{1}), and
-there was little difference between TE insertions and TE deletions in
-the gene expression rank enrichments found (Figure 4 - figure
-supplement \hyperref[fig4s2]{2}). This rare variant analysis further
-indicates that TE variants may alter the transcript abundance of
-nearby genes.
+downstream region (Figure \ref{fig4}A). While the steady state transcript
+abundance of most genes appeared to be unaffected by the presence of a
+TE, 196 genes displayed significant differences in transcript
+abundance linked with the presence of a TE variant, indicating a role
+for these variants in the local regulation of gene expression (1\%
+false discovery rate; \textgreater{}2-fold change in transcript
+abundance; Figure \ref{fig4}A, Figure 4 - source data 1). No functional
+category enrichments in this set of differentially expressed genes
+were identified. As rare TE variants with a MAF less than 3\% may also
+be associated with a difference in transcript abundance, but were
+unable to be statistically tested due to their rarity, a burden test
+for enrichment of rare variants in the extremes of expression was
+performed \cite{Zhao:2016gc}. Briefly, this method counts the
+frequency of rare variants within each gene expression rank in the
+population, and aggregates this information over the entire population
+to determine whether an enrichment of rare variants exists within any
+gene expression rank. A strong enrichment for gene expression extremes
+was observed for TE variants in all gene features tested (Figure
+\ref{fig4}B). While TE variants in gene upstream regions showed a
+strong enrichment of both high and low gene expression ranks, TE
+variants in exons or gene downstream regions had a stronger enrichment
+for low expression ranks than high ranks. Randomization of the
+accession names removed these enrichments completely (Figure 4 -
+figure supplement \hyperref[fig4s1]{1}), and there was little
+difference between TE insertions and TE deletions in the gene
+expression rank enrichments found (Figure 4 - figure supplement
+\hyperref[fig4s2]{2}). This rare variant analysis further indicates
+that TE variants may alter the transcript abundance of nearby genes.
 
 As both increases and decreases in transcript abundance of nearby
 genes were observed for TE variants within each gene feature, it
@@ -547,7 +554,7 @@ missed by studies focused on genetic variation at the level of SNPs.
 accessions}
 
 As TEs are frequently highly methylated in Arabidopsis
-\cite{Zhang:2006eo, Zilberman:2006hx, Cokus:2008fc, Lister:2008bh},
+\cite{Zhang:2006eo, Zilberman:2007hx, Cokus:2008fc, Lister:2008bh},
 the DNA methylation state surrounding TE variant sites was assessed to
 determine whether TE variants might be responsible for differences in
 DNA methylation patterns previously observed between the wild
@@ -560,34 +567,36 @@ within 1 kb of a TE variant (predominantly TE insertions), while only
 15\% of CG-DMRs were within 1 kb of a TE variant (Table
 \ref{table3}). For C-DMRs, this was significantly more than expected
 by chance, while it was significantly less than expected for CG-DMRs
-(p \textless{} $1 \times10^{-4}$, determined by resampling 10,000 times). Of
-the C-DMRs that were not close to a TE variant, 3,701 (27\% of all
-C-DMRs) were within 1 kb of a non-variable TE. Thus, 81\% of C-DMRs
-are within 1 kb of a TE when considering both fixed and variable TEs
-in the population. Of the remaining 19\% of C-DMRs, most were found in
-genes or intergenic regions.
+(p \textless{} $1 \times10^{-4}$, determined by resampling 10,000
+times). Of the C-DMRs that were not close to a TE variant, 3,701 (27\%
+of all C-DMRs) were within 1 kb of a non-variable TE. Thus, 81\% of
+C-DMRs are within 1 kb of a TE when considering both fixed and
+variable TEs in the population. Of the remaining 19\% of C-DMRs, most
+were found in genes or intergenic regions.
 
 To determine whether DMR methylation levels were dependent on the
-presence/absence of nearby TE variants, Pearson correlation coefficients
-were calculated between the DNA methylation level at each DMR and the
-presence/absence of the nearest TE variant. A negative correlation was
-observed between the distance from a C-DMR to the nearest TE insertion
-and the correlation between the DNA methylation level at the C-DMR with
-the presence/absence of the TE insertion (Figure \ref{fig6}B). This suggests a
-distance-dependent effect of TE insertion presence on C-DMR methylation.
-In contrast, no such relationship was found for TE deletions on C-DMRs,
-or for insertions or deletions on CG-DMRs (Figure \ref{fig6}B). DNA methylation
-levels at C-DMRs located within 1 kb of a TE insertion (TE-DMRs) were
-more often positively correlated with the presence/absence of a TE
+presence/absence of nearby TE variants, Pearson correlation
+coefficients were calculated between the DNA methylation level at each
+DMR and the presence/absence of the nearest TE variant. A negative
+correlation was observed between the distance from a C-DMR to the
+nearest TE insertion and the correlation between the DNA methylation
+level at the C-DMR with the presence/absence of the TE insertion
+(Figure \ref{fig6}B). This suggests a distance-dependent effect of TE
+insertion presence on C-DMR methylation.  In contrast, no such
+relationship was found for TE deletions on C-DMRs, or for insertions
+or deletions on CG-DMRs (Figure \ref{fig6}B). DNA methylation levels
+at C-DMRs located within 1 kb of a TE insertion (TE-DMRs) were more
+often positively correlated with the presence/absence of a TE
 insertion than the DNA methylation levels at C-DMRs further than 1 kb
 from a TE insertion (non-TE-DMRs). This was evident from the
-distribution of correlations for non-TE-DMRs being centred around zero,
-whereas for TE-DMRs this distribution was skewed to the right (Figure
-\ref{fig6}C, \emph{D}=0.24). For TE deletions, such a difference was not observed
-in the distributions of correlation coefficients between TE-DMRs and
-non-TE-DMRs, nor for CG-DMRs and their nearby TE insertions or deletions
-(Figure \ref{fig6}C, \emph{D=}0.07-0.10). Furthermore, DNA methylation levels
-were often higher in the presence of the nearby TE insertion, while this
+distribution of correlations for non-TE-DMRs being centred around
+zero, whereas for TE-DMRs this distribution was skewed to the right
+(Figure \ref{fig6}C, \emph{D}=0.24). For TE deletions, such a
+difference was not observed in the distributions of correlation
+coefficients between TE-DMRs and non-TE-DMRs, nor for CG-DMRs and
+their nearby TE insertions or deletions (Figure \ref{fig6}C,
+\emph{D=}0.07-0.10). Furthermore, DNA methylation levels were often
+higher in the presence of the nearby TE insertion, while this
 relationship was generally not observed for C-DMRs further than 1 kb
 from a TE variant, for TE deletions, or for CG-DMRs (Figure 6 - figure
 supplement \hyperref[fig6s1]{1}).
@@ -603,11 +612,11 @@ on gene expression. A strong enrichment was observed for high C-DMR
 and CG-DMR methylation level ranks for TE insertions, while TE
 deletions were associated with both high and low extremes of DNA
 methylation levels at C-DMRs, and less so at CG-DMRs (Figure
-\ref{fig6}D). This further indicates that the presence of a TE insertion
-is associated with higher C-DMR methylation levels, while TE deletions
-appear to have more variable effects on DMR methylation levels. This
-enrichment was completely absent after repeating the analysis with
-randomized accession names (Figure 6 - figure supplement
+\ref{fig6}D). This further indicates that the presence of a TE
+insertion is associated with higher C-DMR methylation levels, while TE
+deletions appear to have more variable effects on DMR methylation
+levels. This enrichment was completely absent after repeating the
+analysis with randomized accession names (Figure 6 - figure supplement
 \hyperref[fig6s2]{2}). A slight enrichment was also observed for low
 DMR methylation ranks for TE insertions near CG-DMRs, indicating that
 the insertion of a TE was sometimes associated with reduced CG
@@ -647,30 +656,28 @@ surrounding TE variant sites between the two tissues (Figure 7 -
 figure supplement \hyperref[fig7s1]{1}).
 
 These results indicate that local DNA methylation patterns are
-influenced by the differential TE content between genomes, and that
-the DNA methylation-dependent silencing of TEs may frequently lead to
-the formation of DMRs between wild Arabidopsis accessions. TE
-insertions appear to be important in defining local patterns of DNA
-methylation, while DNA methylation levels often remain elevated
-following a TE deletion, and so are independent from the presence or
-absence of TEs in these cases. Importantly, the distance from a TE
-insertion to the centromere appears to have a strong impact on whether
-an alteration of local DNA methylation patterns will occur. This is
-likely due to flanking sequences being highly methylated in the
-pericentromeric regions, and so the insertion of a TE cannot further
-increase levels of DNA methylation. Overall, a large fraction of the
-population C-DMRs previously identified between wild accessions are
-correlated with the presence of local TE variants. CG-DMR methylation
-levels appear to be mostly independent from the presence/absence of
-common TE variants, while rare TE variants have an impact on DNA
-methylation levels at both C-DMRs and CG-DMRs. This analysis was aided
-by the high sensitivity of TEPID to detect TE variants, enabling the
-identification of 8x more variants than has been reported previously
-in the population \cite{Quadrana:2016bi}, allowing a thorough
-assessment of the impact of TE variants on DNA methylation patterns.
+influenced by the differential TE content between genomes, and that the
+DNA methylation-dependent silencing of TEs may frequently lead to the
+formation of DMRs between wild Arabidopsis accessions. TE insertions
+appear to be important in defining local patterns of DNA methylation,
+while DNA methylation levels often remain elevated following a TE
+deletion, and so are independent from the presence or absence of TEs in
+these cases. Importantly, the distance from a TE insertion to the
+centromere appears to have a strong impact on whether an alteration of
+local DNA methylation patterns will occur. This is likely due to
+flanking sequences being highly methylated in the pericentromeric
+regions, and so the insertion of a TE cannot further increase levels of
+DNA methylation. Overall, a large fraction of the population C-DMRs
+previously identified between wild accessions are correlated with the
+presence of local TE variants. CG-DMR methylation levels appear to be
+mostly independent from the presence/absence of common TE variants,
+while rare TE variants have an impact on DNA methylation levels at both
+C-DMRs and CG-DMRs. This analysis was aided by the high sensitivity of
+TEPID to detect TE variants, allowing a thorough assessment of the
+impact of TE variants on DNA methylation patterns.
 
-\subsection{Genome-wide association scan highlights
-  distant and local control of DNA methylation}
+\subsection{Genome-wide association scan highlights distant and local
+control of DNA methylation}
 
 To further investigate the effects of TE variants upon local and
 distant DNA methylation levels in the genome, an association scan was
@@ -683,22 +690,22 @@ significant if they had an association more extreme than any of the
 500 permutations (p \textless{} 1/500). A band of significant
 associations was observed for TE insertions and their nearby C-DMRs,
 signifying a local association between TE insertion presence/absence
-and C-DMR methylation (Figure \ref{fig8}A).  This local association was
-not as strong for TE deletions (Figure \ref{fig8}B), consistent with our above
-findings. While TE variants and DNA methylation showed a local
-association, it is also possible that TE variation may influence DNA
-methylation states more broadly in the genome, perhaps through
-production of \emph{trans-}acting smRNAs or inactivation of genes
-involved in DNA methylation establishment or maintenance. To identify
-any potential enrichment of C-DMRs regulated in \emph{trans}, the
-total number of significant associations was summed for each TE
-variant across the whole genome (Figure \ref{fig8}A and B, top panels). At
-many sites, far more significant associations were found than expected
-due to the false positive rate alone. This suggested the existence of
-many putative \emph{trans }associations between TE variants and
-genome-wide C-DMR methylation levels. These C-DMRs that appeared to be
-associated with a TE insertion in \emph{trans} were further
-examined\emph{, }checking for TE insertions near these C-DMRs that
+and C-DMR methylation (Figure \ref{fig8}A).  This local association
+was not as strong for TE deletions (Figure \ref{fig8}B), consistent
+with our above findings. While TE variants and DNA methylation showed
+a local association, it is also possible that TE variation may
+influence DNA methylation states more broadly in the genome, perhaps
+through production of \emph{trans-}acting smRNAs or inactivation of
+genes involved in DNA methylation establishment or maintenance. To
+identify any potential enrichment of C-DMRs regulated in \emph{trans},
+the total number of significant associations was summed for each TE
+variant across the whole genome (Figure \ref{fig8}A and B, top
+panels). At many sites, far more significant associations were found
+than expected due to the false positive rate alone. This suggested the
+existence of many putative \emph{trans }associations between TE
+variants and genome-wide C-DMR methylation levels. These C-DMRs that
+appeared to be associated with a TE insertion in \emph{trans} were
+further examined, checking for TE insertions near these C-DMRs that
 were present in the same accessions as the \emph{trans }associated TE,
 as these could lead to a false \emph{trans }association. These were
 extremely rare, with only 4 such cases for TE insertions, and 38 cases
@@ -717,37 +724,43 @@ Most TE variants were due to the \emph{de novo }insertion of TEs, while
 a smaller subset was likely due to the deletion of ancestral TE copies,
 mostly around the pericentromeric regions. A subset (32\%) of TE
 variants with a minor allele frequency above 3\% were able to be tested
-for linkage with nearby SNPs. The majority of these TE variants were not
-in LD with SNPs, indicating that they represent genetic variants
-currently overlooked in genomic studies. A marked depletion of TE
-variants within gene bodies and DNase I hypersensitivity sites (putative
-regulatory regions) is consistent with the more deleterious TE
-insertions being removed from the population through selection. Of those
-TE variants found in gene bodies, TE deletions were overrepresented,
-indicating that the loss of ancestral TEs inserted within genes may be
-more frequent, or perhaps less deleterious, than the \emph{de novo
-}insertion of TEs into genes.
+for linkage with nearby SNPs. The majority of these TE variants
+exhibited only low levels of LD with nearby SNPs, indicating that they
+represent genetic variants currently overlooked in genomic studies. A
+marked depletion of TE variants within gene bodies and DNase I
+hypersensitivity sites (putative regulatory regions) is consistent with
+the more deleterious TE insertions being removed from the population
+through selection. Of those TE variants found in gene bodies, TE
+deletions were overrepresented, indicating that the loss of ancestral
+TEs inserted within genes may be more frequent, or perhaps less
+deleterious, than the \emph{de novo }insertion of TEs into genes.
 
-The high sensitivity of our TE variant detection method allowed
-identification of 8x more variants than has been reported previously
-\cite{Quadrana:2016bi}, and the identification of such a large number of
-TE variants (23,095) in this population gave an opportunity to form
-statistically robust correlations between TE presence/absence and
-transcript abundance from nearby genes, as well as genome-wide patterns
-of DNA methylation. Examples were identified where TE variants appear to
-have an effect upon gene expression, both in the disruption of
-transcription and in the spreading or disruption of regulatory
-information leading to the transcriptional activation of genes,
-indicating that these TE variants can have important consequences upon
-the expression of protein coding genes (Figure \ref{fig5}). In one case, these
-changes in gene expression could be linked with phenotypic changes, with
-accessions containing a TE insertion more frequently sensitive to
-bacterial infection. Further experiments will be needed to establish a
-causal link between this TE insertion and the associated phenotype. An
-analysis of rare TE variants, present at a low MAF, further strengthened
-this relationship between TE presence/absence and altered transcript
-abundance, as a strong enrichment of rare TE variants in accessions with
-extreme gene expression ranks in the population was identified.
+A previous study focused on recent TE insertions in the Arabidopsis
+population \cite{Quadrana:2016bi}, thus the extensive variation
+between accessions due to older TE insertions or TE deletions has not
+been explored. We examined both old and new TE variants (common and
+rare alleles), as well as TE deletions, allowing the detection of
+23,095 TE variants in the population. This large sample size gave an
+opportunity to form statistically robust correlations between TE
+presence/absence and transcript abundance from nearby genes, as well
+as genome-wide patterns of DNA methylation. Examples were identified
+where TE variants appear to have an effect upon gene expression, both
+in the disruption of transcription and in the spreading or disruption
+of regulatory information leading to the transcriptional activation of
+genes, indicating that these TE variants can have important
+consequences upon the expression of protein coding genes (Figure
+\ref{fig5}). In one case, these changes in gene expression could be
+linked with phenotypic changes, with accessions containing a TE
+insertion more frequently sensitive to bacterial infection. Further
+experiments will be needed to establish a causal link between this TE
+insertion and the associated phenotype. An analysis of rare TE
+variants, present at a low MAF, further strengthened this relationship
+between TE presence/absence and altered transcript abundance, as a
+strong enrichment of rare TE variants in accessions with extreme gene
+expression ranks in the population was identified.  Therefore, the
+effects of TE insertions appear to be long-lasting, as there was
+little difference between common (old) and rare (young) variants in
+the impact upon gene expression (Figure \ref{fig4}).
 
 Importantly, we provide evidence that differential TE content between
 genomes of Arabidopsis accessions underlies a large fraction of the
@@ -755,46 +768,46 @@ previously reported population C-DMRs. Thus, the frequency of pure
 epialleles, independent of underlying genetic variation, may be even
 more rare than previously anticipated \cite{Richards:2006br}. Overall,
 81\% of all C-DMRs were within 1 kb of a TE, when considering both fixed
-and variable TEs in the population, a much higher percentage than has
-been reported previously \cite{Schmitz:2013iu, Quadrana:2016bi}. We did
-not find evidence of CG-DMR methylation level being altered by the
-presence of common TE variants, although rare TE variants may be more
-important in shaping patterns of DNA methylation at some CG-DMRs, though
-the reasons for this distinction remain unclear. The level of local DNA
-methylation changes associated with TE variants was also related to the
-distance from a TE variant to the centromere, with variants in the
-chromosome arms being more strongly correlated with DNA methylation
-levels. This seems to be due to a higher baseline level of DNA
-methylation at the pericentromeric regions, which prevent any further
-increase in DNA methylation level following insertion of a TE.
-Furthermore, we found an important distinction between TE insertions and
-TE deletions in the effect that these variants have on nearby DNA
-methylation levels. While flanking DNA methylation levels increase
-following a TE insertion, the deletion of an ancestral TE was often not
-associated with a corresponding decrease in flanking DNA methylation
-levels (Figure \ref{fig7}). This indicates that high levels of DNA methylation,
-once established, may be maintained in the absence of the TE insertion
-that presumably triggered the original change in DNA methylation level.
-It is then possible that TE variants explain more of the inter-accession
-variation in DNA methylation patterns than we find direct evidence for,
-if some C-DMRs were formed by the insertion of an ancestral TE that is
-now absent in all the accessions analysed here. These DMRs would then
-represent the epigenetic ``scars'' of past TE insertions.
+and variable TEs in the population. We did not find evidence of CG-DMR
+methylation level being altered by the presence of common TE variants,
+although rare TE variants may be more important in shaping patterns of
+DNA methylation at some CG-DMRs, though the reasons for this distinction
+remain unclear. The level of local DNA methylation changes associated
+with TE variants was also related to the distance from a TE variant to
+the centromere, with variants in the chromosome arms being more strongly
+correlated with DNA methylation levels. This seems to be due to a higher
+baseline level of DNA methylation at the pericentromeric regions, which
+prevent any further increase in DNA methylation level following
+insertion of a TE. Furthermore, we found an important distinction
+between TE insertions and TE deletions in the effect that these variants
+have on nearby DNA methylation levels. While flanking DNA methylation
+levels increase following a TE insertion, the deletion of an ancestral
+TE was often not associated with a corresponding decrease in flanking
+DNA methylation levels (Figure \ref{fig7}). This indicates that high levels of
+DNA methylation, once established, may be maintained in the absence of
+the TE insertion that presumably triggered the original change in DNA
+methylation level. It is then possible that TE variants explain more of
+the inter-accession variation in DNA methylation patterns than we find
+direct evidence for, if some C-DMRs were formed by the insertion of an
+ancestral TE that is now absent in all the accessions analysed here.
+These DMRs would then represent the epigenetic ``scars'' of past TE
+insertions.
 
-Finally, a genome-wide scan of common TE variant association with C-DMR
-methylation levels provides further evidence of a strong local
-association between TE insertion presence/absence and C-DMR methylation
-level (Figure \ref{fig8}). The identification of some TE variants that appeared
-to be associated with changes in DNA methylation levels at multiple loci
-throughout the genome indicates possible \emph{trans} regulation of DNA
-methylation state linked to specific TE variants. Further experiments
-will be required to confirm and examine the role of these TE variants in
-determining genome-wide patterns of DNA methylation. Overall, our
-results show that TE presence/absence variants between wild Arabidopsis
-accessions not only have important effects on nearby gene expression,
-but can also have a role in determining local patterns of DNA
-methylation, and explain many regions of differential DNA methylation
-previously observed in the population.
+Finally, a genome-wide scan of common TE variant association with
+C-DMR methylation levels provides further evidence of a strong local
+association between TE insertion presence/absence and C-DMR
+methylation level (Figure \ref{fig8}). The identification of some TE
+variants that appeared to be associated with changes in DNA
+methylation levels at multiple loci throughout the genome indicates
+possible \emph{trans} regulation of DNA methylation state linked to
+specific TE variants. Further experiments will be required to confirm
+and examine the role of these TE variants in determining genome-wide
+patterns of DNA methylation. Overall, our results show that TE
+presence/absence variants between wild Arabidopsis accessions not only
+have important effects on nearby gene expression, but can also have a
+role in determining local patterns of DNA methylation, and explain
+many regions of differential DNA methylation previously observed in
+the population.
 
 \section{Methods}
 
@@ -824,24 +837,24 @@ from one another, or on separate chromosomes.
 
 To identify TE insertions with respect to the reference genome, split
 read alignments are first filtered to remove reads where the distance
-between split mapping loci is less than 5 kb, to remove split reads due
-to small indels, or split reads with a mapping quality (MAPQ) less than
-5. Split and discordant read mapping coordinates are then intersected
-using pybedtools \cite{Dale:2011cl, Quinlan:2010km} with the Col-0
-reference TE annotation, requiring 80\% overlap between TE and read
-mapping coordinates. To determine putative TE insertion sites, regions
-are then identified that contain independent discordant read pairs
-aligned in an orientation facing one another at the insertion site, with
-their mate pairs intersecting with the same TE (Figure \ref{fig1}). The total
-number of split and discordant reads intersecting the insertion site and
-the TE is then calculated, and a TE insertion predicted where the
-combined number of reads is greater than a threshold determined by the
-average sequencing depth over the whole genome (1/10 coverage if
-coverage is greater than 10, otherwise a minimum of 2 reads).
-Alternatively, in the absence of discordant reads mapped in orientations
-facing one another, the required total number of split and discordant
-reads at the insertion site linked to the inserted TE is set higher,
-requiring twice as many reads.
+between split mapping loci is less than 5 kb, to remove split reads
+due to small indels, or split reads with a mapping quality (MAPQ) less
+than 5. Split and discordant read mapping coordinates are then
+intersected using pybedtools \cite{Dale:2011cl, Quinlan:2010km} with
+the Col-0 reference TE annotation, requiring 80\% overlap between TE
+and read mapping coordinates. To determine putative TE insertion
+sites, regions are then identified that contain independent discordant
+read pairs aligned in an orientation facing one another at the
+insertion site, with their mate pairs intersecting with the same TE
+(Figure \ref{fig1}). The total number of split and discordant reads
+intersecting the insertion site and the TE is then calculated, and a
+TE insertion predicted where the combined number of reads is greater
+than a threshold determined by the average sequencing depth over the
+whole genome (1/10 coverage if coverage is greater than 10, otherwise
+a minimum of 2 reads).  Alternatively, in the absence of discordant
+reads mapped in orientations facing one another, the required total
+number of split and discordant reads at the insertion site linked to
+the inserted TE is set higher, requiring twice as many reads.
 
 To identify TE absence variants with respect to the reference genome,
 split and discordant reads separated \textgreater{}20 kb from one
@@ -855,21 +868,21 @@ are then identified. TE absence variants are predicted where at least
 the sequencing depth within the spanned region is \textless{}10\% the
 sequencing depth of the 2 kb flanking sequence, and there are a
 minimum number of split and discordant reads present, determined by
-the sequencing depth (1/10 coverage; Figure \ref{fig1}). A threshold of 80\%
-TE sequence spanned by split or discordant reads is used, as opposed
-to 100\%, to account for misannotation of TE sequence boundaries in
-the Col-0 reference TE annotation, as well as TE fragments left behind
-by DNA TEs during cut-paste transposition (TE footprints) that may
-affect the mapping of reads around annotated TE borders
-\cite{Plasterk:1991vd}. Furthermore, the coverage within the spanned
-region may be more than 10\% that of the flanking sequence, but in
-such cases twice as many split and discordant reads are required. If
-multiple TEs are spanned by the split and discordant reads, and the
-above requirements are met, multiple TEs in the same region can be
-identified as absent with respect to the reference genome. Absence
-variants in non-Col-0 accessions are subsequently recategorized as TE
-insertions present in the Col-0 genome but absent from a given wild
-accession.
+the sequencing depth (1/10 coverage; Figure \ref{fig1}). A threshold
+of 80\% TE sequence spanned by split or discordant reads is used, as
+opposed to 100\%, to account for misannotation of TE sequence
+boundaries in the Col-0 reference TE annotation, as well as TE
+fragments left behind by DNA TEs during cut-paste transposition (TE
+footprints) that may affect the mapping of reads around annotated TE
+borders \cite{Plasterk:1991vd}. Furthermore, the coverage within the
+spanned region may be more than 10\% that of the flanking sequence,
+but in such cases twice as many split and discordant reads are
+required. If multiple TEs are spanned by the split and discordant
+reads, and the above requirements are met, multiple TEs in the same
+region can be identified as absent with respect to the reference
+genome. Absence variants in non-Col-0 accessions are subsequently
+recategorized as TE insertions present in the Col-0 genome but absent
+from a given wild accession.
 
 \emph{TE variant refinement}
 
@@ -908,17 +921,18 @@ paired-end DNA sequencing data.
 
 \subsection{TE variant simulation}
 
-To test the sensitivity and specificity of TEPID, 100 TE insertions (50
-copy-paste transpositions, 50 cut-paste transpositions) and 100 TE
+To test the sensitivity and specificity of TEPID, 100 TE insertions
+(50 copy-paste transpositions, 50 cut-paste transpositions) and 100 TE
 absence variants were simulated in the Arabidopsis genome using the
-RSVSim R package, version 1.7.2 \cite{Bartenhagen:2013kl}, and synthetic
-reads generated from the modified genome at various levels of sequencing
-coverage using wgsim \cite{Li:2009ka} (\url{https://github.com/lh3/wgsim}).
-These reads were then used to calculate the true positive, false
-positive, and false negative TE variant discovery rates for TEPID at
-various sequencing depths, by running `tepid-map' and `tepid-discover'
-using the simulated reads with the default parameters (Figure 1 - figure
-supplement \hyperref[fig1s1]{1}).
+RSVSim R package, version 1.7.2 \cite{Bartenhagen:2013kl}, and
+synthetic reads generated from the modified genome at various levels
+of sequencing coverage using wgsim \cite{Li:2009ka}
+(\url{https://github.com/lh3/wgsim}).  These reads were then used to
+calculate the true positive, false positive, and false negative TE
+variant discovery rates for TEPID at various sequencing depths, by
+running `tepid-map' and `tepid-discover' using the simulated reads
+with the default parameters (Figure 1 - figure supplement
+\hyperref[fig1s1]{1}).
 
 \subsection{Estimation of sensitivity}
 
@@ -932,18 +946,18 @@ homologous regions of the L\emph{er} and Col-0 reference genome, the
 \emph{de novo }assembled L\emph{er }genome sequence between mate pair
 mapping locations in L\emph{er} were extracted, with repeats masked
 using RepeatMasker with RepBase-derived libraries and the default
-parameters (version 4.0.5, \url{http://www.repeatmasker.org}). A
-blastn search was then conducted against the Col-0 genome using the
-following parameters: `-max-target-seqs 1', `-evalue 1e-6'
-\cite{Camacho:2009fc}.  Coordinates of the top blast hit for each read
-location were then compared with the TE variant sites identified using
-those reads. To estimate false negative rates for TEPID TE absence
-calls, L\emph{er} TE absence calls were compared with a known set of
-Col-0-specific TE insertions, absent in L\emph{er
-}\cite{Quadrana:2016bi}. For TEPID TE insertion calls, we mapped Col-0
-DNA sequencing reads \cite{Jiang:2014ih} to the L\emph{er }PacBio
-assembly, and identified sites with read evidence reaching the TEPID
-threshold for a TE insertion call to be made.
+parameters (version 4.0.5, \url{http://www.repeatmasker.org}). A blastn
+search was then conducted against the Col-0 genome using the following
+parameters: `-max-target-seqs 1', `-evalue 1e-6' \cite{Camacho:2009fc}.
+Coordinates of the top blast hit for each read location were then
+compared with the TE variant sites identified using those reads. To
+estimate false negative rates for TEPID TE absence calls, L\emph{er} TE
+absence calls were compared with a known set of Col-0-specific TE
+insertions, absent in L\emph{er }\cite{Quadrana:2016bi}. For TEPID TE
+insertion calls, we mapped Col-0 DNA sequencing reads
+\cite{Jiang:2014ih} to the L\emph{er }PacBio assembly, and identified
+sites with read evidence reaching the TEPID threshold for a TE insertion
+call to be made.
 
 \subsection{Arabidopsis TE variant discovery}
 
@@ -1082,11 +1096,11 @@ permutations were deemed significant.
 TEPID source code can be accessed at
 \url{https://github.com/ListerLab/TEPID}. Code and data needed to
 reproduce this analysis can be found at
-\url{https://github.com/timoast/Arabidopsis-TE-variants}. L\emph{er }TE
-variants are available in Figure 1 - source data 1 and 2. TE variants
-identified among the 216 wild Arabidopsis accessions resequenced by
-Schmitz et al. (2013) are available in Figure 2 - source data 1, 2 and
-3. Source data is available on Dryad
+\url{https://github.com/timoast/Arabidopsis-TE-variants}. L\emph{er}
+TE variants are available in Figure 1 - source data 1 and 2. TE
+variants identified among the 216 wild Arabidopsis accessions
+resequenced by Schmitz et al. (2013) are available in Figure 2 -
+source data 1, 2 and 3. Source data is available on Dryad
 (\url{http://dx.doi.org/10.5061/dryad.187b3}).
 
 \section{Acknowledgments}
@@ -1174,7 +1188,7 @@ levels. TE insertions (A) and TE absence calls (B).
 
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Distribution of identified TE variants on chromosome 1, with
   distributions of all Col-0 genes, Col-0 TEs, and population DMRs.
@@ -1232,7 +1246,7 @@ Number of accessions sharing TE variants identified by TEPID.
 \end{suppfigure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   PCR validations for a TE absence variant. Accessions that were
   predicted to contain a TE insertion or TE absence are marked in bold.
@@ -1259,7 +1273,7 @@ Number of accessions sharing TE variants identified by TEPID.
 \end{suppfigure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Number of TE absence variants identified versus the sequencing depth
   of coverage for each accession.
@@ -1298,7 +1312,7 @@ Distribution of Type I and Type II elements over chromosome 1, for TE insertions
 \end{suppfigure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Number of TE insertion variants within each 300 kb \emph{KNOT ENGAGED ELEMENT (KEE)},
   vertical lines) and the number of TE insertion variants
@@ -1322,7 +1336,7 @@ Distribution of Type I and Type II elements over chromosome 1, for TE insertions
 \end{suppfigure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Histogram showing lengths of all annotated TEs in the Col-0 reference
   genome.
@@ -1359,7 +1373,7 @@ TE family enrichments and depletions for TE insertions and TE deletions.
 \end{figure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   r\textsuperscript{2} correlation matrices for individual representative high and low-LD
   TE variants showing the background level of SNP-SNP linkage.
@@ -1413,7 +1427,7 @@ Distribution of TE variants across chromosome 1 for each LD category
 \end{figure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Volcano plots showing transcript abundance differences for genes
   associated with TE insertion variants at different positions,
@@ -1476,7 +1490,7 @@ Figure 4B, for TE insertions (A) and TE deletions (B) separately.
 \end{figure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Genome browser representation of RNA-seq data for genes \emph{AtRLP18}
   (AT2G15040) and a leucine-rich repeat family protein (AT2G15042) for
@@ -1517,7 +1531,7 @@ Figure 4B, for TE insertions (A) and TE deletions (B) separately.
 
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Distribution of distances from TE variants to the nearest population
   DMR, for TE deletions and TE insertions, C-DMRs and CG-DMRs.
@@ -1556,7 +1570,7 @@ Figure 4B, for TE insertions (A) and TE deletions (B) separately.
 \end{suppfigure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   DNA methylation density distribution at C-DMRs within 1 kb of a TE
   variant (TE-DMRs) or further than 1 kb from a TE variant
@@ -1614,7 +1628,7 @@ methylation leading to the formation of a CG-DMR.
 \end{figure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Heatmap showing DNA methylation levels in 200 bp bins flanking TE
   variant sites, +/- 2 kb from the TE insertion point. TE variants were
@@ -1664,7 +1678,7 @@ a centromere).
 \end{figure}
 
 \begin{enumerate}
-\def\labelenumi{(\Alph{enumi})}
+  \def\labelenumi{(\Alph{enumi})}
 \item
   Significant correlations between TE insertions and C-DMR DNA
   methylation level. Points show correlations between individual TE-DMR
