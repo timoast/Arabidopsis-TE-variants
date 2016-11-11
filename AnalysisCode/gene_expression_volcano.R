@@ -5,6 +5,11 @@ library(readr)
 
 expression <- read_tsv("../RawData/gene_expression.tsv.gz", col_names = TRUE)
 
+gene_list <- read_tsv("../ProcessedData/gene_list.tsv", col_names = c("gene", "classification")) %>%
+        filter(classification != "transposable_element_gene")
+
+expression <- inner_join(expression, gene_list)
+
 upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed.gz", col_names = F) %>%
   select(X5:X12, X16) %>%
   rename(pos_accessions = X5, neg_accessions = X6, AbsenceClassification = X10, gene = X16)

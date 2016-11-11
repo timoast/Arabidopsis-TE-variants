@@ -5,6 +5,11 @@ set.seed(1)
 
 expression <- read.table("../RawData/gene_expression.tsv.gz", header = T, row.names = 1)
 
+gene_list <- read_tsv("../ProcessedData/gene_list.tsv", col_names = c("gene", "classification")) %>%
+        filter(classification != "transposable_element_gene")
+
+expression <- expression[rownames(expression) %in% gene_list$gene,]
+
 upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed.gz", col_names = F) %>%
   select(X5:X12, X16) %>%
   rename(pos_accessions = X5, neg_accessions = X6, gene = X16)
