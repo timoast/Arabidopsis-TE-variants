@@ -163,7 +163,7 @@ geneHeader <- c("chromsome", "start", "end", "TE", "accessions_te_present",
 # upstream
 upstreamIntersections <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions_intersections.bed.gz",
                                   col_names = geneHeader)
-all_upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_downstream_regions.bed.gz", col_names = F)
+all_upstream <- read_tsv("../ProcessedData/GeneFeatures/gene_upstream_regions.bed.gz", col_names = F)
 
 fractionUpstream <- nrow(upstreamIntersections) / nrow(all_upstream) * 100
 
