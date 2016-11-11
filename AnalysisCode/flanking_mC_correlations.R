@@ -92,7 +92,19 @@ ggplot(data, aes(distance/1000000, r2, color=Absence_classification)) +
   geom_point(alpha=0.7, size=0.3) +
   facet_wrap(~Absence_classification, ncol=1) + theme_bw() +
   geom_hline(yintercept = 0) + ylim(c(-1, 1)) + 
-  scale_color_manual(values = c("black", insertion_col, deletion_col)) +
+  scale_color_manual(values = c(insertion_col, deletion_col, "black")) +
   geom_vline(xintercept = 3) +
   theme(text = element_text(size=8), legend.position="none") +
-  ggsave("../Plots/mc_flanking_correlation_indel_distance_point.pdf", height = 15, width = 6, units = "cm", useDingbats = F)
+  ggsave("../Plots/mc_flanking_correlation_indel_distance_point.pdf",
+         height = 15, width = 6, units = "cm", useDingbats = F)
+
+
+deletion_arms <- data %>%
+        filter(Absence_classification == "True deletion", peri == FALSE) %>%
+        select(r2)
+
+insertion_arms <- data %>%
+        filter(Absence_classification == "No insertion", peri == FALSE) %>%
+        select(r2)
+
+wilcox.test(deletion_arms$r2, insertion_arms$r2)
