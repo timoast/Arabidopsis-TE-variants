@@ -1,0 +1,123 @@
+---
+title: "Intergenic regions"
+author: "Tim Stuart"
+date: "11/11/2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(GenomicRanges)
+library(rtracklayer)
+library(BSgenome.Athaliana.TAIR.TAIR9)
+library(readr)
+library(dplyr)
+```
+
+Load all the tracks
+
+```{r}
+genes <- import.gff("../RawData/TAIR10_GFF3_genes.gff.gz")
+te <- import("../RawData/TAIR9_TE.bed.gz",
+             format = "bed",
+             extraCols = c(strand = "character",
+                           TE = "character",
+                           family = "character",
+                           superfamily = "character"))
+pseudogene <- import("../ProcessedData/GeneFeatures/pseudogene.bed.gz",
+                     format = "bed",
+                     extraCols = c(dot = "character",
+                                   strand = "character",
+                                   source = "character",
+                                   type = "character",
+                                   dot = "character",
+                                   id = "character"))
+dhs <- import("../RawData/Sullivan_DHS_PE_peaks_control.bed.gz",
+              format = "bed",
+              extraCols = c(dot = "character",
+                            zero = "numeric",
+                            second_dot = "character",
+                            a = "numeric",
+                            b = "numeric"))
+centromeres <- import("../RawData/centromere_positions.txt",
+                      format = "bed")
+
+# make chromosome names match the genome
+genes <- dropSeqlevels(genes, c("chrM", "chrC"))
+genes <- renameSeqlevels(genes, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+te <- renameSeqlevels(te, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+pseudogene <- renameSeqlevels(pseudogene, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+dhs <- renameSeqlevels(dhs, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+centromeres <- renameSeqlevels(centromeres, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+
+# remove metadata columns
+mcols(te) <- NULL
+mcols(genes) <- NULL
+mcols(pseudogene) <- NULL
+mcols(dhs) <- NULL
+```
+
+Now extend gene coordinates 2 kb in each direction.
+
+```{r extend_coords}
+# need to remove entries that cover the entire chromosome, they will overlap everything
+chromosome_entries <- width(ranges(genes)) > 10^6
+
+# check we have 5 chromosomes 
+sum(chromosome_entries)
+
+# now remove those entries
+genes <- genes[!chromosome_entries]
+
+# now extend 2 kb each direction
+extended_genes <- genes + 2000
+```
+
+Merge all the coordinates and reduce the final genomic ranges object, then take the coordinates between.
+
+```{r}
+all_features <- reduce(c(extended_genes, te, pseudogene, dhs, centromeres))
+seq_between <- gaps(all_features)
+# remove any of length 1
+intergenic <- seq_between[!width(seq_between) == 1]
+```
+
+Now intersect with the TE variants to find the proportion of all these ranges that contain at least 1 TE variant
+
+First load the TEPID data:
+
+```{r intersect_TEPID}
+tepid <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz")
+tepid_coords <- makeGRangesFromDataFrame(tepid[,1:3])
+tepid_coords <- renameSeqlevels(tepid_coords, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+```
+
+Find the percentage of all intergenic regions that contain a TE insertion
+
+```{r}
+length(subsetByOverlaps(intergenic, tepid_coords)) / length(intergenic) * 100
+```
+
+Now try splitting up all intergenic regions longer than 1 kb. If longer than x kb, cut into x+1 equal bins, where x >= 1
+
+```{r split_intergenic}
+gr <- GRanges()
+for(i in seq_along(intergenic)) {
+        l <- width(intergenic[i])
+        if(l < 1000) {
+                gr <- c(gr, intergenic[i])
+        } else {
+                gr <- c(gr, unlist(tile(intergenic[i], n = floor(l / 1000))))
+        }
+}
+```
+
+```{r intersect_tiled_intergenic}
+length(subsetByOverlaps(gr, tepid_coords)) / length(gr) * 100
+```
+
+Let's go with the original, non-cut, data.
+
