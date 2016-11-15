@@ -223,16 +223,9 @@ dhsIntersections <- read_tsv("../ProcessedData/GeneFeatures/dhs_intersections.be
 all_dhs <- read_tsv("../RawData/Sullivan_DHS_PE_peaks_control.bed.gz", col_names = F)
 fractionDHS <- nrow(dhsIntersections) / nrow(all_dhs) * 100
 
-# make barplot
-all_fractions <- c(fractionDHS, fractionUpstream, fractionUTR5, fractionExon, fractionIntrons,
-                   fractionUTR3, fractionDownstream, fractionPseudogenes, fractionTE)
-barplot_names <- c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogenes", "TE")
-intersection_df <- data.frame(all_fractions, barplot_names)
-
-pdf("../Plots/barplot_genomic_feature_intersections.pdf", height = 4, width = 4)
-barplot(intersection_df$all_fractions, names.arg = intersection_df$barplot_names, las=2, ylim = c(0, 50),
-        ylab = "Percentage contining TE insertion", main = "TE variant frequency in genomic features")
-dev.off()
+# Intergenic
+intergenicIntersections <- read_tsv("../ProcessedData/GeneFeatures/intergenic_intersections.bed.gz",
+                                    col_names = FALSE)
 
 # now look at rare/common insertion/deletion frequency in each feature
 # make a single dataframe with all the features, absence classification and frequency classification
@@ -279,6 +272,11 @@ df <- dhsIntersections %>%
   select(feature, FrequencyClassification, AbsenceClassification) %>%
   rbind(df)
 
+df <- intergenicIntersections %>%
+        mutate(feature = "Intergenic", FrequencyClassification = X12, AbsenceClassification = X10) %>%
+        select(feature, FrequencyClassification, AbsenceClassification) %>%
+        rbind(df)
+
 df %>%
   group_by(feature) %>%
   mutate(rare_perc = sum(FrequencyClassification == "Rare") / n() * 100,
@@ -289,7 +287,7 @@ df %>%
   select(feature, rare_perc:del_na_perc) %>% unique(.) -> insertionStats
 
 # make plots
-feature_order <-  c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogene", "TE")
+feature_order <-  c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogene", "TE", "Intergenic")
 
 insertionStats %>%
   select(feature, rare_perc, common_perc) %>%

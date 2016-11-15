@@ -21,6 +21,8 @@ Load all the tracks
 
 ```{r}
 genes <- import.gff("../RawData/TAIR10_GFF3_genes.gff.gz")
+# filter so only type == gene
+genes <- genes[genes$type == "gene"]
 te <- import("../RawData/TAIR9_TE.bed.gz",
              format = "bed",
              extraCols = c(strand = "character",
@@ -63,16 +65,6 @@ mcols(dhs) <- NULL
 Now extend gene coordinates 2 kb in each direction.
 
 ```{r extend_coords}
-# need to remove entries that cover the entire chromosome, they will overlap everything
-chromosome_entries <- width(ranges(genes)) > 10^6
-
-# check we have 5 chromosomes 
-sum(chromosome_entries)
-
-# now remove those entries
-genes <- genes[!chromosome_entries]
-
-# now extend 2 kb each direction
 extended_genes <- genes + 2000
 ```
 
@@ -95,29 +87,92 @@ tepid_coords <- makeGRangesFromDataFrame(tepid[,1:3])
 tepid_coords <- renameSeqlevels(tepid_coords, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
 ```
 
-Find the percentage of all intergenic regions that contain a TE insertion
 
 ```{r}
-length(subsetByOverlaps(intergenic, tepid_coords)) / length(intergenic) * 100
+fractionIntergenic <- length(subsetByOverlaps(intergenic, tepid_coords)) / length(intergenic) * 100
 ```
 
-Now try splitting up all intergenic regions longer than 1 kb. If longer than x kb, cut into x+1 equal bins, where x >= 1
+Write the intergenic regions to file
 
-```{r split_intergenic}
-gr <- GRanges()
-for(i in seq_along(intergenic)) {
-        l <- width(intergenic[i])
-        if(l < 1000) {
-                gr <- c(gr, intergenic[i])
-        } else {
-                gr <- c(gr, unlist(tile(intergenic[i], n = floor(l / 1000))))
-        }
-}
+```{r write}
+intergenic <- renameSeqlevels(intergenic, c("chr1", "chr2", "chr3", "chr4", "chr5"))
+write_tsv(as_data_frame(intergenic), "../ProcessedData/GeneFeatures/intergenic_regions.bed", col_names = FALSE)
 ```
 
-```{r intersect_tiled_intergenic}
-length(subsetByOverlaps(gr, tepid_coords)) / length(gr) * 100
+## Repeat all gene feature intersections
+
+Need to repeat everything as some intervals were counted twice if two TEs were inserted in them. This is what we want for the insertion/deletion rare/common enrichments for fig 2C, D, but not for the barplot.
+
+```{r}
+fractionGene <- length(subsetByOverlaps(genes, tepid_coords)) / length(genes) * 100
+fractionDHS <- length(subsetByOverlaps(dhs, tepid_coords)) / length(dhs) * 100
+fractionTE <- length(subsetByOverlaps(te, tepid_coords)) / length(te) * 100
+fractionPseudogene <- length(subsetByOverlaps(pseudogene, tepid_coords)) / length(pseudogene) * 100
 ```
 
-Let's go with the original, non-cut, data.
+Now need the other parts -- exon, intron, utr, upstream, downstream
+
+```{r read_regions}
+introns <- import("../ProcessedData/GeneFeatures/introns.bed.gz",
+                  format = "bed")
+exons <- import("../ProcessedData/GeneFeatures/exons.bed.gz",
+                format = "bed")
+utr3 <- import("../ProcessedData/GeneFeatures/utr3.bed.gz",
+               format = "bed")
+utr5 <- import("../ProcessedData/GeneFeatures/utr5.bed.gz",
+               format = "bed")
+upstream <- flank(genes, start = TRUE, both = FALSE, width = 2000)
+downstream <- flank(genes, start = FALSE, both = FALSE, width = 2000)
+
+# rename seq levels and drop metadata
+introns <- dropSeqlevels(introns, c("chrM", "chrC"))
+introns <- renameSeqlevels(introns, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+mcols(introns) <- NULL
+
+exons <- dropSeqlevels(exons, c("chrM", "chrC"))
+exons <- renameSeqlevels(exons, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+mcols(exons) <- NULL
+
+utr3 <- renameSeqlevels(utr3, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+mcols(utr3) <- NULL
+
+utr5 <- dropSeqlevels(utr5, c("chrM", "chrC"))
+utr5 <- renameSeqlevels(utr5, c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5"))
+mcols(utr5) <- NULL
+```
+
+Get the intersections with TE variants
+
+```{r}
+fractionIntron <- length(subsetByOverlaps(introns, tepid_coords)) / length(introns) * 100
+fractionExon <- length(subsetByOverlaps(exons, tepid_coords)) / length(exons) * 100
+fractionUTR3 <- length(subsetByOverlaps(utr3, tepid_coords)) / length(utr3) * 100
+fractionUTR5 <- length(subsetByOverlaps(utr5, tepid_coords)) / length(utr5) * 100
+fractionUpstream <- length(subsetByOverlaps(upstream, tepid_coords)) / length(upstream) * 100
+fractionDownstream <- length(subsetByOverlaps(downstream, tepid_coords)) / length(downstream) *100
+```
+
+```{r}
+all_fractions <- c(fractionDHS, fractionUpstream, fractionUTR5, fractionExon, fractionIntron,
+                   fractionUTR3, fractionDownstream, fractionPseudogene, fractionTE, fractionIntergenic)
+barplot_names <- c("DHS", "Upstream", "5' UTR", "Exon", "Intron", "3' UTR", "Downstream", "Pseudogenes", "TE", "Intergenic")
+intersection_df <- data.frame(all_fractions, barplot_names)
+```
+
+Barplot
+
+```{r}
+barplot(intersection_df$all_fractions, names.arg = intersection_df$barplot_names, las=2, ylim = c(0, 40),
+        ylab = "% contining TE insertion", main = "Genomic features")
+```
+
+Save plot
+
+```{r}
+pdf("../Plots/barplot_genomic_feature_intersections.pdf", height = 4, width = 4)
+barplot(intersection_df$all_fractions, names.arg = intersection_df$barplot_names, las=2, ylim = c(0, 40),
+        ylab = "% contining TE insertion", main = "Genomic features")
+dev.off()
+```
+
 
