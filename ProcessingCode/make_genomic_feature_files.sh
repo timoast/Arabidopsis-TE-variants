@@ -10,6 +10,7 @@
 # Pseudogenes
 # Other Col-0 TEs
 # DNase I hypersensitivity sites
+# nongenic, non DHS, non TE, non pseudogene
 
 # Information of the allele frequency or insertion classification (insertion or deletion)
 # can be found in the ProcessedData/GeneFeatures/*_intersections.bed.gz files
@@ -177,6 +178,14 @@ wc -l ../ProcessedData/GeneFeatures/dhs_intersections.bed \
 # record total number
 gunzip -c ../RawData/Sullivan_DHS_PE_peaks_control.bed.gz \
 | wc -l \
+>> ../ProcessedData/gene_feature_counts.csv
+
+# Intergenic regions
+bedtools intersect -a tepid_tepav.tsv -b ../ProcessedData/GeneFeatures/intergenic_regions.bed -wb \
+> ../ProcessedData/GeneFeatures/intergenic_intersections.bed
+
+# record total number
+wc -l ../ProcessedData/GeneFeatures/intergenic_regions.bed \
 >> ../ProcessedData/gene_feature_counts.csv
 
 rm tepid_tepav.tsv
