@@ -44,35 +44,31 @@ intron <- intron[!duplicated(intron),]
 utr5 <- utr5[!duplicated(utr5),]	
 utr3 <- utr3[!duplicated(utr3),]	
 downstream <- downstream[!duplicated(downstream),]	
-	
-find.len <- function(d) {	
-  return(length(unlist(strsplit(d, ","))))	
-}	
 
-# filter where insertion in at least 5 accessions (MAF >3%)	
+# filter where allele frequency definition is common	
 upstream %>%
-  rowwise() %>%
-  filter(find.len(pos_accessions) > 4) -> upstream.five	
+        rowwise() %>%
+        filter(X12 == "Common") -> upstream.five	
 	
 exon %>%
-  rowwise() %>%
-  filter(find.len(pos_accessions) > 4) -> exon.five	
+        rowwise() %>%
+        filter(X12 == "Common") -> exon.five	
 	
 intron %>%	
   rowwise() %>%	
-  filter(find.len(pos_accessions) > 4) -> intron.five	
+        filter(X12 == "Common") -> intron.five	
 	
 utr3 %>%	
   rowwise() %>%	
-  filter(find.len(pos_accessions) > 4) -> utr3.five	
+        filter(X12 == "Common") -> utr3.five	
 	
 utr5 %>%	
   rowwise() %>%	
-  filter(find.len(pos_accessions) > 4) -> utr5.five	
+        filter(X12 == "Common") -> utr5.five	
 	
 downstream %>%	
   rowwise() %>%	
-  filter(find.len(pos_accessions) > 4) -> downstream.five
+        filter(X12 == "Common") -> downstream.five
 
 lookupExp <- function(accessions, gene, exp) {	
   x <- vector()	
@@ -97,7 +93,7 @@ test.sig.cor <- function(genes, expression){
     ins.data <- ins.data[is.finite(ins.data)]	
     no.ins.data <- lookupExp(no.ins.acc, gene, expression)	
     no.ins.data <- no.ins.data[is.finite(no.ins.data)]	
-    if(length(ins.data) > 5 && length(no.ins.data) > 5) {	
+    if(length(ins.data) > 6 && length(no.ins.data) > 6) {	
       pval <- wilcox.test(ins.data, no.ins.data)[[3]]	
       r <- cor(c(ins.data, no.ins.data),	
           c(rep(1, length(ins.data)),	
