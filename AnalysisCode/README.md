@@ -1,7 +1,10 @@
 ## Code for running analyses on processed datasets
 
 ### TE insertion distribution  
-**TE_insertion_distribution.R**: Find the minor allele frequency distribution, distribution of TE variant lengths, and the genomic distribution of TE insertions, TE deletions, rare variants and common variants. Find the frequency of TE variants occurring in different genomic features, such as genes, DHS sites, other TEs or pseudogenes. Compare rare variants and common variants, and compare TE insertions to TE deletions.  
+**variants_per_accession.R**: Identify the number of true TE insertions and true TE deletions called for each accession in the population.  
+**coverage_vs_variants.R**: Examine the relationship between sequencing depth of coverage and the number of TE variants found.  
+**TE_insertion_distribution.R**: Find the minor allele frequency distribution, distribution of TE variant lengths, and the genomic distribution of TE insertions, TE deletions, rare variants and common variants.  
+**TE_genomic_features.Rmd**: Find the frequency of TE variants occurring in different genomic features, such as genes, DHS sites, other TEs, pseudogenes and intergenic regions.  
 **kee_regions.R**: Checks for TEPAV enrichments in the KNOT-engaged elements, calculate p-values and plot results as a histogram and a table.  
 **quadrana_overlap.sh**: Find the overlap between our set of TE variants and those found by Quadrana et al.  
 **coverage_vs_variants.R**: Plot the number of variants found in each accession vs the sequencing depth of coverage for that accession.  
