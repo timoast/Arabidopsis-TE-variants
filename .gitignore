@@ -64,6 +64,6 @@ target/
 # R
 .Rhistory
 
-Plots/FinalFigures/
+Plots/
 
 *.ai
