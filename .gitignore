@@ -67,3 +67,11 @@ target/
 Plots/
 
 *.ai
+
+# Latex files
+*.aux
+*.bbl
+*.blg
+*.out
+*.run.xml
+Paper/paper-blx.bib
