@@ -1,0 +1,88 @@
+---
+title: "basho"
+author: "Tim Stuart"
+date: "20/11/2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Basho allele frequencies
+
+Aim: compare the estimated allele frequencies for TEs genotyped by Hollister and Gaut (2007) to my allele frequencies for the same TEs using the 1001 genomes read data.
+
+First, read in the data we need:
+
+```{r libraries, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(GenomicRanges)
+library(rtracklayer)
+```
+
+
+```{r load_data}
+basho <- read_csv("../RawData/Gaut_basho_supplement.csv", skip = 1)
+tepav <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz")
+colnames(basho) <- make.names(colnames(basho))
+basho_gr <- basho[,c(3:5, 8)] %>%
+        makeGRangesFromDataFrame(start.field = "Testart..bp.", end.field = "Teend..bp.",
+                                 keep.extra.columns = TRUE)
+basho_gr <- renameSeqlevels(basho_gr, c("chr1", "chr2", "chr3", "chr4", "chr5"))
+
+te <- import("../../TEPID/Annotation/Arabidopsis/TAIR9_TE.bed.gz",
+             format = "bed",
+             extraCols = c(strand = "character",
+                           TE = "character",
+                           family = "character",
+                           superfamily = "character"))
+```
+
+For each TE set of coordinates in the basho set, find what TE overlaps and record this information. Then get the number of accessions predicted to contain/lack that TE from my data, and the genotyping results from Gaut.
+
+```{r}
+hits <- findOverlaps(te, basho_gr)
+basho_hits <- as_data_frame(basho_gr[subjectHits(hits),])
+```
+
+```{r}
+te_hits <- as_data_frame(te[queryHits(hits),])
+```
+
+```{r}
+basho_hits$TE <- te_hits$TE
+```
+
+Now join with the TEPAV data
+
+```{r}
+dat <- left_join(basho_hits, tepav, by = "TE") %>%
+        rowwise() %>%
+        filter("Col-0" %in% unlist(strsplit(Accessions_TE_present, ","))) %>%
+        select(Occ..Freq., Count_TE_present)
+
+p <- ggplot(dat, aes(Occ..Freq., Count_TE_present/216)) + geom_point() +
+        geom_smooth(method = "lm", se = FALSE) +
+        xlab("Occupation frequency Hollister and Gaut (2007)") +
+        ylab("Occupation frequency TEPID data") +
+        theme_bw() +
+        ggtitle("Basho TE allele frequencies")
+
+p
+```
+
+Save plot
+
+```{r}
+ggsave("../Plots/basho_alleles.pdf", p, height = 10, width = 15, units = "cm", useDingbats = FALSE)
+```
+
+
+
+```{r}
+model <- lm(dat$Occ..Freq. ~ dat$Count_TE_present)
+summary(model)
+```
