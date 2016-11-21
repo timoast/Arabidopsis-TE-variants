@@ -31,7 +31,7 @@ df %>%
         annotate("text", x = 30, y = 12, label = "Col-0") +
         xlab("True deleltions") + ylab("Number of accessions") +
         ggtitle("True deletions per accession") +
-        ggsave("../Plots/deletions_per_accession.png", height = 5, width = 10, dpi = 600)
+        ggsave("../Plots/deletions_per_accession.pdf", height = 10, width = 15, units = "cm")
 
 # insertions
 dat <- read_tsv("../RawData/TEPID_TEPAV.tsv.gz") %>%
@@ -61,4 +61,4 @@ ins_df %>%
         annotate("text", x = 410, y = 15, label = "Col-0") +
         xlab("TE insertions") + ylab("Number of accessions") +
         ggtitle("True insertions per accession") + 
-        ggsave("../Plots/insertions_per_accession.png", height = 5, width = 10, dpi = 600)
+        ggsave("../Plots/insertions_per_accession.pdf", height = 10, width = 15, units = "cm")
